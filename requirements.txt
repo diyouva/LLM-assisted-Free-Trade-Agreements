@@ -1,0 +1,26 @@
+# PDF extraction
+pdfplumber>=0.11
+pymupdf>=1.24
+pytesseract>=0.3       # OCR for scanned PDFs (needs: brew install tesseract)
+Pillow>=10.0
+
+# Vector database & embeddings
+chromadb>=1.0
+sentence-transformers>=3.0
+
+# FREE LLM APIs
+groq>=0.9              # LLaMA 3 via Groq (free key: console.groq.com)
+google-genai>=1.0         # Gemini via AI Studio (free key: aistudio.google.com)
+
+# Optional paid APIs
+anthropic>=0.28
+openai>=1.30
+tiktoken>=0.7
+
+# Data & visualisation
+tqdm>=4.66
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.8
+jupyter>=1.0
+ipykernel>=6.0
