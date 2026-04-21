@@ -69,7 +69,7 @@ def main():
         choices=["1", "extract", "2", "embed", "3", "classify", "4", "compare", "all"],
     )
     parser.add_argument("--model",    default="llama",
-                        choices=["llama", "gemini", "claude", "openai"])
+                        choices=["llama", "qwen", "claude", "openai"])
     parser.add_argument("--strategy", default="zero_shot",
                         choices=["zero_shot", "few_shot", "cot"])
     parser.add_argument("--limit",    type=int, default=200,

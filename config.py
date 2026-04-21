@@ -2,8 +2,8 @@
 Central configuration for the FTA Comparative Analysis project.
 
 Free models used (no payment required):
-  - LLaMA 3  → Groq API  (free key at console.groq.com)
-  - Gemini   → Google AI Studio (free key at aistudio.google.com)
+  - LLaMA 3.3 70B → Groq API (free key at console.groq.com)
+  - Qwen 3 32B    → Groq API (same key, Alibaba Cloud model)
 """
 
 import os
