@@ -75,7 +75,7 @@ Be specific and cite the agreements by name. Keep your analysis concise (under 4
 
 def compare_category(
     category: str,
-    model: str = "claude",
+    model: str = "qwen",
     n_provisions: int = 3,
 ) -> dict:
     """
@@ -83,7 +83,7 @@ def compare_category(
 
     Args:
         category:      One of the POLICY_CATEGORIES.
-        model:         'claude' or 'openai'.
+        model:         'llama', 'qwen', 'claude', or 'openai'.
         n_provisions:  Number of provisions to retrieve per agreement.
 
     Returns:

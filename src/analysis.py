@@ -137,6 +137,7 @@ def run_all():
     runs = {
         "llama_zero_shot": _load("classified_llama_zero_shot.json"),
         "llama_few_shot":  _load("classified_llama_few_shot.json"),
+        "llama_cot":       _load("classified_llama_cot.json"),
         "qwen_zero_shot":  _load("classified_qwen_zero_shot.json"),
         "qwen_few_shot":   _load("classified_qwen_few_shot.json"),
         "qwen_cot":        _load("classified_qwen_cot.json"),

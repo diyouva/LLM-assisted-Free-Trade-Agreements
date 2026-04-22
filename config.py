@@ -74,7 +74,7 @@ OPENAI_MODEL = "gpt-4o"
 
 # ── API keys (from environment) ────────────────────────────────────────────────
 # Free keys — get them at:
-#   Groq : https://console.groq.com → GROQ_API_KEY  (used for both LLaMA and Gemma)
+#   Groq : https://console.groq.com → GROQ_API_KEY  (used for both LLaMA and Qwen)
 GROQ_API_KEY      = os.getenv("GROQ_API_KEY", "")
 
 # Optional paid keys

@@ -11,8 +11,8 @@ Steps:
   all             – Run steps 1→4 in order
 
 Example:
-    python run_pipeline.py --step all --model claude
-    python run_pipeline.py --step classify --model openai --strategy few_shot --limit 100
+    python run_pipeline.py --step all --model qwen
+    python run_pipeline.py --step classify --model llama --strategy few_shot --limit 100
 """
 
 import argparse

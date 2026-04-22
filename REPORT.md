@@ -240,7 +240,7 @@ The tool is not ready for autonomous use. The accuracy ceiling, single-annotator
 
 This project demonstrates that an LLM-based pipeline can extract, classify, and comparatively analyse FTA provisions at a scale and speed that manual review cannot match. Three key findings stand out:
 
-**Model and prompt engineering decisions matter more than expected.** Qwen's few-shot performance was *worse* than its zero-shot baseline; its chain-of-thought performance was the best result in the study. LLaMA showed the opposite pattern on few-shot. These differences were discovered through systematic validation — not apparent from reading the model documentation or testing on one or two examples.
+**Model and prompt engineering decisions matter more than expected — and interact with model architecture in surprising ways.** Chain-of-thought prompting raised Qwen's macro-F1 by 10 points (best result in the study) but *lowered* LLaMA's by 6 points (worst result in the study). Few-shot examples helped LLaMA but hurt Qwen. The two models respond to prompting techniques in exactly opposite directions. This cross-model asymmetry was only discoverable through systematic validation — not from model documentation or casual testing.
 
 **The agreements are structurally more different than their shared ASEAN context suggests.** AHKFTA is a goods-only instrument that lacks services, investment, and dispute settlement chapters. It shares RCEP's 40% RVC threshold but uses a stricter transformation rule. AANZFTA delegates threshold definitions to annexes in a way that makes automatic extraction harder. These are real differences with real compliance implications, and the pipeline surfaces them in a structured format.
 
@@ -266,7 +266,7 @@ PDFs → extraction.py → all_provisions.json (3,980 provisions)
 **Models:** LLaMA 3.3 70B (Meta, via Groq free tier) and Qwen 3 32B (Alibaba Cloud, via Groq free tier).
 **Strategies:** zero-shot, few-shot (2 curated examples), chain-of-thought (step-by-step reasoning).
 **Classification runs:** 6 main runs (200 provisions each, CoT capped at 100 by API quota) + 1 stratified run (300 provisions, 100 per agreement).
-**Validation:** 50-provision stratified gold set, hand-labelled by author; 5 of 6 model-strategy combinations evaluated (LLaMA CoT excluded — API quota exhausted).
+**Validation:** 50-provision stratified gold set, hand-labelled by author; all 6 model-strategy combinations evaluated.
 
 ## Appendix B — Repository Layout
 

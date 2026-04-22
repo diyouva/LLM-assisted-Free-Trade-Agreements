@@ -150,6 +150,6 @@ A hybrid approach is used: **regex** extracts deterministic numeric fields (e.g.
 ## 10. Known Limitations
 
 1. **Legal language ambiguity.** "Other" captures provisions that span multiple categories; future work could use multi-label classification.
-2. **Free-tier quotas.** LLaMA CoT was run on 100 provisions rather than the full 200 because Groq's daily token budget was exhausted; results pending re-run.
-3. **Attribute extraction pending at time of writing.** Structured fields (RVC %, phase-out years) for the stratified sample will be produced after the stratified classification job completes.
+2. **Free-tier quotas.** LLaMA CoT validation required a separate day's quota allocation (100,000 tokens/day rolling window). Completed result: accuracy 0.480, macro-F1 0.527 — the lowest of all six runs, confirming that CoT hurts LLaMA while helping Qwen.
+3. **Attribute extraction complete.** Structured fields (RVC %, CTC rule, phase-out years) extracted for Rules of Origin and Tariff Commitment provisions in the stratified sample. Results in `data/results/attributes_roo.json` and `attributes_tariff.json`.
 4. **Agreements limited to three** (RCEP, AHKFTA, AANZFTA) by design — the framework generalises to any FTA with a PDF text layer.
