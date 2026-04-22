@@ -18,5 +18,4 @@ data/processed/
 
 # macOS
 .DS_Store
-.claude/settings.local.json
-.claude/launch.json
+.claude/
