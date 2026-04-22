@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FTA LLM — Comparative Analysis Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3250;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --green: #22c55e;
+    --orange: #f97316;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --rcep: #4f8ef7;
+    --ahkfta: #f97316;
+    --aanzfta: #22c55e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  #sidebar {
+    width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; z-index: 10;
+  }
+  .logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); }
+  .logo h1 { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; }
+  .logo p { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  nav { padding: 16px 0; flex: 1; overflow-y: auto; }
+  nav a {
+    display: flex; align-items: center; gap: 10px; padding: 9px 20px;
+    color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500;
+    transition: all .15s; cursor: pointer; border-left: 3px solid transparent;
+  }
+  nav a:hover { color: var(--text); background: var(--surface2); }
+  nav a.active { color: var(--accent); background: rgba(79,142,247,.08); border-left-color: var(--accent); }
+  nav .section-label { padding: 16px 20px 6px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+
+  /* Main */
+  #main { margin-left: 240px; flex: 1; padding: 32px; max-width: 1200px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Page header */
+  .page-header { margin-bottom: 28px; }
+  .page-header h2 { font-size: 22px; font-weight: 700; color: var(--text); }
+  .page-header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--card-color, var(--accent));
+  }
+  .card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .card .value { font-size: 28px; font-weight: 700; margin-top: 8px; color: var(--card-color, var(--text)); }
+  .card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* Panels */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .panel-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* Grid 2col */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+
+  /* Tables */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { background: var(--surface2); color: var(--muted); font-weight: 600; text-align: left; padding: 10px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .tbl td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: var(--surface2); }
+  .tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl .best td { color: var(--green); font-weight: 600; }
+  .tbl .worst td { color: var(--muted); }
+
+  /* Badge */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-convergent { background: rgba(34,197,94,.15); color: var(--green); }
+  .badge-fragmented { background: rgba(249,115,22,.15); color: var(--orange); }
+  .badge-rcep { background: rgba(79,142,247,.15); color: var(--rcep); }
+  .badge-ahkfta { background: rgba(249,115,22,.15); color: var(--ahkfta); }
+  .badge-aanzfta { background: rgba(34,197,94,.15); color: var(--aanzfta); }
+
+  /* Bar chart wrapper */
+  .chart-wrap { position: relative; height: 280px; }
+  .chart-wrap-lg { position: relative; height: 380px; }
+
+  /* κ heat cell */
+  .kappa-positive { color: var(--green); font-weight: 600; }
+  .kappa-near-zero { color: var(--yellow); }
+  .kappa-negative { color: var(--red); font-weight: 600; }
+
+  /* Agreement comparison pills */
+  .agreement-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
+  .agr-tag { min-width: 72px; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: center; }
+
+  /* Narrative accordion */
+  .narrative { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .narrative-header {
+    padding: 14px 18px; background: var(--surface2); cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; font-weight: 600; transition: background .15s;
+  }
+  .narrative-header:hover { background: #2a2f47; }
+  .narrative-header .arrow { transition: transform .2s; color: var(--muted); }
+  .narrative-header.open .arrow { transform: rotate(180deg); }
+  .narrative-body { padding: 18px; background: var(--surface); display: none; font-size: 13px; line-height: 1.7; color: var(--text); }
+  .narrative-body.open { display: block; }
+  .narrative-body strong { color: var(--accent); }
+
+  /* Figures grid */
+  .fig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .fig-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .fig-card img { width: 100%; display: block; background: #fff; }
+  .fig-card .fig-label { padding: 10px 14px; font-size: 12px; color: var(--muted); }
+
+  /* Progress bars */
+  .progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+
+  /* Heatmap cell colors */
+  .heat-0 { background: rgba(79,142,247,0.05); }
+  .heat-1 { background: rgba(79,142,247,0.15); }
+  .heat-2 { background: rgba(79,142,247,0.30); }
+  .heat-3 { background: rgba(79,142,247,0.50); }
+  .heat-4 { background: rgba(79,142,247,0.70); color: #fff; font-weight: 700; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .cards { grid-template-columns: repeat(2,1fr); }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .fig-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="logo">
+    <h1>FTA LLM Analysis</h1>
+    <p>Diyouva Christa Novith<br>CMU · Spring 2026</p>
+  </div>
+  <nav>
+    <div class="section-label">Dashboard</div>
+    <a onclick="showPage('overview')" class="active">📊 Overview</a>
+    <div class="section-label">Results</div>
+    <a onclick="showPage('validation')">✅ Validation</a>
+    <a onclick="showPage('kappa')">🔁 Inter-Run Agreement</a>
+    <a onclick="showPage('distribution')">📋 Provision Distribution</a>
+    <a onclick="showPage('convergence')">🌐 Convergence Analysis</a>
+    <div class="section-label">Policy</div>
+    <a onclick="showPage('design')">⚖️ Policy Design Matrix</a>
+    <a onclick="showPage('comparison')">🔍 RAG Comparisons</a>
+    <div class="section-label">Assets</div>
+    <a onclick="showPage('figures')">🖼 Figures</a>
+  </nav>
+  <div class="sidebar-footer">RCEP · AHKFTA · AANZFTA</div>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- ═══════════════════════════════════════════ OVERVIEW ═══ -->
+  <div id="page-overview" class="page active">
+    <div class="page-header">
+      <h2>Project Overview</h2>
+      <p>A computational pipeline to extract, classify, and compare ASEAN FTA provisions using Large Language Models.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card" style="--card-color:#4f8ef7">
+        <div class="label">Total Provisions</div>
+        <div class="value">3,980</div>
+        <div class="sub">Across 3 agreements, 7 PDFs</div>
+      </div>
+      <div class="card" style="--card-color:#22c55e">
+        <div class="label">Best Macro-F1</div>
+        <div class="value">0.693</div>
+        <div class="sub">Qwen 3 32B — Chain-of-Thought</div>
+      </div>
+      <div class="card" style="--card-color:#7c3aed">
+        <div class="label">LLM Runs</div>
+        <div class="value">6</div>
+        <div class="sub">2 models × 3 prompt strategies</div>
+      </div>
+      <div class="card" style="--card-color:#f97316">
+        <div class="label">Policy Categories</div>
+        <div class="value">11</div>
+        <div class="sub">WTO/UNCTAD taxonomy</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--rcep)"></span>Corpus Breakdown</div>
+        <div class="chart-wrap"><canvas id="corpusChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Research Questions</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">RQ1 — Reliable Classification</div>
+            <div style="font-size:13px;color:var(--text)">Can LLMs classify FTA provisions into standardized policy categories? How does accuracy vary across prompt strategies?</div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — Best: Qwen CoT, 70.0% accuracy, F1=0.693</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">RQ2 — Policy Design Differences</div>
+            <div style="font-size:13px;color:var(--text)">How do comparable provisions differ across agreements in observable design features — thresholds, flexibility, governance?</div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — CTH vs CC, RVC 40%, AHKFTA goods-only</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">RQ3 — Convergence or Fragmentation</div>
+            <div style="font-size:13px;color:var(--text)">Do agreements exhibit convergence or fragmentation in their legal design reflecting regional trade dynamics?</div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — RoO/Tariff fragmented; Dispute/GP convergent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Pipeline Architecture</div>
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:12px">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center">
+          <div style="font-weight:700;color:var(--accent)">PDFs (7)</div>
+          <div style="color:var(--muted);margin-top:2px">3 FTAs</div>
+        </div>
+        <div style="color:var(--muted);padding:0 10px">→</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center">
+          <div style="font-weight:700;color:var(--text)">Extraction</div>
+          <div style="color:var(--muted);margin-top:2px">pdfplumber + OCR</div>
+        </div>
+        <div style="color:var(--muted);padding:0 10px">→</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center">
+          <div style="font-weight:700;color:var(--text)">Embeddings</div>
+          <div style="color:var(--muted);margin-top:2px">ChromaDB + MiniLM</div>
+        </div>
+        <div style="color:var(--muted);padding:0 10px">→</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center">
+          <div style="font-weight:700;color:var(--text)">Classification</div>
+          <div style="color:var(--muted);margin-top:2px">LLaMA + Qwen × 3 strategies</div>
+        </div>
+        <div style="color:var(--muted);padding:0 10px">→</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center">
+          <div style="font-weight:700;color:var(--text)">RAG Comparison</div>
+          <div style="color:var(--muted);margin-top:2px">Cross-agreement narratives</div>
+        </div>
+        <div style="color:var(--muted);padding:0 10px">→</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center">
+          <div style="font-weight:700;color:var(--text)">Validation</div>
+          <div style="color:var(--muted);margin-top:2px">50-provision gold set</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--rcep)"></span>RCEP</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">15 nations · Signed 2020 · In force 2022<br>20 chapters · 2,129 provisions (53.5%)</div>
+        <div style="margin-top:12px;font-size:12px">Includes: Services, Investment, IP, Dispute Settlement</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--ahkfta)"></span>AHKFTA</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">ASEAN + Hong Kong · Signed 2017 · In force 2019<br>353 provisions (8.9%)</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--orange)">Goods-focused: No Services, Investment, or Dispute Settlement chapters</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--aanzfta)"></span>AANZFTA</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">ASEAN + AU + NZ · Signed 2009 · Amended 2014<br>1,498 provisions (37.6%)</div>
+        <div style="margin-top:12px;font-size:12px">Includes: Services, Investment (Ch.11), Dispute Settlement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ VALIDATION ═══ -->
+  <div id="page-validation" class="page">
+    <div class="page-header">
+      <h2>Validation Results</h2>
+      <p>All 6 model-strategy combinations evaluated against a 50-provision hand-labelled gold set (stratified: ~17 per agreement).</p>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Accuracy by Run</div>
+        <div class="chart-wrap"><canvas id="accChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Macro-F1 by Run</div>
+        <div class="chart-wrap"><canvas id="f1Chart"></canvas></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Full Validation Table</div>
+      <table class="tbl">
+        <thead><tr><th>Model</th><th>Strategy</th><th class="num">Accuracy</th><th class="num">Macro-F1</th><th class="num">n</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>Qwen 3 32B</td><td>Chain-of-Thought</td><td class="num">0.700</td><td class="num">0.693</td><td class="num">50</td><td>🏆 Best F1</td></tr>
+          <tr><td>LLaMA 3.3 70B</td><td>Zero-Shot</td><td class="num">0.700</td><td class="num">0.591</td><td class="num">50</td><td>Tied accuracy, lower F1</td></tr>
+          <tr><td>LLaMA 3.3 70B</td><td>Few-Shot</td><td class="num">0.680</td><td class="num">0.635</td><td class="num">50</td><td>Few-shot helps LLaMA</td></tr>
+          <tr><td>Qwen 3 32B</td><td>Zero-Shot</td><td class="num">0.680</td><td class="num">0.596</td><td class="num">50</td><td></td></tr>
+          <tr><td>Qwen 3 32B</td><td>Few-Shot</td><td class="num">0.580</td><td class="num">0.540</td><td class="num">50</td><td>Few-shot hurts Qwen</td></tr>
+          <tr class="worst"><td>LLaMA 3.3 70B</td><td>Chain-of-Thought</td><td class="num">0.480</td><td class="num">0.527</td><td class="num">50</td><td>CoT hurts LLaMA</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Key Insight: Opposite Response to Prompting</div>
+      <div class="grid2" style="margin-bottom:0">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px">Qwen 3 32B — CoT is best strategy</div>
+          <div style="font-size:13px;line-height:1.7;color:var(--muted)">
+            Zero-shot → Few-shot: <span style="color:var(--red)">↓ 0.596 → 0.540 (−5.6pp)</span><br>
+            Zero-shot → CoT: <span style="color:var(--green)">↑ 0.596 → 0.693 (+9.7pp)</span><br><br>
+            CoT gives Qwen reasoning space to work through legal-text ambiguity before committing to a label.
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">CoT Effect on Macro-F1</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:69.3%;background:var(--green)"></div></div>
+            <div style="font-size:11px;color:var(--green);margin-top:4px">0.693</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:10px">LLaMA 3.3 70B — Few-shot is best strategy</div>
+          <div style="font-size:13px;line-height:1.7;color:var(--muted)">
+            Zero-shot → Few-shot: <span style="color:var(--green)">↑ 0.591 → 0.635 (+4.4pp)</span><br>
+            Zero-shot → CoT: <span style="color:var(--red)">↓ 0.591 → 0.527 (−6.4pp)</span><br><br>
+            CoT introduces over-elaboration in LLaMA, degrading the final label. In-context examples anchor it correctly.
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">CoT Effect on Macro-F1</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:52.7%;background:var(--red)"></div></div>
+            <div style="font-size:11px;color:var(--red);margin-top:4px">0.527 (worst run)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ KAPPA ═══ -->
+  <div id="page-kappa" class="page">
+    <div class="page-header">
+      <h2>Inter-Run Agreement (Cohen's κ)</h2>
+      <p>Cohen's κ measures classification consistency between runs. 1.0 = perfect, 0 = chance, negative = worse than chance.</p>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Pairwise κ Table</div>
+      <table class="tbl">
+        <thead><tr><th>Run A</th><th>Run B</th><th class="num">κ</th><th class="num">n shared</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr><td>LLaMA zero-shot</td><td>LLaMA few-shot</td><td class="num kappa-positive">0.51</td><td class="num">200</td><td>Moderate — same model responds consistently to examples</td></tr>
+          <tr><td>LLaMA zero-shot</td><td>Qwen zero-shot</td><td class="num kappa-near-zero">0.26</td><td class="num">200</td><td>Fair — some cross-model overlap</td></tr>
+          <tr><td>LLaMA zero-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.18</td><td class="num">100</td><td>Slight</td></tr>
+          <tr><td>LLaMA few-shot</td><td>Qwen zero-shot</td><td class="num kappa-near-zero">0.22</td><td class="num">200</td><td>Slight</td></tr>
+          <tr><td>LLaMA zero-shot</td><td>Qwen few-shot</td><td class="num kappa-near-zero">0.14</td><td class="num">200</td><td>Slight</td></tr>
+          <tr><td>LLaMA few-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.22</td><td class="num">100</td><td>Slight</td></tr>
+          <tr><td>Qwen zero-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.21</td><td class="num">100</td><td>Slight — CoT shifts Qwen's labels substantially</td></tr>
+          <tr><td>Qwen zero-shot</td><td>Qwen few-shot</td><td class="num kappa-near-zero">0.02</td><td class="num">200</td><td>Near-random — few-shot disrupts Qwen's output space</td></tr>
+          <tr><td>Qwen few-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.03</td><td class="num">100</td><td>Near-random</td></tr>
+          <tr><td>LLaMA few-shot</td><td>Qwen few-shot</td><td class="num kappa-negative">−0.02</td><td class="num">200</td><td style="color:var(--red)">⚠️ Worse than chance — models label independently</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Implication for Policy Use</div>
+      <div style="font-size:13px;line-height:1.8;color:var(--text)">
+        <p>A cross-model κ of <strong style="color:var(--red)">−0.02</strong> between LLaMA few-shot and Qwen few-shot means the two models are labelling provisions <strong>independently of each other</strong>. Neither can serve as a ground truth for the other.</p>
+        <p style="margin-top:12px">This has a critical implication: <strong style="color:var(--yellow)">individual provision labels are noisy and should not be used for compliance-grade decisions.</strong> The correct application is aggregate distribution analysis — asking <em>"how many provisions in AHKFTA address Rules of Origin?"</em> rather than <em>"is this specific provision a Rules of Origin provision?"</em></p>
+        <p style="margin-top:12px">The highest κ (0.51) is within-model (LLaMA zero-shot vs. few-shot), confirming that prompt strategy consistency matters more than model size for reproducibility.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ DISTRIBUTION ═══ -->
+  <div id="page-distribution" class="page">
+    <div class="page-header">
+      <h2>Provision Distribution</h2>
+      <p>Stratified sample: 100 provisions per agreement (seed 42) classified by Qwen few-shot. Corrects for RCEP's 53.5% corpus share.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Provision Count by Category × Agreement</div>
+        <div class="chart-wrap-lg"><canvas id="distChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Provision Count Table</div>
+        <table class="tbl">
+          <thead><tr><th>Category</th><th class="num" style="color:var(--rcep)">RCEP</th><th class="num" style="color:var(--ahkfta)">AHKFTA</th><th class="num" style="color:var(--aanzfta)">AANZFTA</th><th class="num">Total</th></tr></thead>
+          <tbody id="distTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Key Structural Differences</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <span class="badge badge-ahkfta">AHKFTA</span>
+          <div style="font-size:13px;line-height:1.6"><strong>Rules of Origin heavy</strong> — 28% of sample vs 9% for RCEP. Stricter transformation rules (CC vs CTH) mean more text dedicated to origin criteria. Zero provisions in Trade in Services, Dispute Settlement, and Intellectual Property.</div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <span class="badge badge-rcep">RCEP</span>
+          <div style="font-size:13px;line-height:1.6"><strong>Broadest coverage</strong> — 12 Trade in Services provisions, 9 Dispute Settlement, 4 Intellectual Property, 9 NTMs. Reflects its 15-party plurilateral scope.</div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <span class="badge badge-aanzfta">AANZFTA</span>
+          <div style="font-size:13px;line-height:1.6"><strong>Investment leader</strong> — 9 Investment provisions vs 3 for RCEP and 2 for AHKFTA. Dedicated Chapter 11. Thresholds delegated to annexes, reducing main-text numeric extraction.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ CONVERGENCE ═══ -->
+  <div id="page-convergence" class="page">
+    <div class="page-header">
+      <h2>Convergence Analysis</h2>
+      <p>Entropy-based signal: how evenly each policy category is distributed across the three agreements. High entropy = convergent. Low entropy = fragmented.</p>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Entropy Ratio by Category</div>
+      <div class="chart-wrap-lg"><canvas id="convergenceChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Convergence Signal Table</div>
+      <table class="tbl">
+        <thead><tr><th>Category</th><th class="num">RCEP</th><th class="num">AHKFTA</th><th class="num">AANZFTA</th><th class="num">Entropy Ratio</th><th>Signal</th></tr></thead>
+        <tbody id="convergenceTable"></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Policy Interpretation</div>
+      <div style="font-size:13px;line-height:1.8">
+        <p><strong style="color:var(--green)">Convergent areas</strong> (Customs Procedures, Other/Admin) suggest a shared regional template is emerging — likely influenced by WTO rules and prior ASEAN FTA experience. These are lower-stakes areas where harmonisation is easier.</p>
+        <p style="margin-top:10px"><strong style="color:var(--orange)">Fragmented areas</strong> (Rules of Origin, Trade in Services, Dispute Settlement) are where each agreement follows a distinct design. These are also the areas exporters and compliance officers care most about — confirming that the "spaghetti bowl" problem is concentrated precisely where it matters most.</p>
+        <p style="margin-top:10px">AHKFTA's zero count in Trade in Services, Dispute Settlement, and IP categories drives the fragmentation signal for those domains — it's not policy disagreement, it's structural scope difference.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ POLICY DESIGN ═══ -->
+  <div id="page-design" class="page">
+    <div class="page-header">
+      <h2>Policy Design Matrix</h2>
+      <p>Synthesised from RAG comparison analysis — key observable differences in how each agreement approaches major trade topics.</p>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span>Feature Comparison</div>
+      <table class="tbl">
+        <thead><tr><th>Feature</th><th style="color:var(--rcep)">RCEP</th><th style="color:var(--ahkfta)">AHKFTA</th><th style="color:var(--aanzfta)">AANZFTA</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Tariff Amendment</strong></td>
+            <td>Consensus + formal procedure; unilateral importer notification</td>
+            <td>HS 2012 reference; product-specific exporter choice</td>
+            <td>Unilateral modification rights; selective HS concessions</td>
+          </tr>
+          <tr>
+            <td><strong>Rules of Origin Governance</strong></td>
+            <td>Committee (Annex 3A/3B); CTH rule</td>
+            <td>Sub-Committee; <strong style="color:var(--orange)">CC rule — stricter transformation</strong></td>
+            <td>Certificate-based; exporter compliance burden</td>
+          </tr>
+          <tr>
+            <td><strong>RVC Threshold</strong></td>
+            <td style="color:var(--green)">40%</td>
+            <td style="color:var(--green)">40%</td>
+            <td style="color:var(--muted)">Not recovered in main text (in schedules)</td>
+          </tr>
+          <tr>
+            <td><strong>CTC Rule</strong></td>
+            <td>CTH (Change at Heading level)</td>
+            <td style="color:var(--orange)">CC (Change at Chapter level) — MORE restrictive</td>
+            <td style="color:var(--muted)">Not recovered in main text</td>
+          </tr>
+          <tr>
+            <td><strong>Dispute Settlement</strong></td>
+            <td>Own mechanism; independent of WTO DSU</td>
+            <td style="color:var(--orange)">WTO DSU as explicit reference — no own mechanism</td>
+            <td>Own mechanism; adjudication + arbitration</td>
+          </tr>
+          <tr>
+            <td><strong>Investment Coverage</strong></td>
+            <td>Dedicated Ch.10; national treatment</td>
+            <td style="color:var(--red)">Not present</td>
+            <td style="color:var(--green)">Dedicated Ch.11; national treatment; ISDS</td>
+          </tr>
+          <tr>
+            <td><strong>Customs Procedures</strong></td>
+            <td>Direct consignment requirements</td>
+            <td>No legalisation / authentication required</td>
+            <td>Risk-based clearance for low-risk goods</td>
+          </tr>
+          <tr>
+            <td><strong>Services Coverage</strong></td>
+            <td>Mode 1–4; schedule of commitments</td>
+            <td style="color:var(--red)">Not present</td>
+            <td>Mode 1–4; schedule of commitments</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Critical Compliance Finding: CC vs CTH</div>
+      <div style="font-size:13px;line-height:1.8;padding:4px">
+        <p>RCEP and AHKFTA <strong>both use a 40% Regional Value Content (RVC) threshold</strong> — the ASEAN standard. However, they differ on the Change in Tariff Classification (CTC) rule:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
+          <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:8px;padding:14px">
+            <div style="font-weight:700;color:var(--rcep);margin-bottom:8px">RCEP — CTH (Heading level)</div>
+            <div style="color:var(--muted)">Requires change at the 4-digit HS heading level. Allows transformation within the same chapter (2 digits). Easier to satisfy.</div>
+          </div>
+          <div style="background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.2);border-radius:8px;padding:14px">
+            <div style="font-weight:700;color:var(--ahkfta);margin-bottom:8px">AHKFTA — CC (Chapter level)</div>
+            <div style="color:var(--muted)">Requires change at the 2-digit HS chapter level. Demands more substantial transformation of goods. Harder to satisfy.</div>
+          </div>
+        </div>
+        <p><strong style="color:var(--yellow)">Practical impact:</strong> The same goods can qualify for preferential treatment under RCEP but not AHKFTA — a real compliance risk for exporters operating under both agreements simultaneously.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ COMPARISON ═══ -->
+  <div id="page-comparison" class="page">
+    <div class="page-header">
+      <h2>RAG Cross-Agreement Comparisons</h2>
+      <p>LLM-generated comparative analysis for each policy category. Produced by Qwen 3 32B using top-3 semantically retrieved provisions per agreement.</p>
+    </div>
+    <div id="narrativeContainer"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ FIGURES ═══ -->
+  <div id="page-figures" class="page">
+    <div class="page-header">
+      <h2>Generated Figures</h2>
+      <p>8 publication-quality figures produced by <code>python -m src.visualize</code>.</p>
+    </div>
+    <div class="fig-grid">
+      <div class="fig-card">
+        <img src="data/results/fig_corpus_overview.png" alt="Corpus Overview" onerror="this.style.display='none'">
+        <div class="fig-label">fig_corpus_overview.png — Provisions per agreement and document type</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_category_heatmap.png" alt="Category Heatmap" onerror="this.style.display='none'">
+        <div class="fig-label">fig_category_heatmap.png — Category distribution (%) across all runs</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_kappa_matrix.png" alt="Kappa Matrix" onerror="this.style.display='none'">
+        <div class="fig-label">fig_kappa_matrix.png — Cohen's κ inter-run agreement matrix</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_category_x_agreement.png" alt="Category x Agreement" onerror="this.style.display='none'">
+        <div class="fig-label">fig_category_x_agreement.png — Provision counts: category × agreement (stratified)</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_strategy_effect_llama.png" alt="Strategy Effect LLaMA" onerror="this.style.display='none'">
+        <div class="fig-label">fig_strategy_effect_llama.png — Prompt strategy effect on category distribution (LLaMA)</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_strategy_effect_qwen.png" alt="Strategy Effect Qwen" onerror="this.style.display='none'">
+        <div class="fig-label">fig_strategy_effect_qwen.png — Prompt strategy effect on category distribution (Qwen)</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_convergence.png" alt="Convergence" onerror="this.style.display='none'">
+        <div class="fig-label">fig_convergence.png — Entropy-based convergence/fragmentation signal</div>
+      </div>
+      <div class="fig-card">
+        <img src="data/results/fig_validation_accuracy.png" alt="Validation Accuracy" onerror="this.style.display='none'">
+        <div class="fig-label">fig_validation_accuracy.png — Accuracy and macro-F1 by model + strategy</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────
+const COLORS = { rcep:'#4f8ef7', ahkfta:'#f97316', aanzfta:'#22c55e' };
+const CATS = ['Other','Tariff Commitments','Rules of Origin','Customs Procedures',
+              'Dispute Settlement','Non-Tariff Measures','Trade in Services',
+              'Investment','Intellectual Property','General Provisions / Definitions',
+              'Sanitary and Phytosanitary Measures'];
+const MATRIX = {
+  'Other':                          {RCEP:30,AHKFTA:23,AANZFTA:26},
+  'Tariff Commitments':             {RCEP:16,AHKFTA:35,AANZFTA:24},
+  'Rules of Origin':                {RCEP:9, AHKFTA:28,AANZFTA:8},
+  'Customs Procedures':             {RCEP:7, AHKFTA:8, AANZFTA:8},
+  'Dispute Settlement':             {RCEP:9, AHKFTA:0, AANZFTA:10},
+  'Non-Tariff Measures':            {RCEP:9, AHKFTA:1, AANZFTA:7},
+  'Trade in Services':              {RCEP:12,AHKFTA:0, AANZFTA:5},
+  'Investment':                     {RCEP:3, AHKFTA:2, AANZFTA:9},
+  'Intellectual Property':          {RCEP:4, AHKFTA:0, AANZFTA:1},
+  'General Provisions / Definitions':{RCEP:1,AHKFTA:3, AANZFTA:1},
+  'Sanitary and Phytosanitary Measures':{RCEP:0,AHKFTA:0,AANZFTA:1},
+};
+const VALIDATION = [
+  {model:'Qwen 3 32B',strategy:'Chain-of-Thought',acc:0.700,f1:0.693},
+  {model:'LLaMA 3.3 70B',strategy:'Zero-Shot',acc:0.700,f1:0.591},
+  {model:'LLaMA 3.3 70B',strategy:'Few-Shot',acc:0.680,f1:0.635},
+  {model:'Qwen 3 32B',strategy:'Zero-Shot',acc:0.680,f1:0.596},
+  {model:'Qwen 3 32B',strategy:'Few-Shot',acc:0.580,f1:0.540},
+  {model:'LLaMA 3.3 70B',strategy:'Chain-of-Thought',acc:0.480,f1:0.527},
+];
+const NARRATIVES = {
+  "Tariff Commitments": "**Key Similarities:** All three agreements establish mutual amendment mechanisms for tariff schedules, requiring consensus or formal procedures. They emphasize non-discrimination by extending improved tariff concessions to all parties when bilateral upgrades occur.\n\n**Key Differences:** RCEP allows unilateral notification requirements for importers seeking preferential treatment. AHKFTA uniquely codifies product-specific rules of origin with exporter choice. AANZFTA permits unilateral modification rights and selective HS concessions.\n\n**Convergence/Fragmentation:** Fragmented — each agreement follows a distinct tariff amendment architecture.\n\n**Policy Implication:** Exporters must maintain agreement-specific compliance systems. No single set of tariff rules applies across all three agreements.",
+  "Rules of Origin": "**Key Similarities:** All three agreements include provisions for modifying RoO criteria, reflecting shared recognition of adaptability needs. Each emphasizes collaborative governance — RCEP via a Committee, AHKFTA through a Sub-Committee, AANZFTA through certificate requirements.\n\n**Key Differences:** RCEP is the most detailed, with product-specific rules (Annex 3A) and minimum information requirements (Annex 3B). AHKFTA uses a CC (chapter-level) CTC rule — stricter than RCEP's CTH (heading-level). Both use a 40% RVC threshold.\n\n**Critical Finding:** Goods can qualify under RCEP but fail AHKFTA's stricter CC rule despite identical RVC thresholds.\n\n**Policy Implication:** Compliance officers must assess CTC rules separately for each agreement, even when RVC thresholds appear identical.",
+  "Non-Tariff Measures": "**Key Similarities:** All three agreements prohibit discriminatory NTMs unless justified under WTO rules. Each includes mechanisms to review NTMs and emphasizes transparency.\n\n**Key Differences:** RCEP and AHKFTA explicitly ban quantitative restrictions. AANZFTA focuses on facilitating trade through procedural reviews. AHKFTA includes product-specific rules for origin determination with exporter choice.\n\n**Policy Implication:** WTO compatibility provides a baseline, but the specific prohibition scope varies. AANZFTA's procedural emphasis offers more flexibility; RCEP and AHKFTA are more prescriptive.",
+  "Trade in Services": "**Key Similarities:** RCEP and AANZFTA both cover market access through schedules of specific commitments and prohibit restrictions on services trade. Both emphasize transparency in regulatory measures.\n\n**Key Differences:** AHKFTA is absent — no Trade in Services provisions in this agreement. RCEP and AANZFTA include mode-of-supply-specific obligations; AHKFTA focuses entirely on goods.\n\n**Policy Implication:** Service suppliers cannot use AHKFTA for preferential access — they must rely on RCEP or AANZFTA or bilateral arrangements.",
+  "Investment": "**Key Similarities:** RCEP and AANZFTA provide national treatment for investments with exceptions for special formalities. Both use schedules/annexes to detail commitments.\n\n**Key Differences:** RCEP (Ch.10) and AANZFTA (Ch.11) have dedicated investment chapters; AHKFTA lacks explicit investment provisions entirely. AANZFTA includes ISDS mechanisms.\n\n**Policy Implication:** Investors structuring market access through AHKFTA receive no investment chapter protections. AANZFTA offers the strongest investor protections of the three agreements.",
+  "Dispute Settlement": "**Key Similarities:** All three agreements establish mechanisms for resolving disputes. They recognize settlements via adjudication, arbitration, or mutual agreement.\n\n**Key Differences:** Most significant: AHKFTA explicitly incorporates the WTO DSU as a reference framework, while RCEP and AANZFTA maintain independent mechanisms. AHKFTA has no dedicated dispute settlement chapter.\n\n**Policy Implication:** Parties invoking AHKFTA dispute mechanisms must navigate WTO DSU procedures rather than the agreement's own process — adding complexity and potentially longer timelines.",
+  "Intellectual Property": "**Key Similarities:** All three agreements emphasize IP protection and enforcement. They recognize the need to balance IP rights with public interests.\n\n**Key Differences:** RCEP focuses on procedural efficiency, avoiding mandates for separate enforcement systems. AHKFTA has no dedicated IP chapter — IP-related provisions appear only in customs context. AANZFTA includes broader IP protections.\n\n**Policy Implication:** IP rights holders cannot rely on AHKFTA for dedicated IP protection — RCEP or separate IP arrangements are necessary.",
+  "Customs Procedures": "**Key Similarities:** All three agreements define customs procedures and require documentation for preferential treatment, including certificates of origin.\n\n**Key Differences:** RCEP mandates direct consignment rules. AHKFTA eliminates legalisation/authentication requirements. AANZFTA introduces a risk-based approach for low-risk goods.\n\n**Convergence Signal:** Customs Procedures is one of the more convergent categories — the WTO Trade Facilitation Agreement provides a common baseline.\n\n**Policy Implication:** AHKFTA's elimination of document authentication offers administrative simplification for exporters.",
+  "Sanitary and Phytosanitary Measures": "**Key Similarities:** All three agreements align with the WTO SPS Agreement as a foundational reference. They emphasize protection of human, animal, and plant health.\n\n**Key Differences:** RCEP introduces provisional SPS measures and a dedicated monitoring mechanism. AHKFTA ties SPS compliance to tariff schedules. AANZFTA establishes subcommittees for ongoing SPS collaboration.\n\n**Note:** Only 1 SPS provision recovered in the stratified sample — this category is sparse in main-agreement text; detailed SPS commitments appear in annexes.",
+  "General Provisions / Definitions": "**Key Similarities:** All three agreements include definitions as foundational elements ensuring interpretive clarity. Each emphasizes compliance with domestic laws.\n\n**Key Differences:** RCEP focuses on customs consistency requiring administrative harmonization. AHKFTA prioritizes exporter flexibility with choice among product-specific rules. AANZFTA emphasizes transparency in implementation.\n\n**Convergence Signal:** General Provisions is among the most convergent categories — shared ASEAN drafting norms produce similar definitional architecture.",
+};
+
+// ── Navigation ─────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── Chart defaults ─────────────────────────────────────────────
+Chart.defaults.color = '#8892a4';
+Chart.defaults.borderColor = '#2e3250';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+// ── Corpus donut ───────────────────────────────────────────────
+new Chart(document.getElementById('corpusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['RCEP (2,129)', 'AANZFTA (1,498)', 'AHKFTA (353)'],
+    datasets: [{
+      data: [2129,1498,353],
+      backgroundColor: [COLORS.rcep, COLORS.aanzfta, COLORS.ahkfta],
+      borderWidth: 2, borderColor: '#1a1d27',
+    }]
+  },
+  options: {
+    plugins: { legend: { position:'bottom', labels:{ padding:16, font:{size:12} } } },
+    cutout: '65%',
+  }
+});
+
+// ── Validation charts ──────────────────────────────────────────
+const valLabels = VALIDATION.map(v => v.model.replace('3.3 70B','3.3').replace('3 32B','3') + '\n' + v.strategy);
+const accColors = VALIDATION.map(v => v.acc >= 0.68 ? '#4f8ef7' : v.acc >= 0.55 ? '#f97316' : '#ef4444');
+const f1Colors  = VALIDATION.map(v => v.f1 >= 0.65 ? '#22c55e' : v.f1 >= 0.55 ? '#4f8ef7' : '#ef4444');
+
+new Chart(document.getElementById('accChart'), {
+  type: 'bar',
+  data: { labels: valLabels, datasets: [{ label:'Accuracy', data: VALIDATION.map(v=>v.acc), backgroundColor: accColors }] },
+  options: {
+    indexAxis:'y', plugins:{legend:{display:false}},
+    scales: { x: { min:0, max:1, ticks:{callback:v=>(v*100).toFixed(0)+'%'} } }
+  }
+});
+new Chart(document.getElementById('f1Chart'), {
+  type: 'bar',
+  data: { labels: valLabels, datasets: [{ label:'Macro F1', data: VALIDATION.map(v=>v.f1), backgroundColor: f1Colors }] },
+  options: {
+    indexAxis:'y', plugins:{legend:{display:false}},
+    scales: { x: { min:0, max:1 } }
+  }
+});
+
+// ── Distribution chart ─────────────────────────────────────────
+const distCats = Object.keys(MATRIX);
+new Chart(document.getElementById('distChart'), {
+  type: 'bar',
+  data: {
+    labels: distCats.map(c => c.length > 20 ? c.substring(0,18)+'…' : c),
+    datasets: [
+      { label:'RCEP', data: distCats.map(c=>MATRIX[c].RCEP), backgroundColor: COLORS.rcep },
+      { label:'AHKFTA', data: distCats.map(c=>MATRIX[c].AHKFTA), backgroundColor: COLORS.ahkfta },
+      { label:'AANZFTA', data: distCats.map(c=>MATRIX[c].AANZFTA), backgroundColor: COLORS.aanzfta },
+    ]
+  },
+  options: {
+    indexAxis:'y',
+    plugins: { legend: { position:'bottom' } },
+    scales: { x: { stacked:false }, y: { stacked:false } }
+  }
+});
+
+// Distribution table
+const distTbody = document.getElementById('distTable');
+distCats.forEach(cat => {
+  const r=MATRIX[cat], total=r.RCEP+r.AHKFTA+r.AANZFTA;
+  const maxVal = Math.max(r.RCEP,r.AHKFTA,r.AANZFTA);
+  function heatClass(v){ if(v===0)return'heat-0'; if(v<5)return'heat-1'; if(v<12)return'heat-2'; if(v<25)return'heat-3'; return'heat-4'; }
+  distTbody.innerHTML += `<tr>
+    <td style="font-size:12px">${cat.length>28?cat.substring(0,26)+'…':cat}</td>
+    <td class="num ${heatClass(r.RCEP)}">${r.RCEP}</td>
+    <td class="num ${heatClass(r.AHKFTA)}">${r.AHKFTA}</td>
+    <td class="num ${heatClass(r.AANZFTA)}">${r.AANZFTA}</td>
+    <td class="num" style="font-weight:600">${total}</td>
+  </tr>`;
+});
+
+// ── Convergence chart ──────────────────────────────────────────
+function entropy(counts){
+  const total=counts.reduce((a,b)=>a+b,0); if(!total)return 0;
+  return -counts.map(c=>c/total).filter(p=>p>0).reduce((s,p)=>s+p*Math.log(p),0);
+}
+const convergenceData = distCats.map(cat => {
+  const r=MATRIX[cat];
+  const counts=[r.RCEP,r.AHKFTA,r.AANZFTA];
+  const e=entropy(counts), maxE=Math.log(3);
+  return { cat, ratio: maxE>0 ? e/maxE : 0, counts, total:counts.reduce((a,b)=>a+b,0) };
+}).filter(d=>d.total>0).sort((a,b)=>b.ratio-a.ratio);
+
+new Chart(document.getElementById('convergenceChart'), {
+  type: 'bar',
+  data: {
+    labels: convergenceData.map(d => d.cat.length>25?d.cat.substring(0,23)+'…':d.cat),
+    datasets: [{
+      label: 'Entropy Ratio',
+      data: convergenceData.map(d=>d.ratio.toFixed(3)),
+      backgroundColor: convergenceData.map(d => d.ratio >= 0.9 ? '#22c55e' : d.ratio >= 0.7 ? '#eab308' : '#f97316'),
+    }]
+  },
+  options: {
+    indexAxis:'y',
+    plugins: { legend:{display:false},
+      annotation: { annotations: { line1:{type:'line',xMin:0.95,xMax:0.95,borderColor:'#8892a4',borderDash:[4,4]} } }
+    },
+    scales: { x: { min:0, max:1, title:{display:true,text:'1.0 = perfectly even across agreements'} } }
+  }
+});
+
+// Convergence table
+const convTbody = document.getElementById('convergenceTable');
+convergenceData.forEach(d => {
+  const sig = d.ratio >= 0.9 ? 'convergent' : 'fragmented';
+  convTbody.innerHTML += `<tr>
+    <td style="font-size:12px">${d.cat}</td>
+    <td class="num">${d.counts[0]}</td>
+    <td class="num">${d.counts[1]}</td>
+    <td class="num">${d.counts[2]}</td>
+    <td class="num">${d.ratio.toFixed(3)}</td>
+    <td><span class="badge badge-${sig}">${sig}</span></td>
+  </tr>`;
+});
+
+// ── RAG Narratives ─────────────────────────────────────────────
+const catOrder = ['Tariff Commitments','Rules of Origin','Non-Tariff Measures','Trade in Services',
+  'Investment','Dispute Settlement','Intellectual Property','Customs Procedures',
+  'Sanitary and Phytosanitary Measures','General Provisions / Definitions'];
+const container = document.getElementById('narrativeContainer');
+catOrder.forEach(cat => {
+  const text = (NARRATIVES[cat]||'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'</p><p style="margin-top:8px">');
+  container.innerHTML += `
+    <div class="narrative">
+      <div class="narrative-header" onclick="toggleNarrative(this)">
+        <span>${cat}</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="narrative-body"><p>${text}</p></div>
+    </div>`;
+});
+
+function toggleNarrative(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+// open first one
+document.querySelector('.narrative-header').click();
+</script>
+</body>
+</html>
