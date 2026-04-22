@@ -121,8 +121,9 @@ Against the 50-provision gold set:
 | LLaMA 3.3 70B — few-shot | 0.680 | 0.635 |
 | Qwen 3 32B — zero-shot | 0.680 | 0.596 |
 | Qwen 3 32B — few-shot | 0.580 | 0.540 |
+| LLaMA 3.3 70B — chain-of-thought | 0.480 | 0.527 |
 
-Qwen CoT wins on macro-F1 — the metric that penalises a model for ignoring rare categories. This matters for policy analysis: a model that only gets Tariff Commitments right but misses Intellectual Property or SPS provisions is less useful than one that handles the full taxonomy. Macro-F1 captures that. The 70% accuracy ceiling is consistent with the expected difficulty of legal-text classification; published studies on legislative text classification typically report 65–80% with similar annotation setups.
+Qwen CoT wins on macro-F1 — the metric that penalises a model for ignoring rare categories. This matters for policy analysis: a model that only gets Tariff Commitments right but misses Intellectual Property or SPS provisions is less useful than one that handles the full taxonomy. Macro-F1 captures that. A striking asymmetry emerges: chain-of-thought reasoning *improves* Qwen substantially (+10pp macro-F1 vs. zero-shot) but *hurts* LLaMA significantly (0.591 → 0.527). Forcing LLaMA to reason step-by-step appears to introduce over-elaboration that degrades its final label choice. This finding underscores that prompt strategy must be tuned per model — there is no universally optimal approach.
 
 ### 4.2 How Agreements Differ — The Comparative Matrices
 

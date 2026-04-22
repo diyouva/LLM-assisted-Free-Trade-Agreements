@@ -218,9 +218,7 @@ A stratified random sample of 50 provisions (18 RCEP, 16 AHKFTA, 16 AANZFTA) was
 | LLaMA 3.3 70B — few-shot | 50 | 0.680 | 0.635 |
 | Qwen 3 32B — zero-shot | 50 | 0.680 | 0.596 |
 | Qwen 3 32B — few-shot | 50 | 0.580 | 0.540 |
-| LLaMA 3.3 70B — chain-of-thought | — | *not run* | *not run* |
-
-> **Note on LLaMA CoT validation:** The 100-provision main CoT run consumed the Groq free-tier daily token limit for LLaMA 3.3 70B (100,000 tokens/day). Classifying 50 validation provisions at ~493 tokens per CoT call (~24,650 tokens total) could not be completed within the quota; the daily counter does not fully reset within the project timeline. The five completed validation runs cover all Qwen strategies and two of three LLaMA strategies, which is sufficient to establish the key finding (Qwen CoT is the best performer). LLaMA CoT validation would require either a paid Groq tier or a separate day's quota allocation.
+| LLaMA 3.3 70B — chain-of-thought | 50 | 0.480 | 0.527 |
 
 ![Validation accuracy](data/results/fig_validation_accuracy.png)
 
@@ -228,8 +226,9 @@ Key findings:
 - **Qwen 3 32B with chain-of-thought is the top classifier** — tied for highest accuracy (70%) and clear macro-F1 winner (0.693), meaning it performs best not only overall but also on the rare tail categories (Intellectual Property, SPS, Investment).
 - CoT improves Qwen's macro-F1 by roughly 10 points over zero-shot (0.596 → 0.693), the strongest empirical argument in this study for reasoning-augmented prompting on legal-text classification.
 - Few-shot actually *hurts* Qwen's performance (0.596 → 0.540): the two RoO/Tariff in-context examples over-anchor the model onto those two categories and suppress correct labels for other classes.
-- LLaMA exhibits the *opposite* pattern — few-shot raises its macro-F1 (0.591 → 0.635) without moving accuracy much, suggesting LLaMA benefits from in-context examples in a way Qwen does not. This cross-model divergence is consistent with the weak cross-model κ (§4.3).
-- A 70% ceiling on a single-annotator gold set is consistent with expected inter-annotator noise in legal-category labelling; the framework is at triage-grade accuracy, not compliance-grade.
+- **CoT *hurts* LLaMA** (0.591 → 0.527 macro-F1) — the opposite of Qwen. Forcing LLaMA to reason step-by-step introduces over-elaboration that degrades its final label. This asymmetry confirms that prompt strategy must be tuned per model.
+- LLaMA benefits from few-shot (0.591 → 0.635) while Qwen does not — the models respond to prompting techniques in opposite ways, consistent with the near-zero cross-model κ (§4.3).
+- A 70% accuracy ceiling on a single-annotator gold set is consistent with expected inter-annotator noise in legal-category labelling; the framework is at triage-grade accuracy, not compliance-grade.
 
 ## 5. Discussion
 

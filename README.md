@@ -247,7 +247,7 @@ Qwen 3 is a "thinking" model — it emits `<think>...</think>` reasoning tokens 
 | LLaMA 3.3 70B — few-shot | 0.680 | 0.635 | 50 |
 | Qwen 3 32B — zero-shot | 0.680 | 0.596 | 50 |
 | Qwen 3 32B — few-shot | 0.580 | 0.540 | 50 |
-| LLaMA 3.3 70B — chain-of-thought | — | *quota exhausted* | — |
+| LLaMA 3.3 70B — chain-of-thought | 0.480 | 0.527 | 50 |
 
 ### Inter-Run Agreement (Cohen's κ)
 
