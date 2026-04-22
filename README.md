@@ -29,7 +29,7 @@ This project applies large language models (LLMs) to a standing problem in inter
 - **Prompt strategy matters more than model size** for this task: few-shot prompting *hurt* Qwen (dropped F1 by 15pp) but helped LLaMA (gained 4pp). CoT recovered Qwen's performance by giving the model space to reason before committing.
 - **Inter-model agreement is near-random** (Cohen's κ = −0.02 between LLaMA few-shot and Qwen few-shot), meaning the two models disagree on roughly half of all provisions despite similar aggregate accuracy.
 - **AHKFTA is Rules-of-Origin heavy** (28% of sampled provisions vs 9% for RCEP), reflecting its tighter origin criteria; RCEP allocates more text to general and services provisions.
-- **Tariff Commitments and Rules of Origin** are the most structurally convergent categories across all three agreements; **Dispute Settlement and Trade in Services** are the most fragmented.
+- **General Provisions and Dispute Settlement** are the most structurally convergent categories — a shared regional template is emerging; **Tariff Commitments and Rules of Origin** are the most fragmented — each agreement follows a distinct design.
 
 ---
 
@@ -44,7 +44,7 @@ PDFs (3 FTAs)
 │  Provision schema   │  Fields: id, agreement, doc_type, chapter,
 │  (paragraph-level)  │          article, paragraph_idx, text, char_count
 └─────────────────────┘
-     │  all_provisions.json  (~5,000+ provisions)
+     │  all_provisions.json  (3,980 provisions)
      ▼
 ┌─────────────────────┐
 │  src/embedding.py   │  sentence-transformers (all-MiniLM-L6-v2)
@@ -195,10 +195,10 @@ python -m src.classification --model qwen --strategy few_shot \
 python run_pipeline.py --step compare --model qwen
 
 # 5. Attribute extraction (RoO numeric fields + categorical flags)
-python run_pipeline.py --step attributes
+python -m src.attribute_extraction --model qwen
 
 # 6. Statistical analysis (Cohen's κ, convergence signal)
-python run_pipeline.py --step analyse
+python -m src.analysis
 
 # 7. Generate figures
 python -m src.visualize
@@ -331,12 +331,13 @@ jupyter notebook notebooks/analysis.ipynb
 
 | File | Description |
 |------|-------------|
-| `fig_provision_counts.png` | Corpus size per agreement |
-| `fig_strategy_comparison.png` | Category distribution by model × strategy |
-| `fig_category_matrix.png` | Provision count heatmap: category × agreement |
-| `fig_category_distribution.png` | Stacked bar: policy mix per agreement |
-| `fig_convergence.png` | Entropy-based convergence signal per category |
+| `fig_corpus_overview.png` | Corpus size per agreement and per document type |
+| `fig_category_heatmap.png` | Category distribution (%) heatmap across all model-strategy runs |
 | `fig_kappa_matrix.png` | Cohen's κ matrix across all run pairs |
+| `fig_category_x_agreement.png` | Provision count heatmap: category × agreement (stratified sample) |
+| `fig_strategy_effect_llama.png` | How prompt strategy shifts category distribution for LLaMA |
+| `fig_strategy_effect_qwen.png` | How prompt strategy shifts category distribution for Qwen |
+| `fig_convergence.png` | Entropy-based convergence signal per category |
 | `fig_validation_accuracy.png` | Accuracy and macro-F1 by model + strategy |
 
 ---
