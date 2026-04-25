@@ -12,7 +12,7 @@ This project applies large language models (LLMs) to a standing problem in inter
 
 | Agreement | Full Name | Parties | Signed |
 |-----------|-----------|---------|--------|
-| RCEP | Regional Comprehensive Economic Partnership | 15 ASEAN+ nations | 2020 |
+| RCEP | Regional Comprehensive Economic Partnership | 10 ASEAN + 5 partner countries | 2020 |
 | AHKFTA | ASEAN–Hong Kong Free Trade Agreement | 10 ASEAN + HK | 2017 |
 | AANZFTA | ASEAN–Australia–New Zealand FTA | 10 ASEAN + AU + NZ | 2009 |
 
