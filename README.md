@@ -54,9 +54,9 @@ PDFs (3 FTAs)
      │
      ▼
 ┌──────────────────────────────────────────────────────┐
-│  src/classification.py  — LLM Classification        │
+│  src/classification.py  — LLM Classification         │
 │                                                      │
-│  Models:  LLaMA 3.3 70B (Groq)                      │
+│  Models:  LLaMA 3.3 70B (Groq)                       │
 │           Qwen 3 32B    (Groq / Alibaba Cloud)       │
 │                                                      │
 │  Strategies:                                         │
@@ -66,16 +66,16 @@ PDFs (3 FTAs)
 │                                                      │
 │  Main runs: reproducible random sample (seed=42)     │
 │  Comparative runs: stratified 100/agreement          │
-│  (corrects for RCEP's 53.5% corpus share)           │
+│  (corrects for RCEP's 53.5% corpus share)            │
 └──────────────────────────────────────────────────────┘
      │  classified_*.json  (6 run files)
      ▼
-┌─────────────────────┐    ┌──────────────────────────┐
-│  src/comparison.py  │    │  src/attribute_extraction │
-│  RAG-augmented LLM  │    │  Regex (RVC%, de-minimis) │
-│  cross-agreement    │    │  + LLM (CTC rules, HS     │
+┌─────────────────────┐    ┌────────────────────────────┐
+│  src/comparison.py  │    │  src/attribute_extraction  │
+│  RAG-augmented LLM  │    │  Regex (RVC%, de-minimis)  │
+│  cross-agreement    │    │  + LLM (CTC rules, HS      │
 │  narrative analysis │    │  scope, staging categories)│
-└─────────────────────┘    └──────────────────────────┘
+└─────────────────────┘    └────────────────────────────┘
      │
      ▼
 ┌─────────────────────┐
