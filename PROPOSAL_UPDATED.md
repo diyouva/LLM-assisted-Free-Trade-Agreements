@@ -4,6 +4,11 @@ Machine Learning Foundation with Python — Carnegie Mellon University — Sprin
 
 ---
 
+> **Historical note:** this file is the project proposal. It records the planned
+> design, not necessarily the final implementation details. For the current code
+> path, use `README.md` / `METHODOLOGY.md`; for final results, use `REPORT.md`
+> and the artefacts under `data/`.
+
 ## Policy and Organizational Decision Problem
 
 Policymakers and trade analysts frequently rely on Free Trade Agreements (FTAs) to guide decisions on market access, tariff structures, and regulatory compliance. However, FTAs are complex, lengthy, and often overlapping across regions, creating what is commonly referred to as the **"spaghetti bowl" problem**. This complexity makes it difficult to systematically compare provisions across agreements and identify inconsistencies or opportunities. As a result, decision-making is often time-consuming and dependent on manual legal review.

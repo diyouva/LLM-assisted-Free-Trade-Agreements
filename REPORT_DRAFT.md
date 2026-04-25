@@ -5,6 +5,9 @@ Machine Learning Foundation with Python — Carnegie Mellon University — Sprin
 
 ---
 
+> **Documentation status (April 2026):** This is a technical draft tied to the
+> current saved artefacts. Use `README.md` for the executable rerun workflow.
+
 ## Abstract
 
 Free Trade Agreements (FTAs) shape trade flows, tariffs, and regulatory regimes for billions of consumers, yet their legal texts run to thousands of pages and overlap inconsistently across regions. This project builds an end-to-end Python pipeline that converts three major Asia-Pacific FTAs — **RCEP**, **AHKFTA**, and **AANZFTA** — into a structured, machine-comparable dataset of 3,980 provisions, and applies two Large Language Models (**LLaMA 3.3 70B** and **Qwen 3 32B**) under three prompt strategies (**zero-shot**, **few-shot**, **chain-of-thought**) to classify each provision into 11 policy categories. A Retrieval-Augmented Generation (RAG) layer then produces narrative cross-agreement comparisons. We quantify model and strategy agreement with Cohen's κ, identify convergent vs. fragmented policy areas across the three agreements, and validate classification accuracy on a hand-labelled sample of 50 provisions.
@@ -69,7 +72,7 @@ See companion file `METHODOLOGY.md` for full technical detail. In summary:
 3. **Classification.** Two models × three prompt strategies. Free-tier Groq API with strategy-aware rate limiting (token-per-minute aware delays).
 4. **Comparison.** For each of 11 categories, retrieve top-3 similar provisions per agreement; prompt the LLM for a structured 5-point comparison (similarities, differences, flexibility, convergence, implications).
 5. **Analysis.** Cohen's κ, category × agreement counts, entropy-based convergence signal.
-6. **Validation.** 50-provision stratified hand-labelled sample → accuracy / macro-F1 per run.
+6. **Validation.** 50-provision hand-labelled validation cohort → exact-cohort reruns → accuracy / macro-F1 per run.
 
 ### 3.1 Deviations from proposal
 Two implementation choices diverged from the original proposal:
@@ -308,8 +311,12 @@ python -m src.attribute_extraction --model qwen --strategy few_shot --suffix str
     --source stratified_sample.json
 
 # 7. Validation scoring
-python -m src.validation --sample   # creates validation_set.csv for manual labelling
+python run_pipeline.py --step validation_sample \
+    --validation-n 50 \
+    --validation-source classified_qwen_few_shot_stratified.json \
+    --seed 42
 #   → fill data/results/validation_set.csv (gold_category column)
+python run_pipeline.py --step validation_export
 python -m src.validation --evaluate
 ```
 
@@ -319,7 +326,7 @@ python -m src.validation --evaluate
 Final Project - FTA LLM/
 ├── Agreement/                 # source PDFs (not tracked)
 ├── config.py                  # central configuration
-├── run_pipeline.py            # orchestration CLI
+├── run_pipeline.py            # orchestration CLI + dataset-prep entrypoints
 ├── src/
 │   ├── extraction.py
 │   ├── embedding.py

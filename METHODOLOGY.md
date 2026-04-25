@@ -3,9 +3,12 @@
 > Author: **Diyouva Christa Novith**
 > Course: Machine Learning Foundation with Python, Carnegie Mellon University (Spring 2026)
 
+> **Documentation status (April 2026):** This file explains the current code
+> structure and methodology. For the exact rerun sequence, use `README.md`.
+
 ## 1. Overview
 
-The project builds a five-stage pipeline that transforms raw legal PDFs of three ASEAN Free Trade Agreements (RCEP, AHKFTA, AANZFTA) into a structured, comparable, and queryable dataset of policy provisions. Each stage is a standalone Python module under `src/` that can be run end-to-end via `run_pipeline.py`.
+The project builds a multi-stage pipeline that transforms raw legal PDFs of three ASEAN Free Trade Agreements (RCEP, AHKFTA, AANZFTA) into a structured, comparable, and queryable dataset of policy provisions. Each stage is a standalone Python module under `src/`, while `run_pipeline.py` orchestrates the core stages and the dataset-prep entrypoints.
 
 ```
 PDFs ─► Extraction ─► Embedding ─► Classification ─► Comparison ─► Analysis
@@ -21,8 +24,8 @@ PDFs ─► Extraction ─► Embedding ─► Classification ─► Comparison 
 ### Processing
 1. **Primary extractor:** `pdfplumber` for text-based PDFs.
 2. **Fallback 1:** `PyMuPDF (fitz)` when `pdfplumber` returns < 100 chars on the first page (heuristic for non-standard PDF structure).
-3. **Fallback 2:** `pytesseract` (Tesseract OCR) for scanned/image-based PDFs. Triggered automatically for AHKFTA, whose source PDFs are image-only.
-4. **Clause segmentation:** provisions are split on a combined regex matching *Article / Chapter / Section / Rule / Annex / Appendix* headers.
+3. **Fallback 2:** `pytesseract` (Tesseract OCR) for scanned/image-based PDFs. Triggered automatically when both text-based extractors fail.
+4. **Clause segmentation:** provisions are segmented from detected legal headers while preserving those headers in the emitted text block so `article` / `chapter` metadata can survive extraction.
 5. **Minimum size filter:** clauses < 80 characters are dropped (typical of page numbers or stray OCR artefacts).
 6. **Maximum chunk filter:** clauses > 1,500 characters are subdivided at paragraph boundaries.
 
@@ -50,7 +53,7 @@ PDFs ─► Extraction ─► Embedding ─► Classification ─► Comparison 
 - **Model:** `sentence-transformers/all-MiniLM-L6-v2` (384-d, lightweight).
 - **Store:** ChromaDB persistent collection `fta_provisions` (HNSW, cosine distance).
 - **Batching:** 256 provisions per batch during index build.
-- **Retrieval API:** `retrieve_similar(query, agreement_filter=None, n_results=5)`.
+- **Retrieval APIs:** `retrieve_similar(...)` for raw vector retrieval and `rank_provisions_by_query(...)` for ranking already-classified candidates.
 
 Embeddings are produced once and cached via module-level singletons (`_model`, `_chroma_client`) — repeated `retrieve_similar` calls do **not** re-load the model.
 
@@ -84,22 +87,25 @@ Both accessed via the same Groq free-tier API key. Qwen 3 is a *thinking* model 
 
 `data/results/classified_{model}_{strategy}.json` — one row per provision with `category`, `raw_response`, `model`, `strategy` fields merged on the original provision record.
 
-### Stratified sample
-A separate run on `data/raw/stratified_sample.json` (100 provisions per agreement, random seed 42) ensures cross-agreement comparison is not biased toward RCEP, which dominates the full corpus.
+### Sampling policy
+- Main classification runs use reproducible random sampling (`seed=42`) when `--limit` is set.
+- A separate run on `data/raw/stratified_sample.json` (100 provisions per agreement, seed 42) ensures cross-agreement comparison is not biased toward RCEP, which dominates the full corpus.
 
 ## 5. Stage 4 — Cross-Agreement Comparison (RAG)
 
 **Module:** `src/comparison.py`
 
 For each policy category (11 total):
-1. `retrieve_similar(query=f"{category} provisions obligations requirements", agreement_filter=<agreement>, n_results=3)` — top 3 semantically similar provisions per agreement.
-2. A structured comparison prompt asks the LLM to identify:
+1. Load a classified run, preferably the stratified cohort.
+2. Filter provisions to those already assigned to the target category within each agreement.
+3. Rank those candidates semantically (or with lexical fallback if embeddings are unavailable locally) and take the top 3 per agreement.
+4. A structured comparison prompt asks the LLM to identify:
    - similarities,
    - differences,
    - flexibility vs rigidity,
    - convergence vs fragmentation,
    - implications for negotiators / compliance officers.
-3. Response capped at ~400 words via `max_tokens=2048` (high enough to accommodate Qwen's `<think>` block plus the answer).
+5. Response capped at ~400 words via `max_tokens=2048` (high enough to accommodate Qwen's `<think>` block plus the answer).
 
 Output: `data/results/comparison_{model}.json`.
 
@@ -119,9 +125,11 @@ Exports `analysis_bundle.json` and `analysis_disagreements.json`.
 
 **Module:** `src/validation.py`
 
-1. `--sample` draws a stratified random sample (50 provisions, ~17 per agreement) into `validation_set.csv`.
+1. `--sample --source classified_qwen_few_shot_stratified.json` creates `validation_set.csv` from a balanced classified cohort.
 2. Analyst hand-labels the `gold_category` column.
-3. `--evaluate` reads the CSV and computes accuracy / per-class precision / recall / macro-F1 against every `classified_*.json` in the results folder. Exports `validation_report.json`.
+3. `--export-validation-provisions` writes the exact IDs from `validation_set.csv` back to `data/raw/validation_provisions.json`.
+4. Validation classification runs are executed on that exact JSON cohort.
+5. `--evaluate` scores only runs whose ID set exactly matches the labelled validation cohort. Exports `validation_report.json`.
 
 ## 8. Attribute Extraction (Optional RQ2 deep-dive)
 
@@ -142,7 +150,7 @@ A hybrid approach is used: **regex** extracts deterministic numeric fields (e.g.
 
 ## 9. Reproducibility Checklist
 
-- Random seeds fixed (`seed=42` for stratified sampling; `seed=1` for validation sample).
+- Random seeds fixed (`seed=42` for stratified sampling and main random sampling; validation sample seed is configurable from the CLI).
 - API keys via `.env` (never committed — see `.gitignore`).
 - All intermediate artefacts saved under `data/` for re-use.
 - Every classification run records the exact prompt strategy and model version.
@@ -151,5 +159,5 @@ A hybrid approach is used: **regex** extracts deterministic numeric fields (e.g.
 
 1. **Legal language ambiguity.** "Other" captures provisions that span multiple categories; future work could use multi-label classification.
 2. **Free-tier quotas.** LLaMA CoT validation required a separate day's quota allocation (100,000 tokens/day rolling window). Completed result: accuracy 0.480, macro-F1 0.527 — the lowest of all six runs, confirming that CoT hurts LLaMA while helping Qwen.
-3. **Attribute extraction complete.** Structured fields (RVC %, CTC rule, phase-out years) extracted for Rules of Origin and Tariff Commitment provisions in the stratified sample. Results in `data/results/attributes_roo.json` and `attributes_tariff.json`.
+3. **Attribute extraction remains annex-sensitive.** Structured fields (RVC %, CTC rule, phase-out years) are best recovered from the stratified sample, but completeness still depends on whether the relevant schedule or annex text entered the extracted provision corpus.
 4. **Agreements limited to three** (RCEP, AHKFTA, AANZFTA) by design — the framework generalises to any FTA with a PDF text layer.

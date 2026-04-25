@@ -3,6 +3,12 @@
 
 ---
 
+> **Catatan dokumen (April 2026):** file ini adalah panduan konseptual. Untuk
+> langkah eksekusi terbaru, gunakan `README.md` dan `run_pipeline.py`. Setelah
+> ada perubahan kode pada extraction / sampling / validation / comparison,
+> artefak JSON lama harus dibuat ulang sebelum angka hasil di sini dianggap
+> mutakhir.
+
 ## Daftar Isi
 
 1. [Gambaran Besar — Proyek Ini Tentang Apa?](#1-gambaran-besar)
@@ -264,10 +270,11 @@ Final category: Customs Procedures
 **Tujuan:** Mengukur seberapa akurat AI dibandingkan penilaian manusia.
 
 **Cara kerja:**
-1. Buat **stratified sample** 50 provisions (sebar merata antar perjanjian dan kategori)
+1. Buat **validation sample** 50 provisions dari cohort yang seimbang
 2. Penulis proyek memberi label manual — ini disebut **gold set**
-3. Semua 6 kombinasi model dijalankan pada 50 provisions yang sama
-4. Hasil AI dibandingkan dengan label manusia
+3. Export cohort yang sama ke `validation_provisions.json`
+4. Semua 6 kombinasi model dijalankan pada 50 provisions yang sama
+5. Hasil AI dibandingkan dengan label manusia
 
 **Perbedaan Accuracy vs Macro-F1:**
 - **Accuracy**: dari 50 provisions, berapa yang benar? → bisa menyesatkan kalau satu kategori mendominasi

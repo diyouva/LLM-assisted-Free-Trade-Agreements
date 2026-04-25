@@ -10,6 +10,12 @@ Email: dnovith@andrew.cmu.edu
 > **Manuscript type:** Full Research Article
 > **Word count:** ~9,800 words (excluding references)
 
+> **Manuscript note (April 2026):** this is a research manuscript, not the
+> executable runbook. The current rerun workflow is documented in `README.md`,
+> and code changes to extraction, sampling, validation, or comparison require
+> regenerating the saved JSON artefacts before the empirical values here should
+> be treated as current.
+
 ---
 
 ## Abstract

@@ -5,6 +5,12 @@ Machine Learning Foundation with Python — Carnegie Mellon University — Sprin
 
 ---
 
+> **Documentation status (April 2026):** This report summarises the current
+> saved experiment artefacts in `data/`. For the executable rerun workflow, use
+> `README.md` and `run_pipeline.py`. If extraction, sampling, validation, or
+> comparison code changes, regenerate the JSON artefacts before treating the
+> quantitative findings below as current.
+
 ## Abstract
 
 Free Trade Agreements (FTAs) run to thousands of pages yet must be compared, monitored, and negotiated by policy analysts who rely almost entirely on manual review. This project builds an end-to-end Python pipeline that converts three major Asia-Pacific FTAs — RCEP, AHKFTA, and AANZFTA — into a structured, machine-readable dataset of 3,980 provisions and uses Large Language Models to classify, compare, and extract attributes from them. Two models (LLaMA 3.3 70B and Qwen 3 32B) were tested under three prompt strategies (zero-shot, few-shot, and chain-of-thought) through an iterative process that closely mirrors how a policy analyst would decide which tool to trust. The best configuration — Qwen 3 32B with chain-of-thought prompting — achieves 70% accuracy and a macro-F1 of 0.693 on a 50-provision hand-labelled gold set. The pipeline surfaces concrete policy-design differences across agreements and identifies which policy areas are converging across the region and which remain fragmented.
@@ -63,7 +69,7 @@ The pipeline has six stages:
 3. **Classification** — LLM labels each provision into one of 11 categories (Tariff Commitments, Rules of Origin, Non-Tariff Measures, Trade in Services, Investment, Dispute Settlement, Intellectual Property, Customs Procedures, SPS, General Provisions, Other).
 4. **Comparison** — A Retrieval-Augmented Generation (RAG) step fetches the top-3 semantically similar provisions per agreement per category and prompts the LLM to write a structured comparative analysis.
 5. **Attribute Extraction** — A hybrid regex + LLM pass extracts structured fields (RVC%, de-minimis %, phase-out years, CTC rule family) from classified Rules of Origin and Tariff provisions.
-6. **Validation** — A stratified 50-provision sample was hand-labelled by the author; every model-strategy combination was scored against this gold set.
+6. **Validation** — A 50-provision validation cohort was hand-labelled by the author; each model-strategy combination was re-run on that exact cohort and scored against the gold labels.
 
 ### 3.2 The Iterative Model Selection Process
 
@@ -83,7 +89,7 @@ The pipeline has six stages:
 
 ### 3.3 Key Design Decisions
 
-**Stratified vs. random sampling.** RCEP makes up 53.5% of the corpus. Random samples heavily over-represent RCEP. The cross-agreement comparison used a stratified 100-per-agreement sample to produce a fair comparative matrix — an important methodological choice for the validity of the §4 findings.
+**Stratified vs. random sampling.** RCEP makes up 53.5% of the corpus. Random sampling is used for the main benchmark runs, while the cross-agreement comparison uses a separate stratified 100-per-agreement sample to avoid letting RCEP dominate the comparative matrix.
 
 **Semantic similarity for cross-agreement alignment.** The original proposal called for aligning provisions using article numbers and HS codes. In practice, ~40% of extracted provisions have empty `article` fields (PDF formatting variation), and HS codes cluster in tariff schedules, not main-agreement text. Semantic similarity via ChromaDB was used instead. This is more robust to formatting variation but does not guarantee that the provisions retrieved for comparison are legally equivalent — an important caveat for the RAG outputs.
 
@@ -265,8 +271,8 @@ PDFs → extraction.py → all_provisions.json (3,980 provisions)
 
 **Models:** LLaMA 3.3 70B (Meta, via Groq free tier) and Qwen 3 32B (Alibaba Cloud, via Groq free tier).
 **Strategies:** zero-shot, few-shot (2 curated examples), chain-of-thought (step-by-step reasoning).
-**Classification runs:** 6 main runs (200 provisions each, CoT capped at 100 by API quota) + 1 stratified run (300 provisions, 100 per agreement).
-**Validation:** 50-provision stratified gold set, hand-labelled by author; all 6 model-strategy combinations evaluated.
+**Classification runs:** 6 main runs (reproducible random samples; CoT capped at 100 by API quota) + 1 stratified run (300 provisions, 100 per agreement).
+**Validation:** 50-provision gold set, hand-labelled by author and exported to `validation_provisions.json`; all 6 model-strategy combinations evaluated on the same IDs.
 
 ## Appendix B — Repository Layout
 
@@ -274,7 +280,7 @@ PDFs → extraction.py → all_provisions.json (3,980 provisions)
 Final Project - FTA LLM/
 ├── Agreement/          source PDFs (7 documents)
 ├── config.py           central configuration (paths, API keys, categories)
-├── run_pipeline.py     CLI orchestrator (steps 1–4)
+├── run_pipeline.py     CLI orchestrator (core stages + dataset-prep entrypoints)
 ├── retry_failed.py     error-recovery utility
 ├── src/
 │   ├── extraction.py
