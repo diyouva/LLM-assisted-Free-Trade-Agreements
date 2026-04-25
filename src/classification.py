@@ -317,7 +317,16 @@ def classify_provisions(
     prompt_builder = PROMPT_BUILDERS[strategy]
 
     subset = sample_provisions(provisions, limit, mode=sample_mode, seed=seed)
-    results = []
+    suffix_tag = f"_{out_suffix}" if out_suffix else ""
+    out_name = f"classified_{model}_{strategy}{suffix_tag}.json"
+    out_path = RESULT_DIR / out_name
+    results = _load_resumable_results(
+        out_path=out_path,
+        subset=subset,
+        model=model,
+        strategy=strategy,
+    )
+    start_idx = len(results)
 
     # Groq free tier: ~6,000 tokens/min for LLaMA 3.3 70B
     #   zero_shot ~300 tokens  → 2s delay (20 req/min safe)
@@ -336,29 +345,82 @@ def classify_provisions(
         f"\nClassifying {len(subset):,} provisions  |  model={model}  "
         f"strategy={strategy}  sampling={sample_mode}  seed={seed}"
     )
-    for i, prov in enumerate(subset, 1):
-        if i % 10 == 0 or i == 1:
-            print(f"  [{i}/{len(subset)}] …", flush=True)
+    if start_idx:
+        print(f"  Resuming from existing file: {start_idx}/{len(subset)} already saved")
 
-        prompt   = prompt_builder(prov["text"])
-        raw_resp = caller(prompt)
-        category = _parse_category(raw_resp)
+    try:
+        for i, prov in enumerate(subset[start_idx:], start_idx + 1):
+            if i % 10 == 0 or i == 1 or i == start_idx + 1:
+                print(f"  [{i}/{len(subset)}] …", flush=True)
 
-        result = {**prov, "category": category, "raw_response": raw_resp,
-                  "model": model, "strategy": strategy}
-        results.append(result)
-        time.sleep(delay)
+            prompt   = prompt_builder(prov["text"])
+            raw_resp = caller(prompt)
+            category = _parse_category(raw_resp)
 
-    # Save
-    suffix_tag = f"_{out_suffix}" if out_suffix else ""
-    out_name = f"classified_{model}_{strategy}{suffix_tag}.json"
-    out_path = RESULT_DIR / out_name
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+            result = {**prov, "category": category, "raw_response": raw_resp,
+                      "model": model, "strategy": strategy}
+            results.append(result)
+            _save_results(out_path, results)
+            time.sleep(delay)
+    except KeyboardInterrupt:
+        _save_results(out_path, results)
+        print(
+            f"\n⚠️ Interrupted. Saved partial progress: "
+            f"{len(results):,}/{len(subset):,} provisions"
+        )
+        print(f"   Resume with the same command to continue: {out_path}")
+        return results
 
     print(f"\n✅ Classification complete: {len(results):,} provisions")
     print(f"   Saved to: {out_path}")
     return results
+
+
+def _save_results(out_path: Path, results: list[dict]) -> None:
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+
+def _load_resumable_results(
+    out_path: Path,
+    subset: list[dict],
+    model: str,
+    strategy: str,
+) -> list[dict]:
+    """
+    Resume safely only when the existing output file matches the current run's
+    sampled provision IDs in the same order.
+    """
+    if not out_path.exists():
+        return []
+
+    try:
+        with open(out_path, encoding="utf-8") as f:
+            existing = json.load(f)
+    except json.JSONDecodeError:
+        print(f"  Existing file '{out_path.name}' is not valid JSON (possibly partial/interrupted write).")
+        print("  Starting a fresh run and overwriting the file.")
+        return []
+
+    if not isinstance(existing, list):
+        return []
+
+    expected_ids = [prov["id"] for prov in subset]
+    existing_ids = [row.get("id") for row in existing]
+    prefix_ids = expected_ids[: len(existing_ids)]
+
+    if existing_ids != prefix_ids:
+        print(f"  Existing file '{out_path.name}' does not match this sampled cohort.")
+        print("  Starting a fresh run and overwriting the file.")
+        return []
+
+    for row in existing:
+        if row.get("model") != model or row.get("strategy") != strategy:
+            print(f"  Existing file '{out_path.name}' has mismatched model/strategy metadata.")
+            print("  Starting a fresh run and overwriting the file.")
+            return []
+
+    return existing
 
 
 def compare_strategies(
