@@ -1,7 +1,7 @@
 # Classifying and Comparing Free Trade Agreement Provisions at Scale: A Multi-Model, Multi-Strategy LLM Evaluation with Inter-Run Agreement Analysis
 
 **Diyouva Christa Novith**
-School of Computer Science, Carnegie Mellon University, Pittsburgh, PA, USA
+Heinz College of Information Systems and Public Policy, Carnegie Mellon University, Pittsburgh, PA, USA
 Email: dnovith@andrew.cmu.edu
 
 ---
