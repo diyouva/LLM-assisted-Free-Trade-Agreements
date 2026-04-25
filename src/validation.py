@@ -5,9 +5,11 @@ Samples 50 provisions for manual ground-truth labelling, then computes
 accuracy / precision / recall / F1 against each model-strategy run.
 
 Workflow:
-  1. python -m src.validation --sample    # creates validation_set.csv
-  2. Open validation_set.csv, fill "gold_category" column manually
-  3. python -m src.validation --evaluate  # computes metrics vs each run
+  1. python -m src.validation --make-stratified-sample
+  2. python -m src.validation --sample    # creates validation_set.csv
+  3. Open validation_set.csv, fill "gold_category" column manually
+  4. python -m src.validation --export-validation-provisions
+  5. python -m src.validation --evaluate  # computes metrics vs each run
 """
 
 import argparse
@@ -22,6 +24,27 @@ from config import POLICY_CATEGORIES, RAW_DIR, RESULT_DIR
 from src.sampling import stratified_sample_by_agreement, stratified_sample_by_agreement_and_category
 
 VALIDATION_CSV = RESULT_DIR / "validation_set.csv"
+STRATIFIED_SAMPLE_JSON = RAW_DIR / "stratified_sample.json"
+VALIDATION_PROVISIONS_JSON = RAW_DIR / "validation_provisions.json"
+
+
+def build_stratified_sample(
+    per_agreement: int = 100,
+    seed: int = 42,
+    output_path: Path = STRATIFIED_SAMPLE_JSON,
+) -> list[dict]:
+    """
+    Build the agreement-balanced sample used for cross-agreement comparison.
+    """
+    provisions = json.load(open(RAW_DIR / "all_provisions.json", encoding="utf-8"))
+    sample = stratified_sample_by_agreement(provisions, per_agreement, seed=seed)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(sample, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Stratified sample written: {output_path}")
+    print(f"   {len(sample)} provisions total ({per_agreement} target per agreement, seed={seed})")
+    return sample
 
 
 # ── 1. Build sample ─────────────────────────────────────────────────────────
@@ -67,6 +90,37 @@ def build_sample(n: int = 50, seed: int = 1, source: str | None = None) -> None:
     print(f"\nValid categories:")
     for c in POLICY_CATEGORIES:
         print(f"   - {c}")
+
+
+def export_validation_provisions(
+    output_path: Path = VALIDATION_PROVISIONS_JSON,
+) -> list[dict]:
+    """
+    Export the currently labelled validation CSV rows back into raw JSON so the
+    classification CLI can run against the exact same cohort.
+    """
+    if not VALIDATION_CSV.exists():
+        raise FileNotFoundError("validation_set.csv not found. Run --sample first.")
+
+    all_provisions = json.load(open(RAW_DIR / "all_provisions.json", encoding="utf-8"))
+    by_id = {provision["id"]: provision for provision in all_provisions}
+
+    rows = list(csv.DictReader(open(VALIDATION_CSV, encoding="utf-8")))
+    missing = [row["id"] for row in rows if row["id"] not in by_id]
+    if missing:
+        preview = ", ".join(missing[:5])
+        raise KeyError(
+            f"{len(missing)} validation ids were not found in all_provisions.json. "
+            f"Examples: {preview}"
+        )
+
+    selected = [by_id[row["id"]] for row in rows]
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(selected, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Validation provisions written: {output_path}")
+    print(f"   {len(selected)} provisions exported from {VALIDATION_CSV.name}")
+    return selected
 
 
 # ── 2. Evaluate against each classification run ─────────────────────────────
@@ -147,15 +201,27 @@ def evaluate() -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     g = parser.add_mutually_exclusive_group(required=True)
+    g.add_argument("--make-stratified-sample", action="store_true",
+                   help="Build data/raw/stratified_sample.json")
     g.add_argument("--sample",   action="store_true",
                    help="Build validation_set.csv for manual labelling")
+    g.add_argument("--export-validation-provisions", action="store_true",
+                   help="Build data/raw/validation_provisions.json from validation_set.csv")
     g.add_argument("--evaluate", action="store_true",
                    help="Compute metrics against classified runs")
     parser.add_argument("--n", type=int, default=50)
+    parser.add_argument("--per-agreement", type=int, default=100,
+                        help="Rows per agreement for --make-stratified-sample")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for dataset generation")
     parser.add_argument("--source", default=None,
                         help="Optional classified source in data/results/ for agreement+category stratified sampling")
     args = parser.parse_args()
-    if args.sample:
-        build_sample(n=args.n, source=args.source)
+    if args.make_stratified_sample:
+        build_stratified_sample(per_agreement=args.per_agreement, seed=args.seed)
+    elif args.sample:
+        build_sample(n=args.n, seed=args.seed, source=args.source)
+    elif args.export_validation_provisions:
+        export_validation_provisions()
     else:
         evaluate()
