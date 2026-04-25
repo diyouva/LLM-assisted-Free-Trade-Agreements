@@ -64,8 +64,9 @@ PDFs (3 FTAs)
 │    few_shot   — 2 labelled examples prepended        │
 │    cot        — "think step by step" instruction     │
 │                                                      │
-│  Stratified sampling: 100 provisions/agreement       │
-│  (corrects for RCEP's 53.5% corpus share, seed=42)  │
+│  Main runs: reproducible random sample (seed=42)     │
+│  Comparative runs: stratified 100/agreement          │
+│  (corrects for RCEP's 53.5% corpus share)           │
 └──────────────────────────────────────────────────────┘
      │  classified_*.json  (6 run files)
      ▼
@@ -94,7 +95,8 @@ PDFs (3 FTAs)
 ├── data/
 │   ├── raw/
 │   │   ├── all_provisions.json   # Full extracted corpus
-│   │   └── validation_provisions.json  # 50-provision gold set
+│   │   ├── stratified_sample.json      # 100/agreement comparison cohort
+│   │   └── validation_provisions.json  # Exact JSON cohort used for validation runs
 │   └── results/
 │       ├── classified_llama_zero_shot.json
 │       ├── classified_llama_few_shot.json
@@ -165,17 +167,25 @@ Put all FTA PDFs in the `Agreement/` directory. The expected filenames are defin
 
 ## Running the Pipeline
 
-### Full pipeline (sequential)
+### Full pipeline (core sequential stages)
 
 ```bash
 python run_pipeline.py --step all
 ```
 
+`--step all` runs the four core stages only: `extract → embed → classify → compare`.
+It does **not** generate the stratified comparison sample or validation datasets for you.
+
 ### Step by step
+
+#### Core pipeline
 
 ```bash
 # 1. Extract provisions from PDFs
 python run_pipeline.py --step extract
+
+# 1b. Build agreement-balanced comparison cohort (100 per agreement)
+python run_pipeline.py --step stratified_sample --per-agreement 100 --seed 42
 
 # 2. Build ChromaDB vector store
 python run_pipeline.py --step embed
@@ -183,9 +193,10 @@ python run_pipeline.py --step embed
 # 3. Classify provisions
 #    --model: llama | qwen
 #    --strategy: zero_shot | few_shot | cot
-#    --limit: number of provisions (default: all)
-python -m src.classification --model llama --strategy zero_shot
-python -m src.classification --model qwen  --strategy cot
+#    --limit: number of provisions (default in run_pipeline.py: 200)
+#    --sample-mode: random | head   (use random unless debugging)
+python -m src.classification --model llama --strategy zero_shot --limit 200 --sample-mode random --seed 42
+python -m src.classification --model qwen  --strategy cot       --limit 100 --sample-mode random --seed 42
 
 # Stratified sample (100 per agreement, corrects for corpus imbalance)
 python -m src.classification --model qwen --strategy few_shot \
@@ -204,17 +215,59 @@ python -m src.analysis
 python -m src.visualize
 ```
 
-### Validation (against 50-provision gold set)
+#### Validation workflow (against a 50-provision gold set)
 
 ```bash
-# Create stratified validation sample (run once)
-python -m src.validation --sample
+# 1. Build a validation CSV from a classified cohort
+python run_pipeline.py --step validation_sample \
+    --validation-n 50 \
+    --validation-source classified_qwen_few_shot_stratified.json \
+    --seed 42
 
-# Manually label data/results/validation_set.csv (gold_category column)
-# See data/results/validation_checked.xlsx for the completed gold set
+# 2. Manually label data/results/validation_set.csv (gold_category column)
 
-# Score all classified runs against gold labels
+# 3. Export the exact validation cohort to JSON for classification reruns
+python run_pipeline.py --step validation_export
+
+# 4. Reclassify that exact validation cohort with each model/strategy
+python -m src.classification --model llama --strategy zero_shot --source validation_provisions.json --suffix validation
+python -m src.classification --model llama --strategy few_shot  --source validation_provisions.json --suffix validation
+python -m src.classification --model llama --strategy cot       --source validation_provisions.json --suffix validation
+python -m src.classification --model qwen  --strategy zero_shot --source validation_provisions.json --suffix validation
+python -m src.classification --model qwen  --strategy few_shot  --source validation_provisions.json --suffix validation
+python -m src.classification --model qwen  --strategy cot       --source validation_provisions.json --suffix validation
+
+# 5. Score only runs whose IDs exactly match the labelled validation cohort
 python -m src.validation --evaluate
+```
+
+### Recommended full rerun after code changes
+
+If you have changed extraction, sampling, validation, or comparison logic, the
+saved JSON outputs may be stale. In that case, rerun the pipeline in this order:
+
+```bash
+python run_pipeline.py --step extract
+python run_pipeline.py --step stratified_sample --per-agreement 100 --seed 42
+python run_pipeline.py --step embed
+
+python -m src.classification --model llama --strategy zero_shot --limit 200 --sample-mode random --seed 42
+python -m src.classification --model llama --strategy few_shot  --limit 200 --sample-mode random --seed 42
+python -m src.classification --model llama --strategy cot       --limit 100 --sample-mode random --seed 42
+python -m src.classification --model qwen  --strategy zero_shot --limit 200 --sample-mode random --seed 42
+python -m src.classification --model qwen  --strategy few_shot  --limit 200 --sample-mode random --seed 42
+python -m src.classification --model qwen  --strategy cot       --limit 100 --sample-mode random --seed 42
+python -m src.classification --model qwen  --strategy few_shot  --source stratified_sample.json --suffix stratified
+
+python run_pipeline.py --step validation_sample --validation-n 50 --validation-source classified_qwen_few_shot_stratified.json --seed 42
+# manually label validation_set.csv
+python run_pipeline.py --step validation_export
+# rerun the six *_validation classifications here
+python -m src.validation --evaluate
+
+python -m src.comparison --model qwen --source classified_qwen_few_shot_stratified.json
+python -m src.analysis
+python -m src.visualize
 ```
 
 ---
