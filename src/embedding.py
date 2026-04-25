@@ -9,6 +9,7 @@ Usage:
 """
 
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -29,6 +30,10 @@ def _get_model() -> SentenceTransformer:
     if _model is None:
         _model = SentenceTransformer(EMBED_MODEL)
     return _model
+
+
+def get_embedding_model() -> SentenceTransformer:
+    return _get_model()
 
 
 def _get_client() -> chromadb.PersistentClient:
@@ -157,6 +162,55 @@ def retrieve_similar(
             }
         )
     return output
+
+
+def rank_provisions_by_query(
+    provisions: list[dict],
+    query: str,
+    *,
+    n_results: int = 5,
+) -> list[dict]:
+    """
+    Rank a provision list by cosine similarity to a query string.
+    """
+    if not provisions:
+        return []
+
+    try:
+        model = _get_model()
+        query_vec = model.encode([query], show_progress_bar=False, normalize_embeddings=True)[0]
+        doc_vecs = model.encode(
+            [p["text"] for p in provisions],
+            show_progress_bar=False,
+            normalize_embeddings=True,
+        )
+
+        scored: list[dict] = []
+        for provision, vector in zip(provisions, doc_vecs):
+            score = float(vector @ query_vec)
+            scored.append({**provision, "similarity": round(score, 4)})
+    except Exception as exc:
+        print(f"  [embedding fallback] {exc}")
+        query_terms = _tokenize_for_fallback(query)
+        scored = []
+        for provision in provisions:
+            doc_terms = _tokenize_for_fallback(provision["text"])
+            overlap = len(query_terms & doc_terms)
+            denom = math.sqrt(max(len(query_terms), 1) * max(len(doc_terms), 1))
+            score = overlap / denom if denom else 0.0
+            scored.append({**provision, "similarity": round(score, 4)})
+
+    scored.sort(key=lambda row: row["similarity"], reverse=True)
+    return scored[:n_results]
+
+
+def _tokenize_for_fallback(text: str) -> set[str]:
+    import re
+
+    return {
+        token for token in re.findall(r"[A-Za-z]{3,}", text.lower())
+        if token not in {"the", "and", "for", "with", "that", "shall", "party"}
+    }
 
 
 if __name__ == "__main__":

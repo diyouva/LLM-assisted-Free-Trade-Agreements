@@ -33,6 +33,19 @@ def _load(name: str) -> list[dict]:
         return json.load(f)
 
 
+def _id_set(run: list[dict]) -> frozenset[str]:
+    return frozenset(p["id"] for p in run)
+
+
+def _build_run_catalog() -> dict[str, list[dict]]:
+    runs: dict[str, list[dict]] = {}
+    for path in sorted(RESULT_DIR.glob("classified_*.json")):
+        run = _load(path.name)
+        if run:
+            runs[path.stem.replace("classified_", "")] = run
+    return runs
+
+
 def _cohens_kappa(labels_a: list[str], labels_b: list[str]) -> float:
     """Cohen's kappa — agreement adjusted for chance. 1=perfect, 0=chance."""
     assert len(labels_a) == len(labels_b), "Length mismatch"
@@ -134,25 +147,29 @@ def convergence_signal(matrix: dict) -> dict:
 # ── Main: produce an analysis bundle ──────────────────────────────────────────
 
 def run_all():
-    runs = {
-        "llama_zero_shot": _load("classified_llama_zero_shot.json"),
-        "llama_few_shot":  _load("classified_llama_few_shot.json"),
-        "llama_cot":       _load("classified_llama_cot.json"),
-        "qwen_zero_shot":  _load("classified_qwen_zero_shot.json"),
-        "qwen_few_shot":   _load("classified_qwen_few_shot.json"),
-        "qwen_cot":        _load("classified_qwen_cot.json"),
-    }
-    runs = {k: v for k, v in runs.items() if v}   # drop empty
+    runs = _build_run_catalog()
+    cohort_ids: dict[frozenset[str], list[str]] = defaultdict(list)
+    for label, run in runs.items():
+        cohort_ids[_id_set(run)].append(label)
 
     bundle = {
         "run_summary":       {k: {"n": len(v)} for k, v in runs.items()},
         "category_matrix":   {k: category_matrix(v) for k, v in runs.items()},
         "convergence":       {k: convergence_signal(category_matrix(v)) for k, v in runs.items()},
         "pairwise_agreement": {},
+        "cohorts": {
+            f"cohort_{idx+1}": {
+                "n": len(group_ids),
+                "runs": sorted(labels),
+            }
+            for idx, (group_ids, labels) in enumerate(cohort_ids.items())
+        },
     }
 
     # pairwise kappa/raw agreement
     for a, b in combinations(runs, 2):
+        if _id_set(runs[a]) != _id_set(runs[b]):
+            continue
         key = f"{a} vs {b}"
         cmp = compare_two_runs(runs[a], runs[b])
         bundle["pairwise_agreement"][key] = {
@@ -166,6 +183,7 @@ def run_all():
     disagreements = {
         f"{a} vs {b}": compare_two_runs(runs[a], runs[b])["disagreements"]
         for a, b in combinations(runs, 2)
+        if _id_set(runs[a]) == _id_set(runs[b])
     }
 
     out_path = RESULT_DIR / "analysis_bundle.json"
@@ -185,8 +203,19 @@ def run_all():
     for k, v in bundle["pairwise_agreement"].items():
         print(f"  {k:40s}  n={v['n']:<4}  raw={v['raw_agreement']:.3f}  κ={v['kappa']:.3f}")
 
-    print("\n── Convergence signals (based on Qwen few-shot) ──")
-    sig = bundle["convergence"].get("qwen_few_shot", {})
+    print("\n── Convergence signals (preferred stratified run) ──")
+    preferred_run = next(
+        (
+            name for name in (
+                "qwen_few_shot_stratified",
+                "qwen_cot_stratified",
+                "qwen_few_shot",
+            )
+            if name in bundle["convergence"]
+        ),
+        None,
+    )
+    sig = bundle["convergence"].get(preferred_run or "", {})
     for cat, info in sorted(sig.items(), key=lambda x: -x[1]["total_provisions"]):
         print(f"  {cat:40s}  n={info['total_provisions']:<4}  CV={info['coef_variation']:.2f}  → {info['signal']}")
 

@@ -41,6 +41,7 @@ from config import (
     RAW_DIR,
     RESULT_DIR,
 )
+from src.sampling import sample_provisions
 
 # ── Clients ────────────────────────────────────────────────────────────────────
 
@@ -230,6 +231,7 @@ def call_qwen(prompt: str, max_retries: int = 8, max_tokens: int = 2048) -> str:
 
 
 def call_claude(prompt: str, max_retries: int = 3) -> str:
+    import anthropic
     client = _claude_client()
     for attempt in range(max_retries):
         try:
@@ -250,6 +252,7 @@ def call_claude(prompt: str, max_retries: int = 3) -> str:
 
 
 def call_openai(prompt: str, max_retries: int = 3) -> str:
+    import openai
     client = _openai_client()
     for attempt in range(max_retries):
         try:
@@ -289,6 +292,8 @@ def classify_provisions(
     limit: int | None = None,
     delay: float = 0.3,
     out_suffix: str = "",
+    sample_mode: str = "random",
+    seed: int = 42,
 ) -> list[dict]:
     """
     Classify provisions using the specified model and prompt strategy.
@@ -311,7 +316,7 @@ def classify_provisions(
     caller         = MODEL_CALLERS[model]
     prompt_builder = PROMPT_BUILDERS[strategy]
 
-    subset = provisions[:limit] if limit else provisions
+    subset = sample_provisions(provisions, limit, mode=sample_mode, seed=seed)
     results = []
 
     # Groq free tier: ~6,000 tokens/min for LLaMA 3.3 70B
@@ -327,7 +332,10 @@ def classify_provisions(
         token_delay = {"zero_shot": 2, "few_shot": 10, "cot": 10}
         delay = token_delay.get(strategy, 5)
 
-    print(f"\nClassifying {len(subset):,} provisions  |  model={model}  strategy={strategy}")
+    print(
+        f"\nClassifying {len(subset):,} provisions  |  model={model}  "
+        f"strategy={strategy}  sampling={sample_mode}  seed={seed}"
+    )
     for i, prov in enumerate(subset, 1):
         if i % 10 == 0 or i == 1:
             print(f"  [{i}/{len(subset)}] …", flush=True)
@@ -400,6 +408,11 @@ if __name__ == "__main__":
                              "(e.g. stratified_sample.json)")
     parser.add_argument("--suffix",   default="",
                         help="Extra suffix on output filename")
+    parser.add_argument("--sample-mode", default="random",
+                        choices=["random", "head"],
+                        help="How to choose provisions when --limit is set")
+    parser.add_argument("--seed",     type=int, default=42,
+                        help="Random seed used for sampling")
     args = parser.parse_args()
 
     provisions_path = RAW_DIR / args.source
@@ -412,4 +425,6 @@ if __name__ == "__main__":
         strategy=args.strategy,
         limit=args.limit,
         out_suffix=args.suffix,
+        sample_mode=args.sample_mode,
+        seed=args.seed,
     )

@@ -25,7 +25,7 @@ from config import (
     RESULT_DIR,
 )
 from src.classification import call_claude, call_qwen, call_llama, call_openai
-from src.embedding import retrieve_similar
+from src.embedding import rank_provisions_by_query
 
 MODEL_CALLERS = {
     # Free models
@@ -77,6 +77,7 @@ def compare_category(
     category: str,
     model: str = "qwen",
     n_provisions: int = 3,
+    classified_path: Path | None = None,
 ) -> dict:
     """
     Compare provisions from all three agreements for a given policy category.
@@ -92,11 +93,20 @@ def compare_category(
     caller = MODEL_CALLERS[model]
     provisions_by_agreement: dict[str, list[dict]] = {}
 
+    source_path = classified_path or _default_classified_path(model)
+    with open(source_path, encoding="utf-8") as f:
+        classified = json.load(f)
+
     print(f"\n  Retrieving provisions for: {category}")
     for agreement in AGREEMENTS:
-        similar = retrieve_similar(
-            query=f"{category} provisions obligations requirements",
-            agreement_filter=agreement,
+        candidates = [
+            provision for provision in classified
+            if provision.get("agreement") == agreement
+            and provision.get("category") == category
+        ]
+        similar = rank_provisions_by_query(
+            candidates,
+            query=f"{category} obligations requirements legal design thresholds",
             n_results=n_provisions,
         )
         provisions_by_agreement[agreement] = similar
@@ -126,10 +136,32 @@ def compare_category(
     return result
 
 
+def _default_classified_path(model: str) -> Path:
+    candidates = [
+        RESULT_DIR / "classified_qwen_few_shot_stratified.json",
+        RESULT_DIR / "classified_llama_few_shot_stratified.json",
+        RESULT_DIR / "classified_qwen_few_shot.json",
+        RESULT_DIR / "classified_llama_few_shot.json",
+        RESULT_DIR / f"classified_{model}_few_shot_stratified.json",
+        RESULT_DIR / f"classified_{model}_cot_stratified.json",
+        RESULT_DIR / f"classified_{model}_few_shot.json",
+        RESULT_DIR / f"classified_{model}_cot.json",
+        RESULT_DIR / f"classified_{model}_zero_shot.json",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(
+        f"No classified run found for model '{model}'. "
+        "Run classification first."
+    )
+
+
 def run_full_comparison(
     model: str = "claude",
     categories: list[str] | None = None,
     delay: float = 1.0,
+    classified_path: Path | None = None,
 ) -> list[dict]:
     """
     Run comparison across all (or specified) policy categories.
@@ -147,7 +179,7 @@ def run_full_comparison(
 
     for cat in cats:
         print(f"\n[{cats.index(cat)+1}/{len(cats)}] {cat}")
-        result = compare_category(cat, model=model)
+        result = compare_category(cat, model=model, classified_path=classified_path)
         all_results.append(result)
 
         # Save incrementally
@@ -197,11 +229,15 @@ if __name__ == "__main__":
                         choices=["llama", "qwen", "claude", "openai"])
     parser.add_argument("--category", default=None,
                         help="Single category to compare (default: all)")
+    parser.add_argument("--source",   default=None,
+                        help="Classified source file in data/results/")
     args = parser.parse_args()
 
+    source_path = (RESULT_DIR / args.source) if args.source else None
+
     if args.category:
-        result = compare_category(args.category, model=args.model)
+        result = compare_category(args.category, model=args.model, classified_path=source_path)
         print("\n" + "="*60)
         print(result["analysis"])
     else:
-        run_full_comparison(model=args.model)
+        run_full_comparison(model=args.model, classified_path=source_path)

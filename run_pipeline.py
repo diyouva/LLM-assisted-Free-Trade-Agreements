@@ -42,7 +42,7 @@ def step_embed():
     return provisions
 
 
-def step_classify(model: str, strategy: str, limit: int | None):
+def step_classify(model: str, strategy: str, limit: int | None, sample_mode: str, seed: int):
     print("\n" + "█"*60)
     print(f"  STEP 3: LLM Classification  [{model} / {strategy}]")
     print("█"*60)
@@ -50,7 +50,14 @@ def step_classify(model: str, strategy: str, limit: int | None):
     from src.classification import classify_provisions
     with open(RAW_DIR / "all_provisions.json", encoding="utf-8") as f:
         provisions = json.load(f)
-    return classify_provisions(provisions, model=model, strategy=strategy, limit=limit)
+    return classify_provisions(
+        provisions,
+        model=model,
+        strategy=strategy,
+        limit=limit,
+        sample_mode=sample_mode,
+        seed=seed,
+    )
 
 
 def step_compare(model: str):
@@ -74,6 +81,11 @@ def main():
                         choices=["zero_shot", "few_shot", "cot"])
     parser.add_argument("--limit",    type=int, default=200,
                         help="Max provisions for classification step (default: 200)")
+    parser.add_argument("--sample-mode", default="random",
+                        choices=["random", "head"],
+                        help="How to choose provisions when --limit is set")
+    parser.add_argument("--seed",     type=int, default=42,
+                        help="Random seed used for sampling")
     args = parser.parse_args()
 
     step = args.step
@@ -85,7 +97,7 @@ def main():
         step_embed()
 
     if step in ("3", "classify", "all"):
-        step_classify(args.model, args.strategy, args.limit)
+        step_classify(args.model, args.strategy, args.limit, args.sample_mode, args.seed)
 
     if step in ("4", "compare", "all"):
         step_compare(args.model)

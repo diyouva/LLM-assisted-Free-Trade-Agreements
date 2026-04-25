@@ -19,27 +19,37 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import POLICY_CATEGORIES, RAW_DIR, RESULT_DIR
+from src.sampling import stratified_sample_by_agreement, stratified_sample_by_agreement_and_category
 
 VALIDATION_CSV = RESULT_DIR / "validation_set.csv"
 
 
 # ── 1. Build sample ─────────────────────────────────────────────────────────
 
-def build_sample(n: int = 50, seed: int = 1) -> None:
-    """Stratified random sample across agreements — write to CSV for labelling."""
-    random.seed(seed)
-    provisions = json.load(open(RAW_DIR / "all_provisions.json", encoding="utf-8"))
+def build_sample(n: int = 50, seed: int = 1, source: str | None = None) -> None:
+    """
+    Build a validation cohort.
 
-    per_ag = n // 3                     # ~17 per agreement
-    sample: list[dict] = []
-    for ag in ("RCEP", "AHKFTA", "AANZFTA"):
-        pool = [p for p in provisions if p["agreement"] == ag]
-        sample.extend(random.sample(pool, min(per_ag, len(pool))))
-
-    # fill to exactly n by sampling remainder from RCEP
-    while len(sample) < n:
-        pool = [p for p in provisions if p["agreement"] == "RCEP" and p not in sample]
-        sample.append(random.choice(pool))
+    If a classified source is provided, sample across agreement and predicted
+    category to reduce skew in the labelled gold set. Otherwise fall back to
+    agreement-balanced sampling from the raw corpus.
+    """
+    if source:
+        source_path = RESULT_DIR / source
+        provisions = json.load(open(source_path, encoding="utf-8"))
+        sample = stratified_sample_by_agreement_and_category(provisions, n, seed=seed)
+    else:
+        provisions = json.load(open(RAW_DIR / "all_provisions.json", encoding="utf-8"))
+        per_agreement = max(1, n // 3)
+        sample = stratified_sample_by_agreement(provisions, per_agreement, seed=seed)
+    if len(sample) > n:
+        sample = sample[:n]
+    elif len(sample) < n:
+        rng = random.Random(seed)
+        chosen_ids = {p["id"] for p in sample}
+        leftovers = [p for p in provisions if p["id"] not in chosen_ids]
+        rng.shuffle(leftovers)
+        sample.extend(leftovers[: n - len(sample)])
 
     with open(VALIDATION_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -111,11 +121,19 @@ def evaluate() -> None:
     print(f"Evaluating against {len(gold)} gold-labelled provisions\n")
 
     report = {}
+    gold_ids = set(gold)
     for fname in sorted(RESULT_DIR.glob("classified_*.json")):
         run = json.load(open(fname, encoding="utf-8"))
-        pairs = [(gold[p["id"]], p["category"]) for p in run if p["id"] in gold]
-        if not pairs:
+        run_ids = {p["id"] for p in run}
+        if run_ids != gold_ids:
+            overlap = len(run_ids & gold_ids)
+            if overlap:
+                print(
+                    f"  {fname.stem:40s}  skipped  "
+                    f"(overlap {overlap}/{len(gold_ids)}; cohort mismatch)"
+                )
             continue
+        pairs = [(gold[p["id"]], p["category"]) for p in run if p["id"] in gold]
         m = _metrics(pairs)
         report[fname.stem] = m
         print(f"  {fname.stem:40s}  n={m['n']:<3}  acc={m['accuracy']:.3f}  macroF1={m['macro_f1']:.3f}")
@@ -134,8 +152,10 @@ if __name__ == "__main__":
     g.add_argument("--evaluate", action="store_true",
                    help="Compute metrics against classified runs")
     parser.add_argument("--n", type=int, default=50)
+    parser.add_argument("--source", default=None,
+                        help="Optional classified source in data/results/ for agreement+category stratified sampling")
     args = parser.parse_args()
     if args.sample:
-        build_sample(n=args.n)
+        build_sample(n=args.n, source=args.source)
     else:
         evaluate()

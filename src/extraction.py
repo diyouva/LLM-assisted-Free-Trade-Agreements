@@ -109,8 +109,9 @@ _ARTICLE_PATTERNS = [
     # Annex headers
     r"^(ANNEX|Annex)\s+",
 ]
-_SPLIT_RE = re.compile(
-    "|".join(_ARTICLE_PATTERNS), re.MULTILINE
+_BOUNDARY_RE = re.compile(
+    "|".join(f"(?:{pattern})" for pattern in _ARTICLE_PATTERNS),
+    re.MULTILINE,
 )
 
 
@@ -122,6 +123,56 @@ def _infer_chapter(text_block: str) -> str:
         if re.match(r"(Chapter|CHAPTER|Section|SECTION|Article|ARTICLE|Annex|ANNEX)", line):
             return line[:120]
     return ""
+
+
+def _extract_article_id(text_block: str) -> str:
+    for line in text_block.strip().splitlines()[:5]:
+        line = line.strip()
+        match = re.match(
+            r"((?:Article|ARTICLE|Rule|RULE|Section|SECTION)\s+[\dA-Za-z\.]+)",
+            line,
+        )
+        if match:
+            return match.group(1)
+    return ""
+
+
+def _is_noise_block(text_block: str) -> bool:
+    cleaned = text_block.strip()
+    if not cleaned:
+        return True
+
+    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
+    preview = " ".join(lines[:6]).upper()
+
+    if "TABLE OF CONTENTS" in preview:
+        return True
+    if len(lines) <= 3 and all(
+        re.fullmatch(r"[\dA-ZIVX\-\(\)\.:/ ]+", line) for line in lines
+    ):
+        return True
+    if cleaned.count("...") > 3:
+        return True
+    if re.fullmatch(r"[\d\.\s]+", cleaned):
+        return True
+    return False
+
+
+def _iter_provision_blocks(text: str) -> list[str]:
+    matches = list(_BOUNDARY_RE.finditer(text))
+    if not matches:
+        return [text]
+
+    blocks: list[str] = []
+    if matches[0].start() > 0:
+        blocks.append(text[: matches[0].start()])
+
+    for index, match in enumerate(matches):
+        start = match.start()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        blocks.append(text[start:end])
+
+    return blocks
 
 
 def segment_provisions(
@@ -137,8 +188,8 @@ def segment_provisions(
     text = re.sub(r"\r\n?", "\n", raw_text)
     text = re.sub(r"\n{3,}", "\n\n", text)
 
-    # Split on article / section / rule headers
-    splits = _SPLIT_RE.split(text)
+    # Split on article / section / rule headers while preserving the header line
+    splits = _iter_provision_blocks(text)
 
     provisions = []
     article_no  = ""
@@ -149,26 +200,21 @@ def segment_provisions(
         if block is None:
             continue
         block = block.strip()
-        if not block or len(block) < MIN_CLAUSE_CHARS:
+        if not block or len(block) < MIN_CLAUSE_CHARS or _is_noise_block(block):
             continue
 
-        # Try to identify article number from first line
-        first_line = block.splitlines()[0].strip()
-        art_match = re.match(r"(Article|ARTICLE|Rule|RULE|Section|SECTION)\s+([\d\.]+)", first_line)
-        if art_match:
-            article_no = f"{art_match.group(1)} {art_match.group(2)}"
-            new_chapter = _infer_chapter(block)
-            if new_chapter:
-                chapter = new_chapter
+        new_article = _extract_article_id(block)
+        if new_article:
+            article_no = new_article
+        new_chapter = _infer_chapter(block)
+        if new_chapter:
+            chapter = new_chapter
 
         # Further split long blocks into paragraphs
         sub_blocks = re.split(r"\n\n+", block)
         for sub in sub_blocks:
             sub = sub.strip()
-            if len(sub) < MIN_CLAUSE_CHARS:
-                continue
-            # Skip pure table-of-contents lines
-            if re.match(r"^[\d\.\s]+$", sub) or sub.count("...") > 3:
+            if len(sub) < MIN_CLAUSE_CHARS or _is_noise_block(sub):
                 continue
 
             para_idx += 1
