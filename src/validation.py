@@ -19,11 +19,14 @@ import random
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import POLICY_CATEGORIES, RAW_DIR, RESULT_DIR
 from src.sampling import stratified_sample_by_agreement, stratified_sample_by_agreement_and_category
 
 VALIDATION_CSV = RESULT_DIR / "validation_set.csv"
+VALIDATION_XLSX = RESULT_DIR / "validation_checked.xlsx"
 STRATIFIED_SAMPLE_JSON = RAW_DIR / "stratified_sample.json"
 VALIDATION_PROVISIONS_JSON = RAW_DIR / "validation_provisions.json"
 
@@ -99,13 +102,11 @@ def export_validation_provisions(
     Export the currently labelled validation CSV rows back into raw JSON so the
     classification CLI can run against the exact same cohort.
     """
-    if not VALIDATION_CSV.exists():
-        raise FileNotFoundError("validation_set.csv not found. Run --sample first.")
+    rows, source_path = _load_validation_rows(require_gold=False)
 
     all_provisions = json.load(open(RAW_DIR / "all_provisions.json", encoding="utf-8"))
     by_id = {provision["id"]: provision for provision in all_provisions}
 
-    rows = list(csv.DictReader(open(VALIDATION_CSV, encoding="utf-8")))
     missing = [row["id"] for row in rows if row["id"] not in by_id]
     if missing:
         preview = ", ".join(missing[:5])
@@ -119,22 +120,59 @@ def export_validation_provisions(
         json.dump(selected, f, ensure_ascii=False, indent=2)
 
     print(f"✅ Validation provisions written: {output_path}")
-    print(f"   {len(selected)} provisions exported from {VALIDATION_CSV.name}")
+    print(f"   {len(selected)} provisions exported from {source_path.name}")
     return selected
 
 
 # ── 2. Evaluate against each classification run ─────────────────────────────
 
 def _load_gold() -> dict[str, str]:
-    if not VALIDATION_CSV.exists():
-        raise FileNotFoundError("Run --sample first, then fill gold_category column")
+    rows, source_path = _load_validation_rows(require_gold=True)
     gold: dict[str, str] = {}
-    with open(VALIDATION_CSV, encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            cat = (row.get("gold_category") or "").strip()
-            if cat:
-                gold[row["id"]] = cat
+    for row in rows:
+        cat = str(row.get("gold_category") or "").strip()
+        if cat:
+            gold[row["id"]] = cat
+    if not gold:
+        raise ValueError(f"No gold labels found in {source_path.name}")
     return gold
+
+
+def _load_validation_rows(
+    require_gold: bool,
+) -> tuple[list[dict[str, str]], Path]:
+    """
+    Prefer the checked Excel workbook when present, because that is the final
+    hand-labelled artifact in this repository. Fall back to the CSV draft.
+    """
+    if VALIDATION_XLSX.exists():
+        df = pd.read_excel(VALIDATION_XLSX)
+        rows = _normalise_validation_rows(df.to_dict(orient="records"))
+        return rows, VALIDATION_XLSX
+
+    if VALIDATION_CSV.exists():
+        rows = _normalise_validation_rows(
+            list(csv.DictReader(open(VALIDATION_CSV, encoding="utf-8")))
+        )
+        return rows, VALIDATION_CSV
+
+    missing_msg = "validation_checked.xlsx or validation_set.csv not found."
+    if require_gold:
+        raise FileNotFoundError(f"{missing_msg} Run --sample first, then fill gold labels.")
+    raise FileNotFoundError(f"{missing_msg} Run --sample first.")
+
+
+def _normalise_validation_rows(rows: list[dict]) -> list[dict[str, str]]:
+    normalised: list[dict[str, str]] = []
+    for row in rows:
+        clean_row: dict[str, str] = {}
+        for key, value in row.items():
+            if pd.isna(value):
+                clean_row[str(key)] = ""
+            else:
+                clean_row[str(key)] = str(value)
+        normalised.append(clean_row)
+    return normalised
 
 
 def _metrics(pairs: list[tuple[str, str]]) -> dict:
@@ -168,9 +206,10 @@ def _metrics(pairs: list[tuple[str, str]]) -> dict:
 
 
 def evaluate() -> None:
-    gold = _load_gold()
-    if not gold:
-        print("⚠️  No gold labels found in validation_set.csv — fill it first.")
+    try:
+        gold = _load_gold()
+    except ValueError as exc:
+        print(f"⚠️  {exc}")
         return
     print(f"Evaluating against {len(gold)} gold-labelled provisions\n")
 
