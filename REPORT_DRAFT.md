@@ -10,7 +10,7 @@ Machine Learning Foundation with Python — Carnegie Mellon University — Sprin
 
 ## Abstract
 
-Free Trade Agreements (FTAs) shape trade flows, tariffs, and regulatory regimes for billions of consumers, yet their legal texts run to thousands of pages and overlap inconsistently across regions. This project builds an end-to-end Python pipeline that converts three major Asia-Pacific FTAs — **RCEP**, **AHKFTA**, and **AANZFTA** — into a structured, machine-comparable dataset of 3,980 provisions, and applies two Large Language Models (**LLaMA 3.3 70B** and **Qwen 3 32B**) under three prompt strategies (**zero-shot**, **few-shot**, **chain-of-thought**) to classify each provision into 11 policy categories. A Retrieval-Augmented Generation (RAG) layer then produces narrative cross-agreement comparisons. We quantify model and strategy agreement with Cohen's κ, identify convergent vs. fragmented policy areas across the three agreements, and validate classification accuracy on a hand-labelled sample of 50 provisions.
+Free Trade Agreements (FTAs) shape trade flows, tariffs, and regulatory regimes for billions of consumers, yet their legal texts run to thousands of pages and overlap inconsistently across regions. This project builds an end-to-end Python pipeline that converts three major Asia-Pacific FTAs — **RCEP**, **AHKFTA**, and **AANZFTA** — into a structured, machine-comparable dataset of 4,059 provisions, and applies two Large Language Models (**LLaMA 3.3 70B** and **Qwen 3 32B**) under three prompt strategies (**zero-shot**, **few-shot**, **chain-of-thought**) to classify each provision into 11 policy categories. A Retrieval-Augmented Generation (RAG) layer then produces narrative cross-agreement comparisons. We quantify model and strategy agreement with Cohen's κ, identify convergent vs. fragmented policy areas across the three agreements, and validate classification accuracy on a hand-labelled sample of 50 provisions.
 
 ## 1. Introduction
 
@@ -24,7 +24,7 @@ Three questions, drawn directly from the project proposal:
 3. Do these agreements exhibit **patterns of convergence or fragmentation** reflecting broader regional trade dynamics?
 
 ### 1.3 Contribution
-We deliver (a) a reusable pipeline that any researcher can point at new FTA PDFs, (b) a 3,980-provision labelled dataset, (c) a cross-model / cross-strategy agreement study, and (d) an RAG-based comparative analysis over 11 policy areas.
+We deliver (a) a reusable pipeline that any researcher can point at new FTA PDFs, (b) a 4,059-provision labelled dataset, (c) a cross-model / cross-strategy agreement study, and (d) an RAG-based comparative analysis over 11 policy areas.
 
 ## 2. Data
 
@@ -38,10 +38,10 @@ Seven publicly available PDFs covering:
 
 | Agreement | Provisions | Share |
 |---|---:|---:|
-| RCEP | 2,129 | 53.5% |
-| AANZFTA | 1,498 | 37.6% |
-| AHKFTA | 353 | 8.9% |
-| **Total** | **3,980** | 100% |
+| RCEP | 2,171 | 53.5% |
+| AANZFTA | 1,526 | 37.6% |
+| AHKFTA | 362 | 8.9% |
+| **Total** | **4,059** | 100% |
 
 ![Corpus overview](data/results/fig_corpus_overview.png)
 
@@ -111,8 +111,8 @@ Notable patterns:
 ![Kappa matrix](data/results/fig_kappa_matrix.png)
 
 Key findings:
-- **Within-model strategy consistency is modest.** LLaMA zero-shot vs. few-shot: κ = 0.51 (moderate). Qwen zero-shot vs. few-shot: κ = 0.02 (near-random).
-- **Across-model agreement is weak.** LLaMA few-shot vs. Qwen few-shot: κ = −0.02.
+- **Within-model strategy consistency is materially stronger in the current rerun artefacts.** LLaMA zero-shot vs. few-shot: κ = 0.668. Qwen zero-shot vs. few-shot: κ = 0.689.
+- **Across-model agreement is no longer near-zero once cohorts are aligned exactly.** LLaMA few-shot vs. Qwen few-shot: κ = 0.582.
 - Implication: category boundaries under these prompts are noisy; downstream analysis should rely on *aggregate* distribution trends rather than individual labels.
 
 ### 4.4 Effect of prompt strategy (within each model)
@@ -216,22 +216,20 @@ A stratified random sample of 50 provisions (18 RCEP, 16 AHKFTA, 16 AANZFTA) was
 
 | Run | n | Accuracy | Macro-F1 |
 |---|---:|---:|---:|
-| **Qwen 3 32B — chain-of-thought** | 50 | **0.700** | **0.693** |
-| LLaMA 3.3 70B — zero-shot | 50 | 0.700 | 0.591 |
-| LLaMA 3.3 70B — few-shot | 50 | 0.680 | 0.635 |
-| Qwen 3 32B — zero-shot | 50 | 0.680 | 0.596 |
-| Qwen 3 32B — few-shot | 50 | 0.580 | 0.540 |
-| LLaMA 3.3 70B — chain-of-thought | 50 | 0.480 | 0.527 |
+| LLaMA 3.3 70B — zero-shot | 50 | **0.480** | 0.431 |
+| Qwen 3 32B — chain-of-thought | 50 | 0.460 | **0.442** |
+| Qwen 3 32B — zero-shot | 50 | 0.380 | 0.424 |
+| Qwen 3 32B — few-shot | 50 | 0.380 | 0.373 |
+| LLaMA 3.3 70B — few-shot | 50 | 0.340 | 0.336 |
+| LLaMA 3.3 70B — chain-of-thought | 50 | 0.320 | 0.327 |
 
 ![Validation accuracy](data/results/fig_validation_accuracy.png)
 
 Key findings:
-- **Qwen 3 32B with chain-of-thought is the top classifier** — tied for highest accuracy (70%) and clear macro-F1 winner (0.693), meaning it performs best not only overall but also on the rare tail categories (Intellectual Property, SPS, Investment).
-- CoT improves Qwen's macro-F1 by roughly 10 points over zero-shot (0.596 → 0.693), the strongest empirical argument in this study for reasoning-augmented prompting on legal-text classification.
-- Few-shot actually *hurts* Qwen's performance (0.596 → 0.540): the two RoO/Tariff in-context examples over-anchor the model onto those two categories and suppress correct labels for other classes.
-- **CoT *hurts* LLaMA** (0.591 → 0.527 macro-F1) — the opposite of Qwen. Forcing LLaMA to reason step-by-step introduces over-elaboration that degrades its final label. This asymmetry confirms that prompt strategy must be tuned per model.
-- LLaMA benefits from few-shot (0.591 → 0.635) while Qwen does not — the models respond to prompting techniques in opposite ways, consistent with the near-zero cross-model κ (§4.3).
-- A 70% accuracy ceiling on a single-annotator gold set is consistent with expected inter-annotator noise in legal-category labelling; the framework is at triage-grade accuracy, not compliance-grade.
+- **No run clears 50% accuracy on the current gold set.** That makes the classifier useful for triage and aggregate patterning, but not for trusted provision-level automation.
+- **LLaMA zero-shot has the best accuracy** at 48.0%, while **Qwen CoT has the best macro-F1** at 0.442. There is no longer a single dominant "winner" across both metrics.
+- Prompt strategy effects remain real but smaller than earlier drafts claimed: CoT helps Qwen slightly on macro-F1, while zero-shot remains strongest for LLaMA.
+- The more important result now is methodological: once cohorts are aligned exactly, inter-run agreement is fairly healthy, so the bottleneck is label quality, not pairwise instability.
 
 ## 5. Discussion
 
@@ -241,20 +239,20 @@ Key findings:
 - Convergence signals (entropy-based) are interpretable and align with expert intuitions: *General Provisions* is the most convergent category; *Tariff Commitments* is the most fragmented.
 
 ### 5.2 Limitations
-1. **Category boundaries.** Low inter-strategy κ within Qwen (0.02) is a warning. Hierarchical or multi-label classification would likely help.
+1. **Category boundaries.** Validation remains weak even after the pipeline fixes, which suggests the 11-way taxonomy is still difficult for these prompts. Hierarchical or multi-label classification would likely help.
 2. **Single-annotator ground truth.** The 50-provision validation is labelled by the project author; future work should add a second annotator and compute inter-annotator κ.
 3. **Category imbalance.** Seven of eleven categories have < 10% of provisions; macro-F1 is therefore sensitive to noise in the tail.
 4. **Cross-agreement alignment.** The proposal called for article/rule-number alignment supplemented by HS codes. In practice, extracted provisions often lack clean article-number metadata, and HS codes appear mainly in tariff schedules rather than main-agreement text. Semantic similarity (ChromaDB) was used instead, which is robust to formatting variation but cannot guarantee structurally equivalent provisions are retrieved — the RAG comparison may occasionally pair provisions that address related but not identical obligations.
 5. **Annex and schedule coverage.** The attribute extractor recovers numeric thresholds (RVC%, phase-out years) from main-agreement text; most tariff schedules and product-specific-rules annexes were not passed through the attribute extractor separately, so threshold recovery is incomplete for AANZFTA.
-6. **API quota constraints.** The Groq free-tier daily token limit (100,000 tokens/day for LLaMA 3.3 70B) constrained the main classification runs (CoT capped at 100 provisions instead of 200) and required LLaMA CoT validation to be deferred to a separate day. Final result: accuracy 0.480, macro-F1 0.527 — the lowest of all six runs. A paid tier or second API key would remove this constraint.
+6. **API quota constraints.** The Groq free-tier daily token limit (100,000 tokens/day for LLaMA 3.3 70B) still constrains the main classification runs (CoT capped at 100 provisions instead of 200). A paid tier or second API key would improve throughput, but would not by itself solve the current 0.320–0.480 validation accuracy ceiling.
 
 ### 5.3 Policy implications
 A working computational pipeline means a trade negotiator can, in principle, ask questions like *"Which agreement is most flexible on de-minimis rules?"* and get an evidence-cited answer in seconds rather than days. The accuracy bar is not yet high enough for compliance-grade use, but it is clearly high enough for triage / prioritisation of manual review.
 
 ## 6. Conclusion
-We successfully converted 3,980 FTA provisions into a structured corpus and addressed all three research questions from the proposal:
+We successfully converted 4,059 FTA provisions into a structured corpus and addressed all three research questions from the proposal:
 
-**RQ1 (Reliable extraction and classification):** The pipeline extracts provisions with zero errors across all 7 PDFs including scanned documents (OCR fallback), and classifies them at 48–70% accuracy (macro-F1 0.527–0.693) depending on model and prompt strategy. The best configuration — Qwen 3 32B with chain-of-thought — achieves 70% accuracy and 0.693 macro-F1. A key finding: CoT prompting helps Qwen (+10pp macro-F1 vs. zero-shot) but hurts LLaMA (−6pp), confirming that prompt strategy must be tuned per model architecture.
+**RQ1 (Reliable extraction and classification):** The pipeline extracts provisions successfully across all 7 PDFs including scanned documents (OCR fallback), but current validation quality is only moderate: accuracy ranges from 32% to 48%, and macro-F1 ranges from 0.327 to 0.442. The best accuracy comes from LLaMA zero-shot; the best macro-F1 comes from Qwen CoT. That makes the system useful for triage and corpus-level patterning, not provision-level automation.
 
 **RQ2 (Policy-design differences across agreements):** The provision count matrix (§4.5a) and policy-design comparison matrix (§4.5b) reveal clear structural differences: AHKFTA concentrates 28% of its text in Rules of Origin vs. 9% for RCEP; AHKFTA lacks dedicated chapters for Investment and Dispute Settlement; and the three agreements use different default CTC rules and tariff-concession architectures.
 
@@ -315,7 +313,7 @@ python run_pipeline.py --step validation_sample \
     --validation-n 50 \
     --validation-source classified_qwen_few_shot_stratified.json \
     --seed 42
-#   → fill data/results/validation_set.csv (gold_category column)
+#   → fill data/results/validation_checked.xlsx (fallback: validation_set.csv)
 python run_pipeline.py --step validation_export
 python -m src.validation --evaluate
 ```

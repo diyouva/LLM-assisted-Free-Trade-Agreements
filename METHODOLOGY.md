@@ -31,7 +31,7 @@ PDFs ─► Extraction ─► Embedding ─► Classification ─► Comparison 
 
 ### Output
 
-`data/raw/all_provisions.json` — a list of 3,980 dictionaries with fields:
+`data/raw/all_provisions.json` — a list of 4,059 dictionaries with fields:
 
 | Field | Description |
 |---|---|
@@ -44,7 +44,7 @@ PDFs ─► Extraction ─► Embedding ─► Classification ─► Comparison 
 | `text` | Clean provision text |
 | `char_count` | Length |
 
-**Provisions per agreement:** RCEP = 2,129, AANZFTA = 1,498, AHKFTA = 353.
+**Provisions per agreement:** RCEP = 2,171, AANZFTA = 1,526, AHKFTA = 362.
 
 ## 3. Stage 2 — Embeddings & Vector Store
 
@@ -125,9 +125,9 @@ Exports `analysis_bundle.json` and `analysis_disagreements.json`.
 
 **Module:** `src/validation.py`
 
-1. `--sample --source classified_qwen_few_shot_stratified.json` creates `validation_set.csv` from a balanced classified cohort.
-2. Analyst hand-labels the `gold_category` column.
-3. `--export-validation-provisions` writes the exact IDs from `validation_set.csv` back to `data/raw/validation_provisions.json`.
+1. `--sample --source classified_qwen_few_shot_stratified.json` creates a 50-row validation cohort from a balanced classified run.
+2. Analyst hand-labels the `gold_category` column in `validation_checked.xlsx` when present (fallback: `validation_set.csv`).
+3. `--export-validation-provisions` writes the exact IDs from that labelled file back to `data/raw/validation_provisions.json`.
 4. Validation classification runs are executed on that exact JSON cohort.
 5. `--evaluate` scores only runs whose ID set exactly matches the labelled validation cohort. Exports `validation_report.json`.
 
@@ -158,6 +158,6 @@ A hybrid approach is used: **regex** extracts deterministic numeric fields (e.g.
 ## 10. Known Limitations
 
 1. **Legal language ambiguity.** "Other" captures provisions that span multiple categories; future work could use multi-label classification.
-2. **Free-tier quotas.** LLaMA CoT validation required a separate day's quota allocation (100,000 tokens/day rolling window). Completed result: accuracy 0.480, macro-F1 0.527 — the lowest of all six runs, confirming that CoT hurts LLaMA while helping Qwen.
+2. **Free-tier quotas.** Long runs still require careful pacing on the Groq free tier. In the current saved artefacts, validation quality remains modest across all six runs: best accuracy is 0.480 (LLaMA zero-shot), while best macro-F1 is 0.442 (Qwen CoT).
 3. **Attribute extraction remains annex-sensitive.** Structured fields (RVC %, CTC rule, phase-out years) are best recovered from the stratified sample, but completeness still depends on whether the relevant schedule or annex text entered the extracted provision corpus.
 4. **Agreements limited to three** (RCEP, AHKFTA, AANZFTA) by design — the framework generalises to any FTA with a PDF text layer.

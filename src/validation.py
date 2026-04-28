@@ -207,10 +207,19 @@ def _metrics(pairs: list[tuple[str, str]]) -> dict:
 
 def evaluate() -> None:
     try:
-        gold = _load_gold()
+        rows, source_path = _load_validation_rows(require_gold=True)
+        gold = {}
+        for row in rows:
+            cat = str(row.get("gold_category") or "").strip()
+            if cat:
+                gold[row["id"]] = cat
     except ValueError as exc:
         print(f"⚠️  {exc}")
         return
+    except FileNotFoundError as exc:
+        print(f"⚠️  {exc}")
+        return
+    print(f"Using gold labels from: {source_path}")
     print(f"Evaluating against {len(gold)} gold-labelled provisions\n")
 
     report = {}

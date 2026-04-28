@@ -61,7 +61,7 @@ Proyek ini membangun **pipeline otomatis** dari PDF mentah hingga analisis kompa
 |---------|------------|
 | **FTA** | Free Trade Agreement — perjanjian perdagangan bebas antar negara/kawasan |
 | **Provision** | Satu ketentuan atau klausul hukum dalam perjanjian (setara satu paragraf bermakna) |
-| **Corpus** | Kumpulan seluruh provisions dari semua perjanjian (total: 3.980 provisions) |
+| **Corpus** | Kumpulan seluruh provisions dari semua perjanjian (total: 4.059 provisions) |
 | **Gold Set** | 50 provisions yang sudah diberi label benar secara manual oleh manusia — dipakai untuk menguji akurasi AI |
 | **Pipeline** | Alur kerja otomatis dari input (PDF) hingga output (analisis dan grafik) |
 
@@ -136,7 +136,7 @@ PDFs (7 dokumen dari 3 FTA)
 │   STEP 1: Ekstraksi │  PDF → teks → dipotong jadi provisions
 │   (extraction.py)   │  pdfplumber → PyMuPDF → Tesseract OCR
 └─────────────────────┘
-        │  all_provisions.json (3.980 provisions)
+        │  all_provisions.json (4.059 provisions)
         ▼
 ┌─────────────────────┐
 │   STEP 2: Embedding │  Teks → vektor makna → disimpan di ChromaDB
@@ -173,7 +173,7 @@ PDFs (7 dokumen dari 3 FTA)
 
 ### Step 1 — Ekstraksi PDF
 
-**Tujuan:** Mengubah PDF dokumen hukum menjadi 3.980 provisions terstruktur.
+**Tujuan:** Mengubah PDF dokumen hukum menjadi 4.059 provisions terstruktur.
 
 **Cara kerja:**
 - Coba baca PDF dengan **pdfplumber** (library Python untuk PDF teks)
@@ -192,10 +192,10 @@ id, agreement, doc_type, chapter, article, paragraph_idx, text, char_count
 
 | Perjanjian | Jumlah Provisions | Persentase |
 |-----------|------------------|-----------|
-| RCEP | 2.129 | 53.5% |
-| AANZFTA | 1.498 | 37.6% |
-| AHKFTA | 353 | 8.9% |
-| **Total** | **3.980** | **100%** |
+| RCEP | 2.171 | 53.5% |
+| AANZFTA | 1.526 | 37.6% |
+| AHKFTA | 362 | 8.9% |
+| **Total** | **4.059** | **100%** |
 
 > **Masalah:** RCEP mendominasi 53.5% corpus. Kalau analisis tidak disesuaikan, hasil akan bias ke RCEP. Solusinya: gunakan **stratified sample** — ambil 100 provisions per perjanjian untuk analisis komparatif.
 
@@ -320,9 +320,9 @@ Final category: Customs Procedures
 
 | Pasangan | κ | Interpretasi |
 |---------|---|-------------|
-| LLaMA zero-shot vs LLaMA few-shot | 0.51 | Moderat — lumayan konsisten |
-| Qwen zero-shot vs Qwen few-shot | 0.02 | Hampir acak — few-shot mengubah Qwen secara drastis |
-| LLaMA few-shot vs Qwen few-shot | −0.02 | Lebih buruk dari acak — dua model ini hampir selalu tidak setuju |
+| LLaMA zero-shot vs LLaMA few-shot | 0.668 | Substantial — cukup konsisten |
+| Qwen zero-shot vs Qwen few-shot | 0.689 | Substantial — cukup konsisten |
+| LLaMA few-shot vs Qwen few-shot | 0.582 | Moderat — beda, tapi tidak liar |
 
 > **Artinya:** Meski dua model punya akurasi yang mirip, mereka sering **tidak setuju pada provisions yang sama**. Ini penting — tidak berarti kalau model A benar, model B juga benar di provision yang sama.
 
@@ -356,20 +356,18 @@ Final category: Customs Procedures
 
 | Model + Strategi | Accuracy | Macro-F1 | n |
 |-----------------|----------|----------|---|
-| **Qwen 3 32B — CoT** | **70.0%** | **0.693** | 50 |
-| LLaMA 3.3 70B — Zero-shot | 70.0% | 0.591 | 50 |
-| LLaMA 3.3 70B — Few-shot | 68.0% | 0.635 | 50 |
-| Qwen 3 32B — Zero-shot | 68.0% | 0.596 | 50 |
-| Qwen 3 32B — Few-shot | 58.0% | 0.540 | 50 |
-| LLaMA 3.3 70B — CoT | 48.0% | 0.527 | 50 |
+| **LLaMA 3.3 70B — Zero-shot** | **48.0%** | 0.431 | 50 |
+| **Qwen 3 32B — CoT** | 46.0% | **0.442** | 50 |
+| Qwen 3 32B — Zero-shot | 38.0% | 0.424 | 50 |
+| Qwen 3 32B — Few-shot | 38.0% | 0.373 | 50 |
+| LLaMA 3.3 70B — Few-shot | 34.0% | 0.336 | 50 |
+| LLaMA 3.3 70B — CoT | 32.0% | 0.327 | 50 |
 
-**Temuan mengejutkan — asimetri CoT:**
-- CoT **membantu Qwen** secara signifikan (+10pp F1 dibanding zero-shot)
-- CoT justru **merusak LLaMA** secara signifikan (−6pp F1 dibanding zero-shot)
-- Qwen adalah "thinking model" yang dirancang untuk reasoning panjang → CoT sesuai arsitekturnya
-- LLaMA adalah decoder standar → reasoning panjang membuat LLaMA "overthink" dan tidak konsisten
-
-**Strategi terbaik: Qwen 3 32B dengan Chain-of-Thought**
+**Interpretasi yang lebih jujur setelah rerun:**
+- Tidak ada konfigurasi yang menembus 50% accuracy
+- LLaMA zero-shot paling tinggi di accuracy
+- Qwen CoT paling tinggi di macro-F1, tapi selisihnya kecil
+- Jadi output klasifikasi lebih cocok untuk **triage analis** daripada label final
 
 ---
 
@@ -407,13 +405,13 @@ Dashboard HTML (`index.html`) bisa dibuka langsung di browser — tidak perlu in
 
 ```
 ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│  3,980       │ │  0.693       │ │  6           │ │  11          │
+│  4,059       │ │  0.442       │ │  6           │ │  11          │
 │  PROVISIONS  │ │  BEST F1     │ │  LLM RUNS    │ │  CATEGORIES  │
 └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘
 
         ┌─────────────────┐    ┌──────────────────────────┐
         │  Corpus Donut   │    │  Research Questions       │
-        │  RCEP: 53.5%    │    │  RQ1 ✓ Qwen CoT 70%      │
+        │  RCEP: 53.5%    │    │  RQ1 ✓ triage only       │
         │  AANZFTA: 37.6% │    │  RQ2 ✓ CC vs CTH         │
         │  AHKFTA: 8.9%   │    │  RQ3 ✓ GP convergent     │
         └─────────────────┘    └──────────────────────────┘
@@ -440,7 +438,7 @@ Bar chart menampilkan **Accuracy** dan **Macro-F1** untuk semua 6 kombinasi.
 - **Qwen CoT** = bar tertinggi → konfigurasi terbaik
 - **LLaMA CoT** = bar terendah → CoT justru merugikan LLaMA
 
-**Insight penting:** Accuracy bisa sama (misalnya LLaMA zero-shot vs Qwen CoT, keduanya 70%) tapi Macro-F1 berbeda (0.591 vs 0.693). Artinya Qwen CoT lebih **konsisten di semua kategori**, tidak hanya akurat di kategori yang banyak.
+**Insight penting:** metrik sekarang jauh lebih rendah dari draft awal repo. LLaMA zero-shot unggul di accuracy, tetapi Qwen CoT sedikit unggul di macro-F1. Itu berarti pilihan model tergantung apakah kamu lebih peduli pada hit rate total atau pemerataan performa antar kategori.
 
 ---
 
@@ -451,7 +449,7 @@ Tabel Cohen's κ — baca seperti tabel jarak/korelasi:
 - **Nilai mendekati 0** = dua model hampir tidak setuju
 - **Nilai negatif** = lebih buruk dari kalau jawab acak!
 
-**Yang menarik:** LLaMA few-shot vs Qwen few-shot punya κ = −0.02 — artinya dua model ini hampir **selalu tidak setuju** pada provision yang sama, meski aggregate accuracy-nya mirip.
+**Yang menarik:** setelah cohort disejajarkan dengan benar, κ tidak lagi mendekati nol. Masalah utamanya sekarang bukan chaos antar model, tetapi akurasi absolut yang masih rendah terhadap gold labels.
 
 ---
 
@@ -499,7 +497,7 @@ Accordion berisi narasi komparatif AI per kategori kebijakan.
 - Narasi mencakup: persamaan, perbedaan, tingkat fleksibilitas, sinyal konvergensi, dan implikasi kebijakan
 - Ini adalah output dari RAG pipeline — AI sudah membaca provisions relevan dari ketiga perjanjian sebelum menulis analisis
 
-**Catatan:** Narasi ini **buatan AI** — akurasi 70% berarti beberapa detail mungkin perlu diverifikasi dengan teks asli.
+**Catatan:** Narasi ini **buatan AI** — dengan akurasi validasi saat ini yang masih rendah, detail penting tetap harus diverifikasi ke teks asli.
 
 ---
 
@@ -526,7 +524,7 @@ Galeri 8 grafik PNG yang dihasilkan otomatis oleh pipeline Python.
 ### Jawaban Tiga Pertanyaan Riset
 
 **RQ1 — Klasifikasi andal?**
-Ya, dengan konfigurasi tepat. Qwen 3 32B + Chain-of-Thought mencapai **70% accuracy, 0.693 macro-F1** — cukup untuk triage awal oleh analis, tapi tidak untuk keputusan hukum final. Strategi prompting sangat berpengaruh dan harus disesuaikan per model.
+Ya, tapi hanya sebagai alat bantu awal. Artefak repo saat ini menunjukkan **48% accuracy terbaik** dan **0.442 macro-F1 terbaik**, jadi sistem ini cocok untuk triage awal oleh analis, bukan keputusan hukum final.
 
 **RQ2 — Perbedaan desain kebijakan?**
 AHKFTA adalah perjanjian khusus **barang** dengan Rules of Origin paling ketat (CC, chapter-level CTC). RCEP adalah perjanjian paling komprehensif dengan RoO lebih longgar (CTH, heading-level). Keduanya menetapkan threshold RVC 40%, tapi intensitas persyaratan transformasinya berbeda signifikan.
@@ -538,7 +536,7 @@ AHKFTA adalah perjanjian khusus **barang** dengan Rules of Origin paling ketat (
 
 | Keterbatasan | Artinya |
 |-------------|---------|
-| Akurasi 70% | Cocok untuk penyaringan awal; harus diverifikasi ke sumber asli untuk keputusan penting |
+| Akurasi 32–48% | Cocok hanya untuk penyaringan awal; harus diverifikasi ke sumber asli untuk keputusan penting |
 | Annex tidak tercover | Jadwal tarif numerik (yang ada di lampiran) tidak ikut dianalisis |
 | Tiga perjanjian saja | Temuan sugestif, belum bisa digeneralisasi ke semua FTA Asia-Pasifik |
 | Bahasa Inggris only | Dokumen terjemahan tidak tercakup |

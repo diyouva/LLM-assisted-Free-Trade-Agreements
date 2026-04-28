@@ -6,6 +6,11 @@
 
 ## Overview
 
+> **Repository status (April 2026):** the current JSON artefacts under `data/`
+> were regenerated after extraction, sampling, validation, and comparison
+> fixes. Earlier drafts in this repo reported stronger validation numbers from
+> older artefacts; those claims are now superseded by the current saved outputs.
+
 This project applies large language models (LLMs) to a standing problem in international trade policy: **comparing the legal architecture of Free Trade Agreements (FTAs) at scale**. The Asia-Pacific region alone maintains dozens of overlapping FTAs — each with thousands of provisions — making manual comparison impractical for analysts and negotiators. This framework automates the extraction, classification, and cross-agreement comparison of FTA provisions using freely available LLMs, validated against a hand-labelled gold set.
 
 **Three agreements analysed:**
@@ -25,9 +30,9 @@ This project applies large language models (LLMs) to a standing problem in inter
 
 ## Key Findings
 
-- **Qwen 3 32B with chain-of-thought prompting** achieves the best validation performance: **70.0% accuracy, 0.693 macro-F1** on a 50-provision gold set.
-- **Prompt strategy matters more than model size** for this task: few-shot prompting *hurt* Qwen (dropped F1 by 15pp) but helped LLaMA (gained 4pp). CoT recovered Qwen's performance by giving the model space to reason before committing.
-- **Inter-model agreement is near-random** (Cohen's κ = −0.02 between LLaMA few-shot and Qwen few-shot), meaning the two models disagree on roughly half of all provisions despite similar aggregate accuracy.
+- **Validation performance is modest on the current gold set.** Best accuracy is **LLaMA 3.3 70B zero-shot** at **48.0%**; best macro-F1 is **Qwen 3 32B chain-of-thought** at **0.442** on the same 50-provision cohort.
+- **Prompt effects are mixed rather than uniformly beneficial.** CoT slightly improves Qwen over its other strategies on macro-F1, but the margin is small after the rerun; few-shot no longer supports the earlier "clear improvement" narrative.
+- **Inter-run agreement is now moderate to substantial once cohorts are aligned exactly.** For example, `llama_zero_shot` vs `qwen_zero_shot` reaches **κ = 0.702**, and `llama_few_shot` vs `qwen_few_shot` reaches **κ = 0.582** on the shared 200-row cohort.
 - **AHKFTA is Rules-of-Origin heavy** (28% of sampled provisions vs 9% for RCEP), reflecting its tighter origin criteria; RCEP allocates more text to general and services provisions.
 - **General Provisions and Dispute Settlement** are the most structurally convergent categories — a shared regional template is emerging; **Tariff Commitments and Rules of Origin** are the most fragmented — each agreement follows a distinct design.
 
@@ -44,7 +49,7 @@ PDFs (3 FTAs)
 │  Provision schema   │  Fields: id, agreement, doc_type, chapter,
 │  (paragraph-level)  │          article, paragraph_idx, text, char_count
 └─────────────────────┘
-     │  all_provisions.json  (3,980 provisions)
+     │  all_provisions.json  (4,059 provisions)
      ▼
 ┌─────────────────────┐
 │  src/embedding.py   │  sentence-transformers (all-MiniLM-L6-v2)
@@ -224,7 +229,8 @@ python run_pipeline.py --step validation_sample \
     --validation-source classified_qwen_few_shot_stratified.json \
     --seed 42
 
-# 2. Manually label data/results/validation_set.csv (gold_category column)
+# 2. Manually label data/results/validation_checked.xlsx if present
+#    (fallback: data/results/validation_set.csv)
 
 # 3. Export the exact validation cohort to JSON for classification reruns
 python run_pipeline.py --step validation_export
@@ -260,7 +266,7 @@ python -m src.classification --model qwen  --strategy cot       --limit 100 --sa
 python -m src.classification --model qwen  --strategy few_shot  --source stratified_sample.json --suffix stratified
 
 python run_pipeline.py --step validation_sample --validation-n 50 --validation-source classified_qwen_few_shot_stratified.json --seed 42
-# manually label validation_set.csv
+# manually label validation_checked.xlsx (or validation_set.csv if no workbook exists)
 python run_pipeline.py --step validation_export
 # rerun the six *_validation classifications here
 python -m src.validation --evaluate
@@ -295,20 +301,21 @@ Qwen 3 is a "thinking" model — it emits `<think>...</think>` reasoning tokens 
 
 | Model + Strategy | Accuracy | Macro-F1 | n |
 |-----------------|----------|----------|---|
-| Qwen 3 32B — chain-of-thought | **0.700** | **0.693** | 50 |
-| LLaMA 3.3 70B — zero-shot | 0.700 | 0.591 | 50 |
-| LLaMA 3.3 70B — few-shot | 0.680 | 0.635 | 50 |
-| Qwen 3 32B — zero-shot | 0.680 | 0.596 | 50 |
-| Qwen 3 32B — few-shot | 0.580 | 0.540 | 50 |
-| LLaMA 3.3 70B — chain-of-thought | 0.480 | 0.527 | 50 |
+| LLaMA 3.3 70B — zero-shot | **0.480** | 0.431 | 50 |
+| Qwen 3 32B — chain-of-thought | 0.460 | **0.442** | 50 |
+| Qwen 3 32B — zero-shot | 0.380 | 0.424 | 50 |
+| Qwen 3 32B — few-shot | 0.380 | 0.373 | 50 |
+| LLaMA 3.3 70B — few-shot | 0.340 | 0.336 | 50 |
+| LLaMA 3.3 70B — chain-of-thought | 0.320 | 0.327 | 50 |
 
 ### Inter-Run Agreement (Cohen's κ)
 
 | Pair | κ | Interpretation |
 |------|---|----------------|
-| LLaMA zero-shot vs LLaMA few-shot | 0.51 | Moderate |
-| Qwen zero-shot vs Qwen few-shot | 0.02 | Near-chance |
-| LLaMA few-shot vs Qwen few-shot | −0.02 | Worse than chance |
+| LLaMA zero-shot vs LLaMA few-shot | 0.668 | Substantial |
+| Qwen zero-shot vs Qwen few-shot | 0.689 | Substantial |
+| LLaMA few-shot vs Qwen few-shot | 0.582 | Moderate |
+| LLaMA zero-shot vs Qwen zero-shot | 0.702 | Substantial |
 
 ---
 
@@ -397,7 +404,7 @@ jupyter notebook notebooks/analysis.ipynb
 
 ## Limitations
 
-- **Triage-grade accuracy only**: 70% accuracy is sufficient for analyst triage but not for compliance or legal use.
+- **Triage-grade accuracy only**: the current 32–48% validation accuracy range is useful for analyst prioritisation, not for compliance or legal use.
 - **Annex coverage**: Tariff schedules are excluded; numeric thresholds in schedules are not captured.
 - **API quota constraints**: Groq free-tier LLaMA daily quota (100K tokens) prevents running full CoT classification and validation in the same day.
 - **Three agreements**: Findings are suggestive, not statistically generalisable across the broader FTA landscape.

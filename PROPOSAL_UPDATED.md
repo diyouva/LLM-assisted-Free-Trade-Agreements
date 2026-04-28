@@ -41,7 +41,7 @@ The analysis uses publicly available legal texts for:
 
 Seven source PDFs are processed, including main agreement text and selected annexes, schedules, and protocol amendments. The unit of analysis is the smallest meaningful legal provision — an article, paragraph, clause, rule, or structured annex entry — filtered to 80–1,500 characters.
 
-The resulting dataset contains **3,980 provisions** across the three agreements (RCEP: 2,129 / AANZFTA: 1,498 / AHKFTA: 353). Key fields per provision: `id`, `agreement`, `doc_type`, `chapter`, `article`, `paragraph_idx`, `text`, `char_count`, and `category`.
+The current extracted dataset contains **4,059 provisions** across the three agreements (RCEP: 2,171 / AANZFTA: 1,526 / AHKFTA: 362). Key fields per provision: `id`, `agreement`, `doc_type`, `chapter`, `article`, `paragraph_idx`, `text`, `char_count`, and `category`.
 
 **Alignment approach:** Cross-agreement provision alignment uses semantic similarity via a ChromaDB vector store (sentence-transformers `all-MiniLM-L6-v2`, cosine distance). Article and rule number alignment was explored but found infeasible due to sparse article metadata from PDF formatting variation; Harmonized System codes appear primarily in tariff schedules rather than main-agreement text. Semantic similarity is more robust to formatting variation, though it does not guarantee legally equivalent provisions are always paired.
 
@@ -101,7 +101,7 @@ The dataset is publicly available and does not contain confidential information.
 
 | Research Question | Key Finding |
 |------------------|-------------|
-| **RQ1 — Reliable classification** | Best configuration: Qwen 3 32B with CoT — 70.0% accuracy, 0.693 macro-F1. CoT helps Qwen (+10pp) but hurts LLaMA (−6pp); prompt strategy must be tuned per model. |
+| **RQ1 — Reliable classification** | Current rerun artefacts are materially weaker than the original draft narrative: best accuracy is LLaMA zero-shot at 48.0%, while best macro-F1 is Qwen CoT at 0.442. The pipeline is useful for analyst triage, not autonomous legal judgement. |
 | **RQ2 — Policy design differences** | AHKFTA is goods-only (no services/investment/dispute chapters); uses CC (chapter-level CTC) vs. RCEP's CTH (heading-level) — same 40% RVC but stricter transformation. AANZFTA delegates thresholds to schedules. |
 | **RQ3 — Convergence/fragmentation** | General Provisions and Dispute Settlement are convergent (shared regional template); Tariff Commitments and Rules of Origin are fragmented (each agreement follows a distinct design). |
 
@@ -111,6 +111,6 @@ The dataset is publicly available and does not contain confidential information.
 
 This project contributes to trade policy analysis by providing a scalable, reproducible method to transform unstructured legal agreements into structured and comparable policy data. By enabling systematic comparison of provisions across agreements — with quantified reliability estimates — the framework supports more efficient policy evaluation and reduces reliance on manual document review.
 
-A trade policy analyst using this pipeline can extract and classify all provisions from a new FTA in under an hour, produce category-level distribution comparisons across agreements, and retrieve LLM-generated comparative narratives on any policy domain. At 70% accuracy, the tool is triage-grade: it reduces time-to-insight from weeks to hours and flags structurally significant differences for analyst verification against primary sources.
+A trade policy analyst using this pipeline can extract and classify all provisions from a new FTA in under an hour, produce category-level distribution comparisons across agreements, and retrieve LLM-generated comparative narratives on any policy domain. At current validation performance (48.0% best accuracy, 0.442 best macro-F1), the tool is still triage-grade: it reduces time-to-insight from weeks to hours, but every substantive conclusion should still be verified against the source text.
 
 The pipeline is fully reproducible, requires only a free Groq API key, and generalises to any FTA with a PDF text layer. The recommended configuration for production use is Qwen 3 32B with chain-of-thought prompting.

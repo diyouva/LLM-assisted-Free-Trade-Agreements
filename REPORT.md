@@ -13,7 +13,7 @@ Machine Learning Foundation with Python — Carnegie Mellon University — Sprin
 
 ## Abstract
 
-Free Trade Agreements (FTAs) run to thousands of pages yet must be compared, monitored, and negotiated by policy analysts who rely almost entirely on manual review. This project builds an end-to-end Python pipeline that converts three major Asia-Pacific FTAs — RCEP, AHKFTA, and AANZFTA — into a structured, machine-readable dataset of 3,980 provisions and uses Large Language Models to classify, compare, and extract attributes from them. Two models (LLaMA 3.3 70B and Qwen 3 32B) were tested under three prompt strategies (zero-shot, few-shot, and chain-of-thought) through an iterative process that closely mirrors how a policy analyst would decide which tool to trust. The best configuration — Qwen 3 32B with chain-of-thought prompting — achieves 70% accuracy and a macro-F1 of 0.693 on a 50-provision hand-labelled gold set. The pipeline surfaces concrete policy-design differences across agreements and identifies which policy areas are converging across the region and which remain fragmented.
+Free Trade Agreements (FTAs) run to thousands of pages yet must be compared, monitored, and negotiated by policy analysts who rely almost entirely on manual review. This project builds an end-to-end Python pipeline that converts three major Asia-Pacific FTAs — RCEP, AHKFTA, and AANZFTA — into a structured, machine-readable dataset of 4,059 provisions and uses Large Language Models to classify, compare, and extract attributes from them. Two models (LLaMA 3.3 70B and Qwen 3 32B) were tested under three prompt strategies (zero-shot, few-shot, and chain-of-thought) through an iterative process that closely mirrors how a policy analyst would decide which tool to trust. On the current 50-provision hand-labelled gold set, the best accuracy is 48.0% (LLaMA zero-shot) and the best macro-F1 is 0.442 (Qwen chain-of-thought). The pipeline still surfaces concrete policy-design differences across agreements, but the classification layer should now be read as analyst triage rather than high-confidence automation.
 
 ---
 
@@ -43,14 +43,14 @@ Three publicly available FTAs were selected to span the key Asia-Pacific regiona
 | **AHKFTA** | ASEAN + Hong Kong, China | 2019 | Main text + Annexes 2–11 |
 | **AANZFTA** | ASEAN + Australia + NZ | 2010 (amended 2014) | Main text, First Protocol, Implementing Arrangement, Tariff Understanding |
 
-Seven PDFs were processed. AHKFTA is partially scanned, requiring OCR. After extraction, the corpus contains **3,980 provisions** — the smallest meaningful legal unit (an article, paragraph, or structured annex entry), filtered to 80–1,500 characters.
+Seven PDFs were processed. AHKFTA is partially scanned, requiring OCR. After extraction, the corpus contains **4,059 provisions** — the smallest meaningful legal unit (an article, paragraph, or structured annex entry), filtered to 80–1,500 characters.
 
 | Agreement | Provisions | Share |
 |---|---:|---:|
-| RCEP | 2,129 | 53.5% |
-| AANZFTA | 1,498 | 37.6% |
-| AHKFTA | 353 | 8.9% |
-| **Total** | **3,980** | 100% |
+| RCEP | 2,171 | 53.5% |
+| AANZFTA | 1,526 | 37.6% |
+| AHKFTA | 362 | 8.9% |
+| **Total** | **4,059** | 100% |
 
 Each provision is stored with nine metadata fields: `id`, `agreement`, `doc_type`, `chapter`, `article`, `paragraph_idx`, `text`, `char_count`, and (after classification) `category`. The imbalance toward RCEP reflects its greater scope and was corrected in the cross-agreement analysis by drawing a **stratified sample** of 100 provisions per agreement.
 
@@ -79,11 +79,11 @@ The pipeline has six stages:
 
 **Three prompt strategies, each revealing something different:**
 
-*Zero-shot* was the baseline. The prompt was simple: here are 11 categories, here is a provision, what category is it? The model produced a label on every call, but with surprising variation — LLaMA and Qwen disagreed on the same provision more often than they agreed (cross-model κ = −0.02 on the few-shot runs, near-random).
+*Zero-shot* was the baseline. The prompt was simple: here are 11 categories, here is a provision, what category is it? In the current rerun artefacts, zero-shot is the strongest strategy for LLaMA and the second-best strategy for Qwen.
 
-*Few-shot* added two curated examples: one clearly labeled Rules of Origin provision and one clearly labeled Tariff Commitments provision. The hypothesis was that examples would sharpen the categories. The result was mixed. LLaMA's macro-F1 improved (0.591 → 0.635). Qwen's *dropped* (0.596 → 0.540) — the two examples over-anchored Qwen onto the two example categories, suppressing correct labels for Dispute Settlement, Customs, and Services provisions. This was not obvious before running the validation.
+*Few-shot* added two curated examples: one clearly labeled Rules of Origin provision and one clearly labeled Tariff Commitments provision. In the current saved runs, few-shot underperforms zero-shot for both models on the 50-row gold set, suggesting that two exemplars are not enough to stabilise this taxonomy.
 
-*Chain-of-thought (CoT)* asked the model to reason step-by-step before committing to a category. For Qwen, this was the decisive improvement: macro-F1 rose from 0.596 (zero-shot) to 0.693 (CoT), the largest single gain in the study. The CoT reasoning traces showed the model genuinely working through ambiguous provisions — for example, correctly identifying that a passage about "certificate of origin" requirements belonged in Customs Procedures (not Rules of Origin) because the obligation was procedural rather than definitional.
+*Chain-of-thought (CoT)* asked the model to reason step-by-step before committing to a category. In the current rerun, CoT gives Qwen the highest macro-F1 (0.442) but only a small edge over Qwen zero-shot (0.424), while LLaMA CoT is the weakest of the six runs. That pattern still supports model-specific prompt tuning, but not the stronger asymmetry claim made in earlier drafts.
 
 **Why CoT worked for Qwen but few-shot didn't** is a real finding, not a footnote. Few-shot examples constrain the model's output space toward the examples. CoT expands the reasoning space — it lets the model use its training knowledge about trade law without being anchored to two specific examples. Legal-text classification is a domain where this distinction matters: the categories are defined by legal function, not surface vocabulary, so broader reasoning outperforms narrow examples.
 
@@ -109,10 +109,10 @@ Cohen's κ measures inter-run agreement (1.0 = perfect, 0 = chance, negative = w
 
 | Comparison | κ | Interpretation |
 |---|---|---|
-| LLaMA zero-shot vs. few-shot | 0.51 | Moderate consistency |
-| Qwen zero-shot vs. few-shot | 0.02 | Near-random |
-| LLaMA few-shot vs. Qwen few-shot | −0.02 | Effectively no agreement |
-| LLaMA zero-shot vs. Qwen zero-shot | 0.26 | Fair |
+| LLaMA zero-shot vs. few-shot | 0.67 | Substantial consistency |
+| Qwen zero-shot vs. few-shot | 0.69 | Substantial |
+| LLaMA few-shot vs. Qwen few-shot | 0.58 | Moderate |
+| LLaMA zero-shot vs. Qwen zero-shot | 0.70 | Substantial |
 
 The practical implication: **individual provision labels are noisy.** No single model-strategy combination should be trusted for compliance-grade decisions. The right use is aggregate distribution analysis — asking "how many provisions in each agreement address Rules of Origin?" rather than "is this specific provision a Rules of Origin provision?"
 
@@ -122,14 +122,14 @@ Against the 50-provision gold set:
 
 | Model & Strategy | Accuracy | Macro-F1 |
 |---|---:|---:|
-| **Qwen 3 32B — chain-of-thought** | **0.700** | **0.693** |
-| LLaMA 3.3 70B — zero-shot | 0.700 | 0.591 |
-| LLaMA 3.3 70B — few-shot | 0.680 | 0.635 |
-| Qwen 3 32B — zero-shot | 0.680 | 0.596 |
-| Qwen 3 32B — few-shot | 0.580 | 0.540 |
-| LLaMA 3.3 70B — chain-of-thought | 0.480 | 0.527 |
+| LLaMA 3.3 70B — zero-shot | **0.480** | 0.431 |
+| Qwen 3 32B — chain-of-thought | 0.460 | **0.442** |
+| Qwen 3 32B — zero-shot | 0.380 | 0.424 |
+| Qwen 3 32B — few-shot | 0.380 | 0.373 |
+| LLaMA 3.3 70B — few-shot | 0.340 | 0.336 |
+| LLaMA 3.3 70B — chain-of-thought | 0.320 | 0.327 |
 
-Qwen CoT wins on macro-F1 — the metric that penalises a model for ignoring rare categories. This matters for policy analysis: a model that only gets Tariff Commitments right but misses Intellectual Property or SPS provisions is less useful than one that handles the full taxonomy. Macro-F1 captures that. A striking asymmetry emerges: chain-of-thought reasoning *improves* Qwen substantially (+10pp macro-F1 vs. zero-shot) but *hurts* LLaMA significantly (0.591 → 0.527). Forcing LLaMA to reason step-by-step appears to introduce over-elaboration that degrades its final label choice. This finding underscores that prompt strategy must be tuned per model — there is no universally optimal approach.
+The current validation results are materially weaker than earlier drafts in this repository. LLaMA zero-shot is the most accurate run, but only at 48%; Qwen CoT has the best macro-F1, but only by a narrow margin. The practical implication is that aggregate category distributions are still more defensible than any single provision-level label.
 
 ### 4.2 How Agreements Differ — The Comparative Matrices
 
@@ -224,7 +224,7 @@ The iterative prompt engineering process produced clear evidence for CoT over fe
 
 **Gemini ran out of quota.** The original design relied on Gemini as the second model. After ~200 API calls the free-tier daily limit was exhausted, and a three-strategy × 200-provision matrix requires ~1,200 calls minimum. This forced a model switch mid-project and illustrates a real constraint in production: free-tier LLM APIs are not suitable for large-batch legal-document processing without paid access.
 
-**Low inter-model agreement is a serious limitation.** A cross-model κ of −0.02 between LLaMA few-shot and Qwen few-shot means the two models are essentially labelling independently of each other. Neither can serve as a gold standard for the other. For a policy tool in production, this would require either human-in-the-loop review or ensemble voting — neither of which was implemented here.
+**Validation quality is the more serious limitation in the current repo state.** Once runs are aligned on exactly the same cohorts, inter-run agreement is no longer near-random; the bottleneck is that all six validation scores remain low. For production use, this still implies human-in-the-loop review for any provision-level conclusion.
 
 **26% of provisions fall into "Other."** The 11-category taxonomy captures most substantive content, but roughly one in four provisions is classified as "Other." Many of these are procedural, transitional, or administrative provisions that genuinely don't fit a substantive policy category. A hierarchical or multi-label taxonomy would likely improve coverage without sacrificing precision.
 
@@ -235,7 +235,7 @@ The iterative prompt engineering process produced clear evidence for CoT over fe
 A trade policy analyst using this pipeline today could:
 
 - **In under an hour:** Extract all provisions from a new FTA PDF, embed them, and run the classification to get a category distribution. This replaces 2–3 days of manual triage.
-- **With 70% confidence:** Accept the category label on any individual provision. That is triage-grade, not compliance-grade — enough to prioritise which sections to read first, not enough to rely on for a formal legal opinion.
+- **With current validation in the 32–48% accuracy range:** treat every individual label as a triage hint, not an answer. The value is prioritisation and aggregation, not autonomous legal judgement.
 - **Immediately useful:** The comparative matrix and RAG narratives are specific enough to brief a negotiator on key structural differences across agreements. The finding that AHKFTA uses a stricter CTC rule than RCEP (CC vs. CTH) is actionable for an exporter choosing which agreement to invoke.
 
 The tool is not ready for autonomous use. The accuracy ceiling, single-annotator gold labels, and inter-model disagreement all warrant caution. The correct framing is: this reduces the time a skilled analyst spends on triage from weeks to hours, and flags where the agreements differ in a structured format that the analyst can then verify against primary sources.
@@ -259,7 +259,7 @@ The pipeline is fully reproducible, uses only free-tier APIs, and can be pointed
 ## Appendix A — Technical Pipeline
 
 ```
-PDFs → extraction.py → all_provisions.json (3,980 provisions)
+PDFs → extraction.py → all_provisions.json (4,059 provisions)
                     → embedding.py → ChromaDB vector store
                     → classification.py → classified_{model}_{strategy}.json
                                        → comparison.py → comparison_qwen.json

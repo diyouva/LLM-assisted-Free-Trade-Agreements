@@ -1,8 +1,9 @@
-# How to fill in `data/results/validation_set.csv`
+# How to fill in the validation gold labels
 
 > **Workflow note (April 2026):** current repo flow:
 > 1. `python run_pipeline.py --step validation_sample ...`
-> 2. manually label `data/results/validation_set.csv`
+> 2. manually label `data/results/validation_checked.xlsx` if it exists
+>    (fallback: `data/results/validation_set.csv`)
 > 3. `python run_pipeline.py --step validation_export`
 > 4. rerun the six `*_validation` classifications on `data/raw/validation_provisions.json`
 > 5. `python -m src.validation --evaluate`
@@ -16,13 +17,13 @@
 
 The project compares 6 different LLM classification runs (2 models × 3 prompt strategies). The LLMs often disagree with each other on the same provision. Without a human-labelled gold standard, we can only measure how much the LLMs agree with **each other** — we cannot say which one is **actually correct**.
 
-Your labels in the `gold_category` column become the authoritative answer. The project then reports numbers like *"Qwen 3 32B with chain-of-thought achieves 70% accuracy."* Those numbers exist **only if this column is filled in and the exact same cohort is reclassified.**
+Your labels in the `gold_category` column become the authoritative answer. The project then reports validation metrics only if this column is filled in and the exact same cohort is reclassified.
 
 ---
 
 ## 2. Open the file
 
-1. Open `data/results/validation_set.csv` in Excel, Numbers, or Google Sheets.
+1. Open `data/results/validation_checked.xlsx` if it exists. If not, open `data/results/validation_set.csv`.
 2. You'll see **7 columns**:
 
 | Column | Purpose | Filled by |
@@ -131,8 +132,9 @@ Copy any of these into `gold_category` exactly:
 
 - [ ] All 50 rows have a `gold_category` filled (none left blank).
 - [ ] Category names exactly match one of the 11 in the table above (spelling matters).
-- [ ] Save the file as **CSV** (not `.xlsx`) — Excel should give you a "Save As → CSV UTF-8" option.
-- [ ] File path stays the same: `data/results/validation_set.csv`.
+- [ ] If you opened `validation_checked.xlsx`, keep it as `.xlsx` and save in place.
+- [ ] If you opened `validation_set.csv`, keep it as `.csv` and save in place.
+- [ ] File path stays the same; `src.validation` prefers `validation_checked.xlsx` when both files exist.
 
 ---
 
@@ -147,9 +149,9 @@ python3 -m src.validation --evaluate
 That will produce `data/results/validation_report.json` with numbers like:
 
 ```
-classified_qwen_cot_validation         n=50  acc=0.700  macroF1=0.693
-classified_llama_zero_shot_validation  n=50  acc=0.700  macroF1=0.591
-classified_llama_few_shot_validation   n=50  acc=0.680  macroF1=0.635
+classified_llama_zero_shot_validation  n=50  acc=0.480  macroF1=0.431
+classified_qwen_cot_validation         n=50  acc=0.460  macroF1=0.442
+classified_qwen_zero_shot_validation   n=50  acc=0.380  macroF1=0.424
 ```
 
 …and the corresponding figure `fig_validation_accuracy.png` will be generated automatically when you next run `python3 -m src.visualize`. Those numbers go straight into §4.7 of the report.

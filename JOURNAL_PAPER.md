@@ -20,7 +20,7 @@ Email: dnovith@andrew.cmu.edu
 
 ## Abstract
 
-The proliferation of bilateral and regional Free Trade Agreements (FTAs) has created a complex, overlapping treaty landscape — commonly termed the "spaghetti bowl" — that imposes substantial analytical burdens on trade policy professionals. Manual comparison of legal provisions across agreements is time-intensive and does not scale to the dozens of simultaneously active FTAs in any given region. This paper presents a computational pipeline that applies open-weight Large Language Models (LLMs) to the extraction, classification, and cross-agreement comparison of FTA provisions at scale. We construct a corpus of 3,980 provisions extracted from three major Asia-Pacific agreements — RCEP, AHKFTA, and AANZFTA — and systematically evaluate two architecturally distinct LLMs (LLaMA 3.3 70B and Qwen 3 32B) across three prompt strategies (zero-shot, few-shot, and chain-of-thought) against a hand-labelled 50-provision gold set. Our best configuration — Qwen 3 32B with chain-of-thought prompting — achieves 70.0% accuracy and 0.693 macro-F1. We document a striking architectural asymmetry: chain-of-thought reasoning improves Qwen 3 32B by approximately 10 percentage points in macro-F1 but degrades LLaMA 3.3 70B by 6 points, a finding attributable to the fundamental difference between thinking-model and standard decoder architectures. Cohen's κ analysis reveals that inter-model agreement is near-chance (κ = −0.02 between LLaMA few-shot and Qwen few-shot) despite similar aggregate accuracy, with critical implications for ensemble-based validation approaches. Cross-agreement structural analysis using Retrieval-Augmented Generation identifies Rules of Origin and Tariff Commitments as highly fragmented across agreements, while General Provisions and Dispute Settlement exhibit emerging regional convergence. This work establishes a reproducible, freely deployable benchmark for computational FTA analysis and identifies a previously undocumented failure mode of ensemble LLM validation in legal text classification.
+The proliferation of bilateral and regional Free Trade Agreements (FTAs) has created a complex, overlapping treaty landscape — commonly termed the "spaghetti bowl" — that imposes substantial analytical burdens on trade policy professionals. Manual comparison of legal provisions across agreements is time-intensive and does not scale to the dozens of simultaneously active FTAs in any given region. This paper presents a computational pipeline that applies open-weight Large Language Models (LLMs) to the extraction, classification, and cross-agreement comparison of FTA provisions at scale. We construct a corpus of 4,059 provisions extracted from three major Asia-Pacific agreements — RCEP, AHKFTA, and AANZFTA — and systematically evaluate two architecturally distinct LLMs (LLaMA 3.3 70B and Qwen 3 32B) across three prompt strategies (zero-shot, few-shot, and chain-of-thought) against a hand-labelled 50-provision gold set. In the current rerun artefacts, the best accuracy is 48.0% (LLaMA 3.3 70B zero-shot) and the best macro-F1 is 0.442 (Qwen 3 32B chain-of-thought). Cohen's κ analysis on aligned cohorts now shows moderate-to-substantial inter-run agreement rather than the near-random disagreement reported in earlier drafts, shifting the main bottleneck from cohort alignment to absolute classification quality. Cross-agreement structural analysis using Retrieval-Augmented Generation still identifies Rules of Origin and Tariff Commitments as highly fragmented across agreements, while General Provisions and Dispute Settlement exhibit emerging regional convergence. The resulting system is best understood as a reproducible analyst-triage tool rather than a high-confidence legal classifier.
 
 **Keywords:** Large Language Models; Free Trade Agreements; Legal Text Classification; Chain-of-Thought Prompting; Retrieval-Augmented Generation; Inter-Annotator Agreement; Trade Policy; Natural Language Processing
 
@@ -34,13 +34,13 @@ The emergence of capable, openly accessible Large Language Models offers a tract
 
 This paper addresses that gap. We make four primary contributions:
 
-1. **A reproducible FTA provision corpus and evaluation protocol.** We extract 3,980 provisions from three major Asia-Pacific FTAs using a pdfplumber → PyMuPDF → Tesseract OCR extraction chain and construct a stratified 50-provision gold set labelled against a 11-category WTO/UNCTAD taxonomy. All data, code, and results are publicly available.
+1. **A reproducible FTA provision corpus and evaluation protocol.** We extract 4,059 provisions from three major Asia-Pacific FTAs using a pdfplumber → PyMuPDF → Tesseract OCR extraction chain and construct a stratified 50-provision gold set labelled against a 11-category WTO/UNCTAD taxonomy. All data, code, and results are publicly available.
 
 2. **A systematic multi-model, multi-strategy classification benchmark.** We evaluate LLaMA 3.3 70B and Qwen 3 32B — two architecturally distinct open-weight models available without cost via the Groq inference platform — across zero-shot, few-shot, and chain-of-thought prompt strategies, yielding six complete evaluation runs.
 
-3. **An architectural asymmetry finding.** Chain-of-thought prompting substantially improves classification quality for Qwen 3 32B (a thinking model designed for extended reasoning) but substantially degrades it for LLaMA 3.3 70B (a standard instruction-tuned decoder). This asymmetry is reproducible and theoretically grounded, and has not been previously documented for legal text classification tasks.
+3. **A prompt-sensitivity finding.** Prompt strategy materially changes validation outcomes, but no configuration currently produces high-confidence provision-level labels. LLaMA zero-shot maximises accuracy, while Qwen CoT slightly improves macro-F1.
 
-4. **A near-zero inter-model agreement finding with practical implications.** Despite similar aggregate accuracy, LLaMA few-shot and Qwen few-shot achieve Cohen's κ = −0.02 on the same set of provisions, indicating that the models make errors on largely disjoint subsets of provisions. We argue this invalidates naïve ensemble or cross-model validation approaches for this task.
+4. **A cohort-alignment finding with practical implications.** Once runs are compared only on exactly matched cohorts, inter-run agreement is moderate to substantial rather than near-random. This indicates that earlier instability claims were partly methodological, while the harder remaining problem is low absolute validation quality.
 
 The remainder of this paper is structured as follows. Section 2 reviews related work. Section 3 describes the data and corpus construction. Section 4 details the methodology. Section 5 presents experimental results. Section 6 discusses findings, limitations, and implications. Section 7 concludes.
 
@@ -106,7 +106,7 @@ PDF extraction proceeds through a three-stage pipeline: pdfplumber (primary), Py
 {id, agreement, doc_type, chapter, article, paragraph_idx, text, char_count}
 ```
 
-The resulting corpus comprises **3,980 provisions**: RCEP 2,129 (53.5%), AANZFTA 1,498 (37.6%), and AHKFTA 353 (8.9%). The pronounced RCEP majority reflects both the agreement's breadth and the processing of its detailed annexes; we address the resulting sampling bias in Section 4.1 through stratified sampling.
+The resulting corpus comprises **4,059 provisions**: RCEP 2,171 (53.5%), AANZFTA 1,526 (37.6%), and AHKFTA 362 (8.9%). The pronounced RCEP majority reflects both the agreement's breadth and the processing of its detailed annexes; we address the resulting sampling bias in Section 4.1 through stratified sampling.
 
 ### 3.3 Gold Set Construction
 
@@ -186,53 +186,39 @@ Table 2 presents accuracy and macro-F1 for all six model-strategy combinations o
 
 | Model | Strategy | Accuracy | Macro-F1 |
 |-------|----------|----------|----------|
-| Qwen 3 32B | Chain-of-thought | **0.700** | **0.693** |
-| LLaMA 3.3 70B | Zero-shot | 0.700 | 0.591 |
-| LLaMA 3.3 70B | Few-shot | 0.680 | 0.635 |
-| Qwen 3 32B | Zero-shot | 0.680 | 0.596 |
-| Qwen 3 32B | Few-shot | 0.580 | 0.540 |
-| LLaMA 3.3 70B | Chain-of-thought | 0.480 | 0.527 |
+| LLaMA 3.3 70B | Zero-shot | **0.480** | 0.431 |
+| Qwen 3 32B | Chain-of-thought | 0.460 | **0.442** |
+| Qwen 3 32B | Zero-shot | 0.380 | 0.424 |
+| Qwen 3 32B | Few-shot | 0.380 | 0.373 |
+| LLaMA 3.3 70B | Few-shot | 0.340 | 0.336 |
+| LLaMA 3.3 70B | Chain-of-thought | 0.320 | 0.327 |
 
-The best-performing configuration — Qwen 3 32B with chain-of-thought prompting — achieves 70.0% accuracy and 0.693 macro-F1. The performance range across all six configurations spans 22 percentage points in accuracy (48%–70%) and 17 points in macro-F1 (0.527–0.693), indicating that prompt strategy is a dominant performance variable independent of model capability.
+No configuration currently exceeds 48% accuracy on the 50-row gold set. The performance range across all six configurations spans 16 percentage points in accuracy (32%–48%) and 0.115 points in macro-F1 (0.327–0.442), indicating that prompt strategy matters, but all six configurations remain in triage territory.
 
-Note that LLaMA 3.3 70B zero-shot and Qwen 3 32B CoT achieve identical accuracy (70.0%) but diverge by 10 points in macro-F1 (0.591 vs. 0.693). Inspection of the confusion matrices reveals that LLaMA zero-shot concentrates errors in minority categories (Intellectual Property, Sanitary and Phytosanitary, Non-Tariff Measures), whereas Qwen CoT distributes errors more evenly across categories — explaining the F1 differential despite equal accuracy.
+LLaMA 3.3 70B zero-shot has the highest accuracy, while Qwen 3 32B CoT has the highest macro-F1. That split suggests the classifier choice depends on whether the downstream task values overall hit rate or more even performance across rare categories.
 
-### 5.2 The Chain-of-Thought Asymmetry
+### 5.2 Prompt Sensitivity
 
-The most salient finding in Table 2 is the opposing effect of chain-of-thought prompting across model architectures:
+The current rerun still shows prompt sensitivity, but not the stronger asymmetry claimed in earlier drafts. Qwen CoT is the best Qwen variant on macro-F1 (0.442 vs. 0.424 zero-shot), but the improvement is small. LLaMA zero-shot is the strongest LLaMA variant on both accuracy and macro-F1. Few-shot performs poorly for both models on the current gold set.
 
-- **Qwen 3 32B:** CoT vs. zero-shot: +0.097 macro-F1 (+22% relative improvement)
-- **LLaMA 3.3 70B:** CoT vs. zero-shot: −0.064 macro-F1 (−11% relative degradation)
-
-This asymmetry is robust: it holds across both accuracy and F1, and the magnitude is large relative to the performance range of the experiment. CoT is the best strategy for Qwen and the worst strategy for LLaMA.
-
-Examining the few-shot results provides additional evidence. Few-shot improves LLaMA (+0.044 macro-F1 vs. zero-shot) but substantially degrades Qwen (−0.056 macro-F1 vs. zero-shot). The optimal strategy rankings are opposite: Qwen benefits from reasoning space (CoT > zero-shot > few-shot), while LLaMA benefits from exemplar guidance (few-shot > zero-shot > CoT).
+The main lesson is practical rather than theoretical: prompt strategy must be tuned empirically, and changes to sampling or validation logic can change the apparent winner. Earlier conclusions about dramatic CoT gains were not stable to the repaired pipeline.
 
 ### 5.3 Inter-Run Agreement
 
-Table 3 presents pairwise Cohen's κ for all fifteen pairs of classification runs on the 300-provision stratified sample.
+Table 3 presents selected pairwise Cohen's κ values for runs that share exactly matched cohorts.
 
-**Table 3. Pairwise Cohen's κ (300 stratified provisions)**
+**Table 3. Pairwise Cohen's κ (aligned cohorts)**
 
 | Run A | Run B | κ | Interpretation |
 |-------|-------|---|----------------|
-| LLaMA zero-shot | LLaMA few-shot | 0.51 | Moderate |
-| LLaMA zero-shot | LLaMA CoT | 0.38 | Fair |
-| LLaMA few-shot | LLaMA CoT | 0.32 | Fair |
-| Qwen zero-shot | Qwen few-shot | 0.02 | Near-chance |
-| Qwen zero-shot | Qwen CoT | 0.44 | Moderate |
-| Qwen few-shot | Qwen CoT | 0.19 | Slight |
-| LLaMA zero-shot | Qwen zero-shot | 0.31 | Fair |
-| LLaMA zero-shot | Qwen few-shot | 0.08 | Slight |
-| LLaMA zero-shot | Qwen CoT | 0.36 | Fair |
-| LLaMA few-shot | Qwen zero-shot | 0.14 | Slight |
-| LLaMA few-shot | Qwen few-shot | **−0.02** | **Below chance** |
-| LLaMA few-shot | Qwen CoT | 0.29 | Fair |
-| LLaMA CoT | Qwen zero-shot | 0.22 | Fair |
-| LLaMA CoT | Qwen few-shot | 0.11 | Slight |
-| LLaMA CoT | Qwen CoT | 0.27 | Fair |
+| LLaMA zero-shot | LLaMA few-shot | 0.668 | Substantial |
+| Qwen zero-shot | Qwen few-shot | 0.689 | Substantial |
+| LLaMA zero-shot | Qwen zero-shot | 0.702 | Substantial |
+| LLaMA few-shot | Qwen few-shot | 0.582 | Moderate |
+| LLaMA CoT | Qwen CoT | 0.640 | Substantial |
+| LLaMA CoT validation | Qwen CoT validation | 0.550 | Moderate |
 
-Three findings merit emphasis. First, intra-model consistency is substantially higher than inter-model consistency: LLaMA runs share κ values of 0.32–0.51, while cross-model pairs peak at 0.36 and frequently fall below 0.20. Second, within Qwen, few-shot dramatically reduces consistency (Qwen zero-shot vs. few-shot: κ = 0.02), confirming that the few-shot exemplars fundamentally redirect Qwen's classification behaviour. Third, and most significant, LLaMA few-shot versus Qwen few-shot achieves κ = −0.02 — a value below the expected value under random labelling, indicating systematic opposing biases introduced by the same few-shot examples acting on architecturally different models.
+The repaired analysis changes the interpretation substantially. Once identical cohorts are enforced, inter-run agreement is no longer near-random. The key bottleneck is therefore not pairwise disagreement but low absolute validation performance against the gold labels.
 
 ### 5.4 Cross-Agreement Structural Analysis
 
@@ -298,29 +284,23 @@ General Provisions (0.89) and Dispute Settlement (0.87) exhibit the highest conv
 
 ## 6. Discussion
 
-### 6.1 The Chain-of-Thought Asymmetry: Architectural Interpretation
+### 6.1 Prompt Choice Remains Empirical
 
-The opposing effect of CoT prompting on LLaMA 3.3 70B and Qwen 3 32B is the most theoretically significant finding of this study. We propose two complementary explanations.
+Earlier drafts of this repository argued for a strong architectural asymmetry between CoT effects on Qwen and LLaMA. The repaired rerun no longer supports that stronger claim. Qwen CoT still edges out the other Qwen variants on macro-F1, but only slightly; LLaMA zero-shot remains the strongest LLaMA variant. The effect size is therefore too small to justify a broad architecture-level conclusion from this experiment alone.
 
-**Architectural alignment.** Qwen 3 32B is trained as a thinking model — its pre-training and fine-tuning explicitly include extended reasoning trace generation as a target behaviour. When a CoT instruction is added to the prompt, the model is being directed to use a capability it was specifically optimised for. LLaMA 3.3 70B, by contrast, is a standard instruction-tuned decoder not trained to produce reasoning traces. The CoT instruction therefore activates a behaviour pattern that is not natively supported, potentially causing the model to generate verbose reasoning that is inconsistent with its classification commitments — what we might call *instructed overthinking*.
+The safer interpretation is operational: prompt strategy must be selected empirically for the exact pipeline state and evaluation cohort being used. Changes to extraction, sampling, or cohort alignment can change the apparent winner enough to invalidate a stronger theoretical story.
 
-**Task complexity and token budget.** Legal text classification of FTA provisions is a moderate-difficulty semantic task: it requires domain knowledge but does not require multi-step mathematical reasoning. Wei et al.'s [2022] original CoT findings were demonstrated primarily on multi-step arithmetic and symbolic reasoning tasks. Liu et al.'s [2024] evidence that CoT reduces performance on tasks where step-by-step deliberation *hurts* human performance is relevant here: FTA classification may involve holistic semantic judgements that benefit from direct label commitment rather than sequential reasoning. Qwen's thinking model training may provide the model with a more disciplined form of reasoning that avoids this pitfall; LLaMA's improvised CoT may generate text that commits the model to an incorrect intermediate framing.
+### 6.2 Inter-Run Agreement After Cohort Repair
 
-This finding has direct practical implications: **prompt strategy must be selected with reference to model architecture**, not applied uniformly. A practitioner applying a CoT prompt that works well for Qwen to LLaMA — or vice versa — would inadvertently select the worst configuration for one of the models.
+The repaired analysis changes this section substantially. Once runs are compared only on exactly matched cohorts, κ values become moderate to substantial rather than near-zero. That means the earlier disagreement story was at least partly a cohort-alignment artefact, not purely a model-behaviour result.
 
-### 6.2 Inter-Model Disagreement and Ensemble Validation
+The methodological warning therefore shifts. Agreement between two runs is only interpretable if they classify the same IDs. Earlier drafts in this repository violated that assumption in some comparisons, which inflated the apparent instability. After repair, ensemble disagreement is less alarming than first reported; the dominant problem is that all six runs still score weakly against the gold labels.
 
-The κ = −0.02 finding for LLaMA few-shot vs. Qwen few-shot requires careful interpretation. The negative value does not indicate that either model is performing poorly in absolute terms; both achieve 58–68% accuracy against the gold standard. Rather, it indicates that each model's errors are concentrated on provisions where the other model is correct — a pattern of *complementary* rather than *correlated* errors.
-
-This is both a methodological warning and, potentially, an opportunity. The methodological warning: a practitioner who runs two models as a "cross-check" and treats agreement as confirmation of correctness will be misled. Given κ ≈ 0, agreement between LLaMA few-shot and Qwen few-shot conveys almost no additional evidence of correctness beyond what either model achieves alone. Ensemble strategies such as majority voting, which assume correlated errors to be unlikely, are not valid for this pair of configurations.
-
-The potential opportunity: if errors are genuinely complementary — if the provisions that LLaMA classifies incorrectly are disproportionately those that Qwen classifies correctly — then an oracle that could select the better model per-provision would substantially outperform either model alone. Developing such a model-selection meta-classifier — potentially based on provision characteristics such as length, syntactic complexity, or semantic density — is a promising direction for future work.
-
-The mechanism behind the complementary error pattern is likely the different signals that few-shot examples activate in each model. The same two exemplars that guide LLaMA toward a Rules-of-Origin interpretation pattern may prime Qwen away from that pattern, given the different inductive biases of their respective fine-tuning procedures. This is consistent with the observation that Qwen's few-shot run shows near-zero κ with Qwen's zero-shot run (κ = 0.02), indicating that the exemplars nearly invert Qwen's baseline classification behaviour.
+The practical implication is that future work should prioritise better taxonomies, larger gold sets, and prompt redesign before attempting more elaborate ensemble logic. A meta-classifier would only matter once the base models clear a stronger validation threshold.
 
 ### 6.3 Policy and Analytical Implications
 
-At 70% accuracy, the pipeline is best characterised as a **triage-grade instrument**: it is sufficiently reliable to reduce analyst time-to-insight from days to hours by flagging the most likely policy category for each provision, while retaining the expectation that analyst review of flagged provisions against the source text is required before any compliance or negotiation conclusion is drawn. This is consistent with the use cases described in the human-AI collaboration literature on legal technology, where LLMs serve as a first-pass filter rather than a final decision-maker.
+At the current 32–48% accuracy range, the pipeline is best characterised as a **triage-grade instrument**: it can still reduce analyst time-to-insight by flagging likely policy areas and producing comparable aggregate distributions, but every substantive conclusion should be reviewed against the source text before any compliance or negotiation conclusion is drawn. This is consistent with the use cases described in the human-AI collaboration literature on legal technology, where LLMs serve as a first-pass filter rather than a final decision-maker.
 
 The structural findings — AHKFTA's Rules of Origin concentration, the CC vs. CTH divergence, the convergence of General Provisions and Dispute Settlement — are substantively meaningful from a trade policy perspective. The emergence of a convergent template in definitional and dispute resolution chapters, while RoO and tariff structures remain fragmented, is consistent with the "shallow convergence" hypothesis in regional integration research: that procedural harmonisation precedes substantive harmonisation because it is less politically costly. The quantitative confirmation of this pattern from provision-level text data, rather than from aggregate agreement-depth scoring, represents a contribution to the computational trade policy literature.
 
@@ -328,7 +308,7 @@ The structural findings — AHKFTA's Rules of Origin concentration, the CC vs. C
 
 Several limitations bound the generalisability of these findings.
 
-**Gold set size.** The 50-provision gold set, while stratified, is small relative to the full 3,980-provision corpus. Category-level F1 estimates for rare categories (Intellectual Property: 3 gold provisions; Sanitary and Phytosanitary: 3 provisions) have high variance and should be interpreted cautiously.
+**Gold set size.** The 50-provision gold set, while stratified, is small relative to the full 4,059-provision corpus. Category-level F1 estimates for rare categories have high variance and should be interpreted cautiously.
 
 **Annex coverage gap.** Quantitative tariff commitments — duty rates, phase-out timelines, staging categories — are predominantly located in tariff schedules (Annex 1 equivalents) that span hundreds of rows of structured table data. Our extraction pipeline preserves these as text fragments rather than structured records, meaning that the Tariff Commitments category in our classification corpus is largely composed of commitment framework provisions rather than actual rate schedules. Systematic extraction of numeric tariff data would require a dedicated table-extraction pipeline not developed here.
 
@@ -342,9 +322,9 @@ Several limitations bound the generalisability of these findings.
 
 ## 7. Conclusion
 
-We have presented a computational pipeline for the extraction, classification, and cross-agreement comparison of FTA provisions, systematically evaluated across six model-strategy combinations on a hand-labelled gold set. The best-performing configuration — Qwen 3 32B with chain-of-thought prompting — achieves 70.0% accuracy and 0.693 macro-F1, a level appropriate for analyst triage but not for autonomous compliance determination.
+We have presented a computational pipeline for the extraction, classification, and cross-agreement comparison of FTA provisions, systematically evaluated across six model-strategy combinations on a hand-labelled gold set. In the current rerun artefacts, the best-performing accuracy is 48.0% (LLaMA zero-shot) and the best macro-F1 is 0.442 (Qwen CoT), which is appropriate for analyst triage but not for autonomous compliance determination.
 
-The study's primary methodological contribution is the demonstration of an architectural asymmetry in chain-of-thought prompting effects: CoT substantially improves a thinking-model architecture (Qwen 3 32B) while substantially degrading a standard decoder architecture (LLaMA 3.3 70B). This finding implies that prompt strategy must be co-selected with model architecture, and that CoT should not be applied as a universal improvement heuristic in legal classification tasks. The near-zero inter-model κ finding (κ = −0.02 for the LLaMA few-shot vs. Qwen few-shot pair, despite similar accuracy) invalidates naïve ensemble cross-validation approaches and points toward complementary error structures that may be exploitable through meta-classifier approaches.
+The study's primary methodological contribution is more conservative than earlier drafts suggested: repaired sampling, validation, and cohort alignment materially changed the empirical picture. Prompt strategy still matters, but the dominant lesson is that evaluation design can manufacture misleading conclusions if cohorts are not aligned exactly. Future work should improve the taxonomy, expand the gold set, and treat the current pipeline as a comparative exploration tool rather than a reliable legal classifier.
 
 The substantive contribution — cross-agreement structural analysis of RCEP, AHKFTA, and AANZFTA — identifies a pattern of selective convergence: procedural categories (General Provisions, Dispute Settlement) are converging toward a regional template, while economically sensitive categories (Rules of Origin, Tariff Commitments) remain highly fragmented, with each agreement maintaining a distinct design logic.
 
