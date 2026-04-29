@@ -19,3 +19,4 @@ data/processed/
 # macOS
 .DS_Store
 .claude/
+scripts/build_deliverable_report.py
