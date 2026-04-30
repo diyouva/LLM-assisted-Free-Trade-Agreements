@@ -413,7 +413,7 @@ Dashboard HTML (`index.html`) bisa dibuka langsung di browser — tidak perlu in
         │  Corpus Donut   │    │  Research Questions       │
         │  RCEP: 53.5%    │    │  RQ1 ✓ triage only       │
         │  AANZFTA: 37.6% │    │  RQ2 ✓ CC vs CTH         │
-        │  AHKFTA: 8.9%   │    │  RQ3 ✓ GP convergent     │
+        │  AHKFTA: 8.9%   │    │  RQ3 ✓ Customs converge     │
         └─────────────────┘    └──────────────────────────┘
 
         ┌────────────────────────────────────────────────────┐
@@ -458,7 +458,7 @@ Tabel Cohen's κ — baca seperti tabel jarak/korelasi:
 Heatmap **kategori × perjanjian** (dari stratified sample 100/perjanjian):
 
 - **Warna lebih gelap** = proporsi lebih tinggi
-- AHKFTA berwarna gelap di Rules of Origin (28%) — perjanjian ini sangat fokus pada aturan asal barang
+- AHKFTA berwarna gelap di Rules of Origin (48%) — perjanjian ini sangat fokus pada aturan asal barang, hampir setengah dari seluruh provisions-nya
 - RCEP lebih merata — mencakup lebih banyak topik kebijakan
 - AANZFTA seimbang antara rules dan jasa/investasi
 

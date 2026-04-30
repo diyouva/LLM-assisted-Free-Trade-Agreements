@@ -33,8 +33,8 @@ This project applies large language models (LLMs) to a standing problem in inter
 - **Validation performance is modest on the current gold set.** Best accuracy is **LLaMA 3.3 70B zero-shot** at **48.0%**; best macro-F1 is **Qwen 3 32B chain-of-thought** at **0.442** on the same 50-provision cohort.
 - **Prompt effects are mixed rather than uniformly beneficial.** CoT slightly improves Qwen over its other strategies on macro-F1, but the margin is small after the rerun; few-shot no longer supports the earlier "clear improvement" narrative.
 - **Inter-run agreement is now moderate to substantial once cohorts are aligned exactly.** For example, `llama_zero_shot` vs `qwen_zero_shot` reaches **κ = 0.702**, and `llama_few_shot` vs `qwen_few_shot` reaches **κ = 0.582** on the shared 200-row cohort.
-- **AHKFTA is Rules-of-Origin heavy** (28% of sampled provisions vs 9% for RCEP), reflecting its tighter origin criteria; RCEP allocates more text to general and services provisions.
-- **General Provisions and Dispute Settlement** are the most structurally convergent categories — a shared regional template is emerging; **Tariff Commitments and Rules of Origin** are the most fragmented — each agreement follows a distinct design.
+- **AHKFTA is Rules-of-Origin heavy** (48% of sampled provisions vs 24% for RCEP), reflecting its tighter origin criteria and goods-only scope; RCEP and AANZFTA allocate substantially more text to services, investment, and dispute settlement.
+- **Customs Procedures and General Provisions** are the most structurally convergent categories — a shared regional template is emerging; **Dispute Settlement and Trade in Services** are the most fragmented — AHKFTA has zero provisions in both, reflecting its narrower bilateral mandate.
 
 ---
 

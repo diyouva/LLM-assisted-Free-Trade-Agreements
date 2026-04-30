@@ -139,17 +139,17 @@ The core deliverable for policy analysis: a structured comparison of what each a
 
 | Category | RCEP | AHKFTA | AANZFTA | Total |
 |---|---:|---:|---:|---:|
-| Tariff Commitments | 16 | 35 | 24 | **75** |
-| Rules of Origin | 9 | 28 | 8 | **45** |
-| Other | 30 | 23 | 26 | **79** |
-| Non-Tariff Measures | 9 | 1 | 7 | **17** |
-| Trade in Services | 12 | 0 | 5 | **17** |
-| Customs Procedures | 7 | 8 | 8 | **23** |
-| Investment | 3 | 2 | 9 | **14** |
-| Dispute Settlement | 9 | 0 | 10 | **19** |
-| General Provisions | 1 | 3 | 1 | **5** |
-| Intellectual Property | 4 | 0 | 1 | **5** |
-| Sanitary & Phytosanitary | 0 | 0 | 1 | **1** |
+| Rules of Origin | 24 | 48 | 39 | **111** |
+| Tariff Commitments | 6 | 31 | 7 | **44** |
+| Trade in Services | 20 | 0 | 10 | **30** |
+| Dispute Settlement | 6 | 0 | 22 | **28** |
+| Customs Procedures | 6 | 6 | 7 | **19** |
+| General Provisions | 5 | 9 | 3 | **17** |
+| Investment | 8 | 4 | 5 | **17** |
+| Intellectual Property | 12 | 0 | 2 | **14** |
+| Non-Tariff Measures | 6 | 1 | 4 | **11** |
+| SPS Measures | 5 | 1 | 0 | **6** |
+| Other | 2 | 0 | 1 | **3** |
 | **Total** | **100** | **100** | **100** | **300** |
 
 ![Category × agreement](data/results/fig_category_x_agreement.png)
@@ -158,7 +158,7 @@ Three patterns stand out:
 
 - **AHKFTA is a goods-focused agreement.** It has zero provisions in Trade in Services, Dispute Settlement, and Intellectual Property in this sample — consistent with its design as a bilateral goods-trade instrument between ASEAN and Hong Kong. RCEP and AANZFTA both have dedicated chapters for services and investment; AHKFTA effectively does not.
 
-- **Rules of Origin weight diverges sharply.** AHKFTA devotes 28% of its sample to Rules of Origin provisions; RCEP devotes only 9%. For a customs officer or compliance manager, this signals that AHKFTA's preferential-treatment framework is more rule-intensive per unit of text — more conditions to satisfy.
+- **Rules of Origin weight diverges sharply.** AHKFTA devotes 48% of its sample to Rules of Origin provisions; RCEP devotes 24%. For a customs officer or compliance manager, this signals that AHKFTA's preferential-treatment framework is significantly more rule-intensive per unit of text — more conditions to satisfy.
 
 - **Investment is predominantly an AANZFTA feature.** AANZFTA has a dedicated investment chapter (Chapter 11); AHKFTA does not. This is a scope difference that directly affects investors choosing between agreements for structuring their market access.
 
@@ -181,10 +181,10 @@ The entropy-based convergence signal asks: across the three agreements, which po
 
 ![Convergence signal](data/results/fig_convergence.png)
 
-- **Most convergent:** General Provisions / Definitions and Dispute Settlement. All three agreements devote comparable shares of their text to these foundational chapters, suggesting a shared regional template.
-- **Most fragmented:** Tariff Commitments and Rules of Origin. Each agreement follows a distinct design template — RCEP's broad liberalisation commitments, AHKFTA's product-specific rule-intensity, AANZFTA's selective HS concessions.
+- **Most convergent:** Customs Procedures and General Provisions. All three agreements allocate broadly similar shares of their text to these chapters, suggesting procedural harmonisation is advancing under a shared regional template.
+- **Most fragmented:** Dispute Settlement and Trade in Services. Dispute Settlement is highly uneven: AANZFTA dedicates 22 provisions to it while AHKFTA has zero — consistent with AHKFTA's design as a goods-only instrument that delegates dispute resolution to the WTO DSU rather than maintaining an independent mechanism. Rules of Origin appears numerically dominant (111 total) but this reflects real scope differences rather than alignment: AHKFTA is far more rule-intensive than RCEP or AANZFTA.
 
-This matters for regional integration policy: convergence in Dispute Settlement suggests there is an emerging regional norm that could be built on. Fragmentation in Rules of Origin suggests that cumulation and origin-stacking across agreements will remain a compliance burden for the foreseeable future — exactly the spaghetti bowl problem that motivates this work.
+This matters for regional integration policy: convergence in Customs Procedures suggests that trade facilitation — clearance, documentation, risk-based release — is developing shared regional norms. Fragmentation in Dispute Settlement and Trade in Services signals that the deeper integration agenda (services liberalisation, investment protection, enforcement) remains structurally divergent, limiting the practical scope of a unified regional trading framework.
 
 ### 4.4 Attribute-Level Findings
 
@@ -226,7 +226,7 @@ The iterative prompt engineering process produced clear evidence for CoT over fe
 
 **Validation quality is the more serious limitation in the current repo state.** Once runs are aligned on exactly the same cohorts, inter-run agreement is no longer near-random; the bottleneck is that all six validation scores remain low. For production use, this still implies human-in-the-loop review for any provision-level conclusion.
 
-**26% of provisions fall into "Other."** The 11-category taxonomy captures most substantive content, but roughly one in four provisions is classified as "Other." Many of these are procedural, transitional, or administrative provisions that genuinely don't fit a substantive policy category. A hierarchical or multi-label taxonomy would likely improve coverage without sacrificing precision.
+**The taxonomy covers nearly all provisions.** Only 3 of 300 stratified provisions (1%) are classified as "Other" in the Qwen few-shot stratified run — the taxonomy's 11 categories absorb the vast majority of FTA content. The concentration risk is instead in Rules of Origin (37% of the stratified sample), partly inflated by in-context few-shot examples that are both goods-trade categories. A few-shot set with broader category representation would reduce this bias.
 
 **Structured thresholds live in annexes, not main text.** The attribute extractor was run on main-agreement provisions. The 40% RVC threshold shows up in the text; AANZFTA's equivalent is in a schedule. Future work should pass schedule-level subprovisions through the attribute extractor separately.
 
@@ -246,11 +246,11 @@ The tool is not ready for autonomous use. The accuracy ceiling, single-annotator
 
 This project demonstrates that an LLM-based pipeline can extract, classify, and comparatively analyse FTA provisions at a scale and speed that manual review cannot match. Three key findings stand out:
 
-**Model and prompt engineering decisions matter more than expected — and interact with model architecture in surprising ways.** Chain-of-thought prompting raised Qwen's macro-F1 by 10 points (best result in the study) but *lowered* LLaMA's by 6 points (worst result in the study). Few-shot examples helped LLaMA but hurt Qwen. The two models respond to prompting techniques in exactly opposite directions. This cross-model asymmetry was only discoverable through systematic validation — not from model documentation or casual testing.
+**Model and prompt engineering decisions matter more than expected — and interact with model architecture in opposing ways.** Chain-of-thought prompting raised Qwen's macro-F1 by 1.8 points (from 0.424 to 0.442, best result in the study) but *lowered* LLaMA's by 1.0 point (from 0.431 to 0.327, worst result). Few-shot examples degraded both models relative to zero-shot, with LLaMA falling 9.5 points and Qwen falling 5.1 points. This cross-model asymmetry in CoT sensitivity was only discoverable through systematic validation — not from model documentation or casual testing.
 
 **The agreements are structurally more different than their shared ASEAN context suggests.** AHKFTA is a goods-only instrument that lacks services, investment, and dispute settlement chapters. It shares RCEP's 40% RVC threshold but uses a stricter transformation rule. AANZFTA delegates threshold definitions to annexes in a way that makes automatic extraction harder. These are real differences with real compliance implications, and the pipeline surfaces them in a structured format.
 
-**Tariff Commitments and Rules of Origin are the fragmented core of regional integration.** These are also the provisions exporters and customs authorities care most about. The finding that these areas are the most divergent across agreements — while Dispute Settlement and General Provisions are converging — suggests that procedural harmonisation is progressing faster than substantive liberalisation in the Asia-Pacific.
+**Rules of Origin and Dispute Settlement reveal the deepest structural divergences.** AHKFTA allocates nearly half its sampled provisions to Rules of Origin (48%) while dedicating none to Dispute Settlement or Intellectual Property. These are not minor scope differences — they reflect fundamentally different negotiating mandates: AHKFTA as a goods-access instrument, RCEP and AANZFTA as broader integration frameworks. The finding that Customs Procedures shows the most convergence while Dispute Settlement and Trade in Services show the most fragmentation suggests that procedural harmonisation is advancing faster than substantive liberalisation in the Asia-Pacific.
 
 The pipeline is fully reproducible, uses only free-tier APIs, and can be pointed at any new FTA PDF. The recommended configuration is Qwen 3 32B with chain-of-thought prompting.
 
