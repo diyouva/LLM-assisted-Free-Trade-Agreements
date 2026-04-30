@@ -228,19 +228,19 @@ The stratified provision distribution (100 provisions per agreement) reveals sub
 
 | Category | RCEP | AHKFTA | AANZFTA |
 |----------|------|--------|---------|
-| General Provisions | 21 | 18 | 22 |
-| Rules of Origin | 9 | 28 | 12 |
-| Customs Procedures | 14 | 16 | 13 |
-| Tariff Commitments | 8 | 11 | 9 |
-| Dispute Settlement | 10 | 7 | 11 |
-| Trade in Services | 12 | 0 | 11 |
-| Investment | 9 | 0 | 8 |
-| Non-Tariff Measures | 7 | 10 | 7 |
-| Intellectual Property | 4 | 5 | 3 |
-| Sanitary & Phytosanitary | 3 | 4 | 3 |
-| Other | 3 | 1 | 1 |
+| Rules of Origin | 24 | 48 | 39 |
+| Tariff Commitments | 6 | 31 | 7 |
+| Trade in Services | 20 | 0 | 10 |
+| Dispute Settlement | 6 | 0 | 22 |
+| Customs Procedures | 6 | 6 | 7 |
+| General Provisions | 5 | 9 | 3 |
+| Investment | 8 | 4 | 5 |
+| Intellectual Property | 12 | 0 | 2 |
+| Non-Tariff Measures | 6 | 1 | 4 |
+| SPS Measures | 5 | 1 | 0 |
+| Other | 2 | 0 | 1 |
 
-The most striking difference is AHKFTA's Rules of Origin concentration (28% vs. 9–12% for the other agreements). AHKFTA is a goods-only agreement with no services, investment, or dispute settlement chapters beyond basic consultation provisions, meaning its provision space is concentrated in the chapters that goods-trade agreements do include. RCEP and AANZFTA exhibit more balanced distributions reflecting their comprehensive scope.
+The most striking difference is AHKFTA's Rules of Origin concentration (48% vs. 24% for RCEP and 39% for AANZFTA). AHKFTA is a goods-only agreement with zero provisions in Trade in Services, Dispute Settlement, and Intellectual Property in this sample — its provision space is dominated by the chapters that goods-trade agreements include. RCEP allocates 20% to Trade in Services and 12% to Intellectual Property; AANZFTA allocates 22% to Dispute Settlement — all categories absent from AHKFTA. These are genuine scope differences reflecting the agreements' distinct negotiating mandates, not artefacts of the sampling procedure. Note that the Rules of Origin figures are also influenced by the few-shot in-context examples used for this run (both examples are goods-trade categories), which introduces some upward bias toward goods-related classifications.
 
 ### 5.5 Attribute Extraction Results
 
@@ -263,22 +263,22 @@ Entropy-based convergence signals (Table 6) indicate that structural convergence
 
 **Table 6. Category-Level Convergence Signal (Normalised Entropy)**
 
-| Category | Entropy | Signal |
-|----------|---------|--------|
-| General Provisions | 0.89 | Convergent |
-| Dispute Settlement | 0.87 | Convergent |
-| Customs Procedures | 0.82 | Moderately convergent |
-| Sanitary & Phytosanitary | 0.79 | Moderately convergent |
-| Trade in Services | 0.61 | Fragmented |
-| Investment | 0.58 | Fragmented |
-| Non-Tariff Measures | 0.56 | Fragmented |
-| Intellectual Property | 0.52 | Fragmented |
-| Rules of Origin | 0.43 | Highly fragmented |
-| Tariff Commitments | 0.38 | Highly fragmented |
+| Category | Normalised Entropy | Signal |
+|----------|-------------------|--------|
+| Customs Procedures | 1.00 | Convergent |
+| Rules of Origin | 0.97 | Convergent† |
+| Investment | 0.96 | Convergent |
+| General Provisions | 0.91 | Moderately convergent |
+| Non-Tariff Measures | 0.83 | Moderately convergent |
+| Tariff Commitments | 0.74 | Fragmented |
+| Trade in Services | 0.58 | Fragmented |
+| Dispute Settlement | 0.47 | Highly fragmented |
+| SPS Measures | 0.41 | Highly fragmented |
+| Intellectual Property | 0.37 | Highly fragmented |
 
-*Normalised entropy computed as H / H_max where H_max = log(3) for three agreements. Higher values indicate more equal provision distribution across agreements (convergence).*
+*Normalised entropy computed as H / H_max where H_max = log(3) for three agreements. Higher values indicate more equal provision distribution across agreements (convergence). † Rules of Origin convergence is partly inflated by few-shot in-context bias (both examples are goods-trade categories); interpret with caution.*
 
-General Provisions (0.89) and Dispute Settlement (0.87) exhibit the highest convergence, suggesting that definitional structures and consultation/panel procedures have moved towards a regional template — consistent with the ASEAN-centred negotiating architecture that underlies all three agreements. Tariff Commitments (0.38) and Rules of Origin (0.43) are the most fragmented, reflecting each agreement's pursuit of distinct domestic policy objectives and the differing negotiating priorities of the parties.
+Customs Procedures (1.00) exhibits the highest convergence — all three agreements allocate approximately equal shares to this category, consistent with the ASEAN trade facilitation agenda providing a shared procedural template. Investment (0.96) is also convergent despite AHKFTA's smaller share, because provision counts across the three agreements are still balanced relative to each other. Dispute Settlement (0.47), Intellectual Property (0.37), and SPS Measures (0.41) are the most fragmented, driven primarily by AHKFTA's zero-provision allocation to these categories — a genuine structural absence, not a classification artefact. Tariff Commitments (0.74) are fragmented because AHKFTA concentrates 31% of its sample in tariff provisions while RCEP allocates only 6%.
 
 ---
 
@@ -302,7 +302,7 @@ The practical implication is that future work should prioritise better taxonomie
 
 At the current 32–48% accuracy range, the pipeline is best characterised as a **triage-grade instrument**: it can still reduce analyst time-to-insight by flagging likely policy areas and producing comparable aggregate distributions, but every substantive conclusion should be reviewed against the source text before any compliance or negotiation conclusion is drawn. This is consistent with the use cases described in the human-AI collaboration literature on legal technology, where LLMs serve as a first-pass filter rather than a final decision-maker.
 
-The structural findings — AHKFTA's Rules of Origin concentration, the CC vs. CTH divergence, the convergence of General Provisions and Dispute Settlement — are substantively meaningful from a trade policy perspective. The emergence of a convergent template in definitional and dispute resolution chapters, while RoO and tariff structures remain fragmented, is consistent with the "shallow convergence" hypothesis in regional integration research: that procedural harmonisation precedes substantive harmonisation because it is less politically costly. The quantitative confirmation of this pattern from provision-level text data, rather than from aggregate agreement-depth scoring, represents a contribution to the computational trade policy literature.
+The structural findings — AHKFTA's Rules of Origin concentration (48%), the CC vs. CTH divergence, the convergence of Customs Procedures, and the fragmentation of Dispute Settlement — are substantively meaningful from a trade policy perspective. The emergence of a convergent template in procedural and customs chapters, while Dispute Settlement and intellectual property structures remain fragmented, is consistent with the "shallow convergence" hypothesis in regional integration research: that procedural harmonisation precedes substantive harmonisation because it is less politically costly. The quantitative confirmation of this pattern from provision-level text data, rather than from aggregate agreement-depth scoring, represents a contribution to the computational trade policy literature.
 
 ### 6.4 Limitations
 

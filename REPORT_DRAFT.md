@@ -133,27 +133,27 @@ The table below is the primary quantitative comparative matrix requested by the 
 
 | Category | RCEP | AHKFTA | AANZFTA | **Total** |
 |---|---:|---:|---:|---:|
-| Tariff Commitments | 16 | 35 | 24 | **75** |
-| Rules of Origin | 9 | 28 | 8 | **45** |
-| Other | 30 | 23 | 26 | **79** |
-| Non-Tariff Measures | 9 | 1 | 7 | **17** |
-| Trade in Services | 12 | 0 | 5 | **17** |
-| Customs Procedures | 7 | 8 | 8 | **23** |
-| Investment | 3 | 2 | 9 | **14** |
-| Dispute Settlement | 9 | 0 | 10 | **19** |
-| General Provisions / Definitions | 1 | 3 | 1 | **5** |
-| Intellectual Property | 4 | 0 | 1 | **5** |
-| Sanitary and Phytosanitary Measures | 0 | 0 | 1 | **1** |
+| Rules of Origin | 24 | 48 | 39 | **111** |
+| Tariff Commitments | 6 | 31 | 7 | **44** |
+| Trade in Services | 20 | 0 | 10 | **30** |
+| Dispute Settlement | 6 | 0 | 22 | **28** |
+| Customs Procedures | 6 | 6 | 7 | **19** |
+| General Provisions / Definitions | 5 | 9 | 3 | **17** |
+| Investment | 8 | 4 | 5 | **17** |
+| Intellectual Property | 12 | 0 | 2 | **14** |
+| Non-Tariff Measures | 6 | 1 | 4 | **11** |
+| Sanitary and Phytosanitary Measures | 5 | 1 | 0 | **6** |
+| Other | 2 | 0 | 1 | **3** |
 | **Total** | **100** | **100** | **100** | **300** |
 
 ![Category × agreement](data/results/fig_category_x_agreement.png)
 
 Key observations:
-- **Tariff Commitments** is the largest single category across all three agreements (75 total, ~25%), confirming that tariff liberalisation remains the operational core of every FTA.
-- **Rules of Origin** is the second-largest substantive category (45 total, ~15%), with AHKFTA showing disproportionately heavy representation (28/100 vs. RCEP 9/100) — suggesting AHKFTA concentrates more of its legal text on origin rules relative to its overall size.
-- **AHKFTA has zero provisions** in Trade in Services, Dispute Settlement, and Intellectual Property in this sample — reflecting its narrower scope as a goods-focused bilateral FTA compared to RCEP and AANZFTA.
-- **Investment** is almost entirely an AANZFTA feature in this sample (9/14), consistent with AANZFTA having a dedicated investment chapter (Ch.11) that AHKFTA lacks.
-- **Other** absorbs 79 provisions (~26%), indicating substantial material the current 11-category taxonomy does not cleanly capture — a limitation we address in §5.2.
+- **Rules of Origin** is the dominant category (111/300, 37%), with AHKFTA showing extreme concentration (48/100 vs. RCEP 24/100) — AHKFTA devotes nearly half its sampled provisions to origin rules, reflecting its goods-only mandate and rule-intensive preferential treatment framework.
+- **Tariff Commitments** is the second-largest category (44/300, 15%), again concentrated in AHKFTA (31%) versus RCEP (6%) — AHKFTA's tariff liberalisation architecture is correspondingly more text-heavy.
+- **AHKFTA has zero provisions** in Trade in Services, Dispute Settlement, and Intellectual Property in this sample — reflecting its narrower scope as a goods-focused bilateral FTA. This is a structural absence, not a sampling artefact.
+- **AANZFTA leads in Dispute Settlement** (22/28, 79% of all dispute settlement provisions in the sample), reflecting its dedicated dispute resolution chapter. RCEP has only 6 and AHKFTA zero.
+- **Other** absorbs only 3 provisions (1%), indicating the 11-category taxonomy is comprehensive for FTA content at the main-agreement level. Concentration risk is in Rules of Origin, partly amplified by the few-shot in-context examples being goods-trade categories.
 
 #### 4.5b Policy-design comparison matrix
 
@@ -172,7 +172,7 @@ The table below synthesises the qualitative RAG comparison (`comparison_qwen.jso
 
 ![Convergence signal](data/results/fig_convergence.png)
 
-The entropy-based convergence signal (green = all three agreements allocate attention in comparable proportion; orange = fragmented) suggests *General Provisions / Definitions* and *Dispute Settlement* are the most convergent categories, while *Tariff Commitments* and *Rules of Origin* show more fragmentation — i.e. each agreement follows a distinct policy-design template in those substantive areas.
+The entropy-based convergence signal (green = all three agreements allocate attention in comparable proportion; orange = fragmented) shows *Customs Procedures* as the most convergent category (normalised entropy = 1.00), followed by *Investment* (0.96) and *Rules of Origin* (0.97, though this is partly inflated by few-shot bias). *Dispute Settlement* (0.47), *Intellectual Property* (0.37), and *SPS Measures* (0.41) are the most fragmented — driven primarily by AHKFTA's zero-provision allocation to these categories. Each agreement follows a distinct structural template in those areas.
 
 ### 4.6 Qualitative RAG comparison — selected excerpts
 Below are abridged excerpts from the LLM-generated cross-agreement comparison (`comparison_qwen.json`):
@@ -236,7 +236,7 @@ Key findings:
 ### 5.1 What works
 - Extraction is robust even on scanned PDFs (AHKFTA) thanks to the OCR fallback.
 - The RAG comparison produces genuinely useful comparative narratives when the model is given 2K output tokens.
-- Convergence signals (entropy-based) are interpretable and align with expert intuitions: *General Provisions* is the most convergent category; *Tariff Commitments* is the most fragmented.
+- Convergence signals (entropy-based) are interpretable: *Customs Procedures* is the most convergent category; *Intellectual Property* and *Dispute Settlement* are the most fragmented (driven by AHKFTA's zero-provision allocation).
 
 ### 5.2 Limitations
 1. **Category boundaries.** Validation remains weak even after the pipeline fixes, which suggests the 11-way taxonomy is still difficult for these prompts. Hierarchical or multi-label classification would likely help.
@@ -254,9 +254,9 @@ We successfully converted 4,059 FTA provisions into a structured corpus and addr
 
 **RQ1 (Reliable extraction and classification):** The pipeline extracts provisions successfully across all 7 PDFs including scanned documents (OCR fallback), but current validation quality is only moderate: accuracy ranges from 32% to 48%, and macro-F1 ranges from 0.327 to 0.442. The best accuracy comes from LLaMA zero-shot; the best macro-F1 comes from Qwen CoT. That makes the system useful for triage and corpus-level patterning, not provision-level automation.
 
-**RQ2 (Policy-design differences across agreements):** The provision count matrix (§4.5a) and policy-design comparison matrix (§4.5b) reveal clear structural differences: AHKFTA concentrates 28% of its text in Rules of Origin vs. 9% for RCEP; AHKFTA lacks dedicated chapters for Investment and Dispute Settlement; and the three agreements use different default CTC rules and tariff-concession architectures.
+**RQ2 (Policy-design differences across agreements):** The provision count matrix (§4.5a) and policy-design comparison matrix (§4.5b) reveal clear structural differences: AHKFTA concentrates 48% of its text in Rules of Origin vs. 24% for RCEP; AHKFTA has zero provisions in Dispute Settlement, Trade in Services, and Intellectual Property; and the three agreements use different default CTC rules and tariff-concession architectures.
 
-**RQ3 (Convergence or fragmentation):** Entropy-based signals confirm that General Provisions / Definitions and Dispute Settlement are convergent, while Tariff Commitments and Rules of Origin are fragmented — each agreement follows a distinct policy-design template in those substantive areas.
+**RQ3 (Convergence or fragmentation):** Entropy-based signals confirm that Customs Procedures is the most convergent category, while Dispute Settlement and Intellectual Property are the most fragmented — driven by AHKFTA's zero-provision allocation to those chapters, reflecting its goods-only mandate.
 
 The framework is fully reproducible, uses only free-tier APIs, and generalises to any FTA with a PDF text layer. Qwen 3 32B with chain-of-thought is the recommended classifier for future work.
 
