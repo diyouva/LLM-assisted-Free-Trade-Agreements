@@ -218,6 +218,7 @@ def segment_provisions(
                 continue
 
             para_idx += 1
+            stored_text = sub[:1500]          # cap at documented 1500-char max
             provisions.append({
                 "id":            f"{agreement}_{doc_type}_{para_idx:05d}",
                 "agreement":     agreement,
@@ -225,8 +226,8 @@ def segment_provisions(
                 "chapter":       chapter,
                 "article":       article_no,
                 "paragraph_idx": para_idx,
-                "text":          sub[:2000],          # cap to avoid huge blobs
-                "char_count":    len(sub),
+                "text":          stored_text,
+                "char_count":    len(stored_text),  # matches stored text, not original
             })
 
     return provisions

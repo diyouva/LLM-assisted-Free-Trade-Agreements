@@ -8,7 +8,7 @@ Classifies each provision into a policy category using three prompt strategies:
 
 FREE models supported (both via Groq — same API key):
   - llama  → LLaMA 3.3 70B  (large model)
-  - gemma  → Gemma 2 9B     (small model — size comparison)
+  - qwen   → Qwen 3 32B     (thinking model — cross-architecture comparison)
 
 Paid models (optional):
   - claude  → Claude claude-sonnet-4-5 (Anthropic)
@@ -16,7 +16,7 @@ Paid models (optional):
 
 Usage:
     python -m src.classification --model llama --strategy zero_shot --limit 200
-    python -m src.classification --model gemma --strategy zero_shot --limit 200
+    python -m src.classification --model qwen  --strategy zero_shot --limit 200
 """
 
 import argparse
@@ -220,12 +220,19 @@ def call_qwen(prompt: str, max_retries: int = 8, max_tokens: int = 2048) -> str:
             return resp.choices[0].message.content.strip()
         except groq_lib.RateLimitError as e:
             err_str = str(e)
-            match = _re.search(r"try again in\s+([\d\.]+)s", err_str, _re.IGNORECASE)
-            wait = float(match.group(1)) + 1 if match else (15 * (attempt + 1))
-            print(f"  [Gemma] Rate limit — waiting {wait:.0f}s …")
+            print(f"  [Qwen] Rate limit raw: {err_str[:120]}", flush=True)
+            m_min = _re.search(r"try again in\s+(\d+)m([\d\.]+)s", err_str, _re.IGNORECASE)
+            m_sec = _re.search(r"try again in\s+([\d\.]+)s", err_str, _re.IGNORECASE)
+            if m_min:
+                wait = int(m_min.group(1)) * 60 + float(m_min.group(2)) + 2
+            elif m_sec:
+                wait = float(m_sec.group(1)) + 1
+            else:
+                wait = 15 * (attempt + 1)
+            print(f"  [Qwen] Rate limit — waiting {wait:.0f}s …")
             time.sleep(wait)
         except Exception as e:
-            print(f"  [Gemma] Error: {e}")
+            print(f"  [Qwen] Error: {e}")
             return "Error"
     return "Error"
 
@@ -433,7 +440,7 @@ def compare_strategies(
     Returns a dict mapping strategy → classified results.
     """
     import random
-    sample = random.sample(provisions, min(sample_size, len(provisions)))
+    sample = random.Random(42).sample(provisions, min(sample_size, len(provisions)))
 
     comparison = {}
     for strategy in PROMPT_BUILDERS:
