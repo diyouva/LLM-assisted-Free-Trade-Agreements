@@ -55,6 +55,17 @@
   .page-header h2 { font-size: 22px; font-weight: 700; color: var(--text); }
   .page-header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
 
+  /* How-to-read callout */
+  .how-to-read {
+    background: rgba(79,142,247,.07); border: 1px solid rgba(79,142,247,.2);
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 24px;
+    font-size: 13px; line-height: 1.8; color: var(--text);
+  }
+  .how-to-read .htr-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 8px;
+  }
+
   /* Cards */
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
   .card {
@@ -74,7 +85,7 @@
   .panel-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   .panel-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
 
-  /* Grid 2col */
+  /* Grid 2col / 3col */
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
   .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
 
@@ -108,10 +119,6 @@
   .kappa-near-zero { color: var(--yellow); }
   .kappa-negative { color: var(--red); font-weight: 600; }
 
-  /* Agreement comparison pills */
-  .agreement-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 12px; }
-  .agr-tag { min-width: 72px; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: center; }
-
   /* Narrative accordion */
   .narrative { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
   .narrative-header {
@@ -126,12 +133,6 @@
   .narrative-body.open { display: block; }
   .narrative-body strong { color: var(--accent); }
 
-  /* Figures grid */
-  .fig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .fig-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .fig-card img { width: 100%; display: block; background: #fff; }
-  .fig-card .fig-label { padding: 10px 14px; font-size: 12px; color: var(--muted); }
-
   /* Progress bars */
   .progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 4px; }
   .progress-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
@@ -143,6 +144,18 @@
   .heat-3 { background: rgba(79,142,247,0.50); }
   .heat-4 { background: rgba(79,142,247,0.70); color: #fff; font-weight: 700; }
 
+  /* Glossary */
+  .glossary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gloss-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .gloss-term { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  .gloss-def { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* About section styles */
+  .about-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .about-section h3 { font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+  .about-section p { font-size: 13px; line-height: 1.8; color: var(--text); margin-bottom: 10px; }
+  .about-section p:last-child { margin-bottom: 0; }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -152,7 +165,7 @@
   @media (max-width: 900px) {
     .cards { grid-template-columns: repeat(2,1fr); }
     .grid2, .grid3 { grid-template-columns: 1fr; }
-    .fig-grid { grid-template-columns: 1fr; }
+    .glossary-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -165,8 +178,10 @@
     <p>Diyouva Christa Novith<br>CMU · Spring 2026</p>
   </div>
   <nav>
+    <div class="section-label">Start Here</div>
+    <a onclick="showPage('about')" class="active">📖 About This Project</a>
     <div class="section-label">Dashboard</div>
-    <a onclick="showPage('overview')" class="active">📊 Overview</a>
+    <a onclick="showPage('overview')">📊 Overview</a>
     <div class="section-label">Results</div>
     <a onclick="showPage('validation')">✅ Validation</a>
     <a onclick="showPage('kappa')">🔁 Inter-Run Agreement</a>
@@ -175,8 +190,6 @@
     <div class="section-label">Policy</div>
     <a onclick="showPage('design')">⚖️ Policy Design Matrix</a>
     <a onclick="showPage('comparison')">🔍 RAG Comparisons</a>
-    <div class="section-label">Assets</div>
-    <a onclick="showPage('figures')">🖼 Figures</a>
   </nav>
   <div class="sidebar-footer">RCEP · AHKFTA · AANZFTA</div>
 </aside>
@@ -184,22 +197,97 @@
 <!-- MAIN -->
 <main id="main">
 
+  <!-- ═══════════════════════════════════════════ ABOUT ═══ -->
+  <div id="page-about" class="page active">
+    <div class="page-header">
+      <h2>About This Project</h2>
+      <p>What this tool does, why it exists, and how to navigate the results.</p>
+    </div>
+
+    <div class="about-section">
+      <h3>The Problem</h3>
+      <p>The Asia-Pacific region has dozens of overlapping Free Trade Agreements (FTAs). Each agreement contains thousands of legal provisions covering topics like tariffs, customs rules, investment protections, and dispute resolution. For a trade analyst, a customs officer, or a negotiator, understanding how three different agreements treat the same topic — say, Rules of Origin — normally requires days of manual reading and comparison.</p>
+      <p>This project automates that comparison using Large Language Models (LLMs). It reads the full text of three ASEAN-centred FTAs, breaks each into individual provisions, classifies each provision into a policy category, and then generates structured cross-agreement comparisons.</p>
+    </div>
+
+    <div class="about-section">
+      <h3>The Three Agreements</h3>
+      <p><strong style="color:var(--rcep)">RCEP</strong> (Regional Comprehensive Economic Partnership) is the world's largest FTA by trade volume, covering 15 countries including China, Japan, South Korea, Australia, and New Zealand alongside the 10 ASEAN members. Signed in 2020, it is comprehensive — it includes chapters on services, investment, intellectual property, and dispute settlement alongside goods-trade rules.</p>
+      <p><strong style="color:var(--ahkfta)">AHKFTA</strong> (ASEAN–Hong Kong Free Trade Agreement) was signed in 2017 and covers goods trade between ASEAN and Hong Kong. It is narrower by design — it does not include dedicated chapters on services, investment, or intellectual property, and it references the WTO's dispute settlement system rather than maintaining its own mechanism.</p>
+      <p><strong style="color:var(--aanzfta)">AANZFTA</strong> (ASEAN–Australia–New Zealand Free Trade Agreement) was signed in 2009 and is broadly comparable in scope to RCEP, including dedicated investment and dispute settlement chapters. It is notable for delegating many specific tariff thresholds to annexes rather than embedding them in the main text.</p>
+    </div>
+
+    <div class="about-section">
+      <h3>How the Pipeline Works</h3>
+      <p>The system starts by extracting raw text from the agreement PDFs using a three-step fallback chain: first a layout-aware PDF reader (pdfplumber), then a lower-level text extractor (PyMuPDF), and finally Optical Character Recognition (OCR) for scanned pages. Each page of text is then split into individual provisions — the smallest meaningful legal unit, typically one article or paragraph.</p>
+      <p>Each provision is classified into one of 11 policy categories by an LLM. Two models are tested — LLaMA 3.3 70B and Qwen 3 32B — each under three prompt strategies: zero-shot (just the task), few-shot (two labelled examples), and chain-of-thought (step-by-step reasoning). This gives six classification runs. A stratified sample of 100 provisions per agreement (300 total) is used for the comparative analysis to prevent the larger RCEP corpus from dominating results.</p>
+      <p>For cross-agreement comparison, the system uses Retrieval-Augmented Generation (RAG): it retrieves the most relevant provisions from each agreement for a given policy topic, then asks the LLM to write a structured comparison. The accuracy of the classifications is measured against a hand-labelled set of 50 provisions.</p>
+    </div>
+
+    <div class="about-section">
+      <h3>What the Numbers Mean</h3>
+      <p>The best classification accuracy in this project is 48%, meaning roughly half of individual provision labels match the human-assigned label. This sounds low, but it is consistent with the difficulty of the task: legal provisions are often multi-topic, taxonomies are imperfect, and even human experts can disagree. The recommended use is for aggregate analysis — asking "how many AHKFTA provisions cover Rules of Origin?" rather than relying on any single provision's label. The RAG-based cross-agreement comparisons are more reliable than individual classifications, since they are based on retrieved text rather than single-shot labelling.</p>
+    </div>
+
+    <div class="about-section">
+      <h3>How to Navigate This Dashboard</h3>
+      <p>Use the sidebar to move between sections. <strong>Overview</strong> shows the big picture — corpus size, research questions, and agreement summaries. <strong>Validation</strong> shows how accurately each model-strategy combination classified provisions against human labels. <strong>Inter-Run Agreement</strong> shows how consistently two different runs agree with each other. <strong>Provision Distribution</strong> shows what topics each agreement actually covers. <strong>Convergence Analysis</strong> shows which topics are treated similarly across agreements and which diverge. <strong>Policy Design Matrix</strong> shows specific design-feature differences. <strong>RAG Comparisons</strong> gives the full LLM-generated comparative analysis per policy category.</p>
+      <p>Every section includes a blue "How to read this" box at the top explaining what you're looking at.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Glossary of Abbreviations</div>
+      <div class="glossary-grid">
+        <div class="gloss-item"><div class="gloss-term">FTA</div><div class="gloss-def">Free Trade Agreement — a treaty between countries that reduces or eliminates tariffs and other trade barriers.</div></div>
+        <div class="gloss-item"><div class="gloss-term">RCEP</div><div class="gloss-def">Regional Comprehensive Economic Partnership — a 15-party FTA covering 10 ASEAN nations plus China, Japan, South Korea, Australia, and New Zealand.</div></div>
+        <div class="gloss-item"><div class="gloss-term">AHKFTA</div><div class="gloss-def">ASEAN–Hong Kong Free Trade Agreement — a bilateral goods-focused FTA between ASEAN and Hong Kong, in force since 2019.</div></div>
+        <div class="gloss-item"><div class="gloss-term">AANZFTA</div><div class="gloss-def">ASEAN–Australia–New Zealand Free Trade Agreement — a comprehensive FTA including services, investment, and dispute settlement, signed 2009.</div></div>
+        <div class="gloss-item"><div class="gloss-term">ASEAN</div><div class="gloss-def">Association of Southeast Asian Nations — a 10-country regional bloc including Indonesia, Thailand, Vietnam, Singapore, and others.</div></div>
+        <div class="gloss-item"><div class="gloss-term">LLM</div><div class="gloss-def">Large Language Model — an AI model trained on text that can read, classify, and generate natural language. LLaMA and Qwen are both LLMs.</div></div>
+        <div class="gloss-item"><div class="gloss-term">RAG</div><div class="gloss-def">Retrieval-Augmented Generation — a technique where relevant text is retrieved from a database and given to an LLM before it generates a response, improving accuracy.</div></div>
+        <div class="gloss-item"><div class="gloss-term">RoO / Rules of Origin</div><div class="gloss-def">Rules that determine whether a product qualifies as "originating" from a country and therefore eligible for preferential tariff rates under an FTA.</div></div>
+        <div class="gloss-item"><div class="gloss-term">RVC</div><div class="gloss-def">Regional Value Content — one way to satisfy Rules of Origin: a product qualifies if at least X% of its value was added within the FTA region. All three agreements use a 40% threshold.</div></div>
+        <div class="gloss-item"><div class="gloss-term">CTC</div><div class="gloss-def">Change in Tariff Classification — an alternative way to satisfy Rules of Origin: inputs must be classified under a different tariff code than the final product, proving transformation occurred.</div></div>
+        <div class="gloss-item"><div class="gloss-term">CTH</div><div class="gloss-def">Change in Tariff Heading — a CTC rule requiring a change at the 4-digit HS code level. Used by RCEP. Less strict than CC.</div></div>
+        <div class="gloss-item"><div class="gloss-term">CC</div><div class="gloss-def">Change in Chapter — a CTC rule requiring a change at the 2-digit HS code level. Used by AHKFTA. Stricter than CTH, requiring more substantial transformation.</div></div>
+        <div class="gloss-item"><div class="gloss-term">HS Code</div><div class="gloss-def">Harmonized System code — an internationally standardised numbering system for traded goods. 2-digit codes are "chapters", 4-digit codes are "headings", 6-digit codes are "subheadings".</div></div>
+        <div class="gloss-item"><div class="gloss-term">NTM</div><div class="gloss-def">Non-Tariff Measure — trade barriers other than tariffs, such as import quotas, licensing requirements, and technical standards.</div></div>
+        <div class="gloss-item"><div class="gloss-term">SPS</div><div class="gloss-def">Sanitary and Phytosanitary Measures — rules protecting human, animal, and plant health from food-borne risks, diseases, and pests.</div></div>
+        <div class="gloss-item"><div class="gloss-term">IP</div><div class="gloss-def">Intellectual Property — legal rights covering inventions (patents), creative works (copyright), brand names (trademarks), and geographic indicators.</div></div>
+        <div class="gloss-item"><div class="gloss-term">ISDS</div><div class="gloss-def">Investor-State Dispute Settlement — a mechanism allowing foreign investors to bring claims directly against a host government in international arbitration.</div></div>
+        <div class="gloss-item"><div class="gloss-term">WTO DSU</div><div class="gloss-def">World Trade Organization Dispute Settlement Understanding — the WTO's own mechanism for resolving trade disputes. AHKFTA references this instead of maintaining its own mechanism.</div></div>
+        <div class="gloss-item"><div class="gloss-term">κ (Cohen's Kappa)</div><div class="gloss-def">A statistical measure of agreement between two classifiers that corrects for chance. 1.0 = perfect agreement, 0 = no better than chance, negative = worse than chance.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Macro-F1</div><div class="gloss-def">Macro-averaged F1 score — measures classification accuracy across all categories equally, even rare ones. More informative than plain accuracy when categories are imbalanced.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Zero-shot</div><div class="gloss-def">A prompt strategy where the model is given only the task description and provision text — no examples. The model must rely entirely on its training.</div></div>
+        <div class="gloss-item"><div class="gloss-term">Few-shot</div><div class="gloss-def">A prompt strategy where two labelled examples are shown to the model before the new provision, helping it understand the expected format and logic.</div></div>
+        <div class="gloss-item"><div class="gloss-term">CoT (Chain-of-Thought)</div><div class="gloss-def">A prompt strategy that instructs the model to reason step-by-step before giving its final answer. Improves accuracy on complex tasks — but not equally for every model.</div></div>
+        <div class="gloss-item"><div class="gloss-term">OCR</div><div class="gloss-def">Optical Character Recognition — software that converts scanned images of text into machine-readable characters. Used as a fallback for scanned PDF pages.</div></div>
+        <div class="gloss-item"><div class="gloss-term">WTO / UNCTAD</div><div class="gloss-def">World Trade Organization / United Nations Conference on Trade and Development — the two international bodies whose FTA chapter taxonomy this project's 11 categories follow.</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════════════════════════════════════ OVERVIEW ═══ -->
-  <div id="page-overview" class="page active">
+  <div id="page-overview" class="page">
     <div class="page-header">
       <h2>Project Overview</h2>
       <p>A computational pipeline to extract, classify, and compare ASEAN FTA provisions using Large Language Models.</p>
     </div>
 
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      The four stat cards at the top give the key numbers for the whole project. Below them, the donut chart shows what share of the total corpus each agreement contributes — RCEP dominates simply because it is the largest and most comprehensive agreement. The research questions panel shows what the project set out to answer and the one-line answer for each. The agreement cards at the bottom summarise what each agreement covers and how big its contribution to the corpus is.
+    </div>
+
     <div class="cards">
       <div class="card" style="--card-color:#4f8ef7">
         <div class="label">Total Provisions</div>
-        <div class="value">3,980</div>
+        <div class="value">4,059</div>
         <div class="sub">Across 3 agreements, 7 PDFs</div>
       </div>
       <div class="card" style="--card-color:#22c55e">
         <div class="label">Best Macro-F1</div>
-        <div class="value">0.693</div>
+        <div class="value">0.442</div>
         <div class="sub">Qwen 3 32B — Chain-of-Thought</div>
       </div>
       <div class="card" style="--card-color:#7c3aed">
@@ -225,12 +313,12 @@
           <div>
             <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">RQ1 — Reliable Classification</div>
             <div style="font-size:13px;color:var(--text)">Can LLMs classify FTA provisions into standardized policy categories? How does accuracy vary across prompt strategies?</div>
-            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — Best: Qwen CoT, 70.0% accuracy, F1=0.693</div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — Triage-grade accuracy (32–48%). Qwen CoT achieves best F1 (0.442).</div>
           </div>
           <div>
             <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">RQ2 — Policy Design Differences</div>
             <div style="font-size:13px;color:var(--text)">How do comparable provisions differ across agreements in observable design features — thresholds, flexibility, governance?</div>
-            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — CTH vs CC, RVC 40%, AHKFTA goods-only</div>
+            <div style="font-size:12px;color:var(--green);margin-top:4px">✓ Answered — CC vs CTH, RVC 40%, AHKFTA goods-only, AANZFTA leads in investment</div>
           </div>
           <div>
             <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px">RQ3 — Convergence or Fragmentation</div>
@@ -279,17 +367,17 @@
     <div class="grid3">
       <div class="panel">
         <div class="panel-title"><span class="dot" style="background:var(--rcep)"></span>RCEP</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.7">15 nations · Signed 2020 · In force 2022<br>20 chapters · 2,129 provisions (53.5%)</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">15 nations · Signed 2020 · In force 2022<br>20 chapters · 2,171 provisions (53.5%)</div>
         <div style="margin-top:12px;font-size:12px">Includes: Services, Investment, IP, Dispute Settlement</div>
       </div>
       <div class="panel">
         <div class="panel-title"><span class="dot" style="background:var(--ahkfta)"></span>AHKFTA</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.7">ASEAN + Hong Kong · Signed 2017 · In force 2019<br>353 provisions (8.9%)</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">ASEAN + Hong Kong · Signed 2017 · In force 2019<br>362 provisions (8.9%)</div>
         <div style="margin-top:12px;font-size:12px;color:var(--orange)">Goods-focused: No Services, Investment, or Dispute Settlement chapters</div>
       </div>
       <div class="panel">
         <div class="panel-title"><span class="dot" style="background:var(--aanzfta)"></span>AANZFTA</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.7">ASEAN + AU + NZ · Signed 2009 · Amended 2014<br>1,498 provisions (37.6%)</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">ASEAN + AU + NZ · Signed 2009 · Amended 2014<br>1,526 provisions (37.6%)</div>
         <div style="margin-top:12px;font-size:12px">Includes: Services, Investment (Ch.11), Dispute Settlement</div>
       </div>
     </div>
@@ -299,8 +387,14 @@
   <div id="page-validation" class="page">
     <div class="page-header">
       <h2>Validation Results</h2>
-      <p>All 6 model-strategy combinations evaluated against a 50-provision hand-labelled gold set (stratified: ~17 per agreement).</p>
+      <p>All 6 model-strategy combinations evaluated against a 50-provision hand-labelled gold set.</p>
     </div>
+
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      Each bar in the two charts represents one combination of model and prompt strategy. The left chart shows raw accuracy — what percentage of the 50 hand-labelled provisions did the model get exactly right. The right chart shows Macro-F1, which gives equal weight to every category even if it is rare in the sample, making it a fairer measure when categories are imbalanced. Longer bars are better. The table below the charts ranks all six runs from best to worst. Green rows are the top performers; muted rows are the worst. The "Key Insight" panel at the bottom explains why the two models respond to prompting strategies in opposite ways.
+    </div>
+
     <div class="grid2">
       <div class="panel">
         <div class="panel-title"><span class="dot"></span>Accuracy by Run</div>
@@ -316,12 +410,12 @@
       <table class="tbl">
         <thead><tr><th>Model</th><th>Strategy</th><th class="num">Accuracy</th><th class="num">Macro-F1</th><th class="num">n</th><th>Note</th></tr></thead>
         <tbody>
-          <tr class="best"><td>Qwen 3 32B</td><td>Chain-of-Thought</td><td class="num">0.700</td><td class="num">0.693</td><td class="num">50</td><td>🏆 Best F1</td></tr>
-          <tr><td>LLaMA 3.3 70B</td><td>Zero-Shot</td><td class="num">0.700</td><td class="num">0.591</td><td class="num">50</td><td>Tied accuracy, lower F1</td></tr>
-          <tr><td>LLaMA 3.3 70B</td><td>Few-Shot</td><td class="num">0.680</td><td class="num">0.635</td><td class="num">50</td><td>Few-shot helps LLaMA</td></tr>
-          <tr><td>Qwen 3 32B</td><td>Zero-Shot</td><td class="num">0.680</td><td class="num">0.596</td><td class="num">50</td><td></td></tr>
-          <tr><td>Qwen 3 32B</td><td>Few-Shot</td><td class="num">0.580</td><td class="num">0.540</td><td class="num">50</td><td>Few-shot hurts Qwen</td></tr>
-          <tr class="worst"><td>LLaMA 3.3 70B</td><td>Chain-of-Thought</td><td class="num">0.480</td><td class="num">0.527</td><td class="num">50</td><td>CoT hurts LLaMA</td></tr>
+          <tr><td>LLaMA 3.3 70B</td><td>Zero-Shot</td><td class="num">0.480</td><td class="num">0.431</td><td class="num">50</td><td>Best accuracy</td></tr>
+          <tr class="best"><td>Qwen 3 32B</td><td>Chain-of-Thought</td><td class="num">0.460</td><td class="num">0.442</td><td class="num">50</td><td>🏆 Best Macro-F1</td></tr>
+          <tr><td>Qwen 3 32B</td><td>Zero-Shot</td><td class="num">0.380</td><td class="num">0.424</td><td class="num">50</td><td></td></tr>
+          <tr><td>Qwen 3 32B</td><td>Few-Shot</td><td class="num">0.380</td><td class="num">0.373</td><td class="num">50</td><td>Few-shot hurts Qwen</td></tr>
+          <tr><td>LLaMA 3.3 70B</td><td>Few-Shot</td><td class="num">0.340</td><td class="num">0.336</td><td class="num">50</td><td></td></tr>
+          <tr class="worst"><td>LLaMA 3.3 70B</td><td>Chain-of-Thought</td><td class="num">0.320</td><td class="num">0.327</td><td class="num">50</td><td>CoT hurts LLaMA</td></tr>
         </tbody>
       </table>
     </div>
@@ -331,27 +425,17 @@
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px">Qwen 3 32B — CoT is best strategy</div>
           <div style="font-size:13px;line-height:1.7;color:var(--muted)">
-            Zero-shot → Few-shot: <span style="color:var(--red)">↓ 0.596 → 0.540 (−5.6pp)</span><br>
-            Zero-shot → CoT: <span style="color:var(--green)">↑ 0.596 → 0.693 (+9.7pp)</span><br><br>
-            CoT gives Qwen reasoning space to work through legal-text ambiguity before committing to a label.
-          </div>
-          <div style="margin-top:12px">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">CoT Effect on Macro-F1</div>
-            <div class="progress-bar"><div class="progress-fill" style="width:69.3%;background:var(--green)"></div></div>
-            <div style="font-size:11px;color:var(--green);margin-top:4px">0.693</div>
+            Zero-shot → Few-shot: <span style="color:var(--red)">↓ 0.424 → 0.373 (−5.1pp)</span><br>
+            Zero-shot → CoT: <span style="color:var(--green)">↑ 0.424 → 0.442 (+1.8pp)</span><br><br>
+            CoT gives Qwen reasoning space to work through legal-text ambiguity before committing to a label. Qwen 3 is a "thinking model" that emits internal reasoning traces before its answer.
           </div>
         </div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:10px">LLaMA 3.3 70B — Few-shot is best strategy</div>
+          <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:10px">LLaMA 3.3 70B — Zero-shot is best strategy</div>
           <div style="font-size:13px;line-height:1.7;color:var(--muted)">
-            Zero-shot → Few-shot: <span style="color:var(--green)">↑ 0.591 → 0.635 (+4.4pp)</span><br>
-            Zero-shot → CoT: <span style="color:var(--red)">↓ 0.591 → 0.527 (−6.4pp)</span><br><br>
-            CoT introduces over-elaboration in LLaMA, degrading the final label. In-context examples anchor it correctly.
-          </div>
-          <div style="margin-top:12px">
-            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">CoT Effect on Macro-F1</div>
-            <div class="progress-bar"><div class="progress-fill" style="width:52.7%;background:var(--red)"></div></div>
-            <div style="font-size:11px;color:var(--red);margin-top:4px">0.527 (worst run)</div>
+            Zero-shot → Few-shot: <span style="color:var(--red)">↓ 0.431 → 0.336 (−9.5pp)</span><br>
+            Zero-shot → CoT: <span style="color:var(--red)">↓ 0.431 → 0.327 (−10.4pp)</span><br><br>
+            Both few-shot and CoT degrade LLaMA's performance. Its zero-shot instinct is better calibrated for this legal taxonomy than guided prompting.
           </div>
         </div>
       </div>
@@ -362,32 +446,33 @@
   <div id="page-kappa" class="page">
     <div class="page-header">
       <h2>Inter-Run Agreement (Cohen's κ)</h2>
-      <p>Cohen's κ measures classification consistency between runs. 1.0 = perfect, 0 = chance, negative = worse than chance.</p>
+      <p>How consistently do two different runs assign the same label to the same provision?</p>
     </div>
+
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      Each row in the table compares two classification runs on the provisions they both labelled. The κ (kappa) score tells you how much they agreed, after adjusting for the agreement you would expect from pure chance. A score of 1.0 means they agreed on every provision. A score of 0 means their agreement was no better than random guessing. A negative score — which appears in this dataset — means they disagreed more than chance would predict, which is a sign the two runs are labelling provisions based on very different signals. Green numbers indicate substantial agreement; yellow indicates fair to moderate agreement; red indicates near-random or worse-than-chance.
+    </div>
+
     <div class="panel">
       <div class="panel-title"><span class="dot"></span>Pairwise κ Table</div>
       <table class="tbl">
         <thead><tr><th>Run A</th><th>Run B</th><th class="num">κ</th><th class="num">n shared</th><th>Interpretation</th></tr></thead>
         <tbody>
-          <tr><td>LLaMA zero-shot</td><td>LLaMA few-shot</td><td class="num kappa-positive">0.51</td><td class="num">200</td><td>Moderate — same model responds consistently to examples</td></tr>
-          <tr><td>LLaMA zero-shot</td><td>Qwen zero-shot</td><td class="num kappa-near-zero">0.26</td><td class="num">200</td><td>Fair — some cross-model overlap</td></tr>
-          <tr><td>LLaMA zero-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.18</td><td class="num">100</td><td>Slight</td></tr>
-          <tr><td>LLaMA few-shot</td><td>Qwen zero-shot</td><td class="num kappa-near-zero">0.22</td><td class="num">200</td><td>Slight</td></tr>
-          <tr><td>LLaMA zero-shot</td><td>Qwen few-shot</td><td class="num kappa-near-zero">0.14</td><td class="num">200</td><td>Slight</td></tr>
-          <tr><td>LLaMA few-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.22</td><td class="num">100</td><td>Slight</td></tr>
-          <tr><td>Qwen zero-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.21</td><td class="num">100</td><td>Slight — CoT shifts Qwen's labels substantially</td></tr>
-          <tr><td>Qwen zero-shot</td><td>Qwen few-shot</td><td class="num kappa-near-zero">0.02</td><td class="num">200</td><td>Near-random — few-shot disrupts Qwen's output space</td></tr>
-          <tr><td>Qwen few-shot</td><td>Qwen CoT</td><td class="num kappa-near-zero">0.03</td><td class="num">100</td><td>Near-random</td></tr>
-          <tr><td>LLaMA few-shot</td><td>Qwen few-shot</td><td class="num kappa-negative">−0.02</td><td class="num">200</td><td style="color:var(--red)">⚠️ Worse than chance — models label independently</td></tr>
+          <tr><td>LLaMA zero-shot</td><td>Qwen zero-shot</td><td class="num kappa-positive">0.702</td><td class="num">200</td><td>Substantial — strong cross-model alignment</td></tr>
+          <tr><td>Qwen zero-shot</td><td>Qwen few-shot</td><td class="num kappa-positive">0.689</td><td class="num">200</td><td>Substantial — within-model consistency</td></tr>
+          <tr><td>LLaMA zero-shot</td><td>LLaMA few-shot</td><td class="num kappa-positive">0.668</td><td class="num">200</td><td>Substantial — within-model consistency</td></tr>
+          <tr><td>LLaMA CoT</td><td>Qwen CoT</td><td class="num kappa-positive">0.640</td><td class="num">100</td><td>Substantial — CoT aligns both models</td></tr>
+          <tr><td>LLaMA few-shot</td><td>Qwen few-shot</td><td class="num kappa-near-zero">0.582</td><td class="num">200</td><td>Moderate — few-shot diverges models more than zero-shot</td></tr>
         </tbody>
       </table>
     </div>
     <div class="panel">
       <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Implication for Policy Use</div>
       <div style="font-size:13px;line-height:1.8;color:var(--text)">
-        <p>A cross-model κ of <strong style="color:var(--red)">−0.02</strong> between LLaMA few-shot and Qwen few-shot means the two models are labelling provisions <strong>independently of each other</strong>. Neither can serve as a ground truth for the other.</p>
-        <p style="margin-top:12px">This has a critical implication: <strong style="color:var(--yellow)">individual provision labels are noisy and should not be used for compliance-grade decisions.</strong> The correct application is aggregate distribution analysis — asking <em>"how many provisions in AHKFTA address Rules of Origin?"</em> rather than <em>"is this specific provision a Rules of Origin provision?"</em></p>
-        <p style="margin-top:12px">The highest κ (0.51) is within-model (LLaMA zero-shot vs. few-shot), confirming that prompt strategy consistency matters more than model size for reproducibility.</p>
+        <p>Once runs are compared on the exact same set of provisions, cross-model agreement reaches moderate to substantial levels (κ = 0.58–0.70). This is considerably better than near-random, and it means the models are largely reading the same signals in the text.</p>
+        <p style="margin-top:12px">The highest agreement is cross-model zero-shot (κ = 0.702) — LLaMA and Qwen, without any examples or reasoning prompts, agree more with each other than any same-model pair using few-shot. This suggests that both models share a broadly similar prior understanding of FTA legal categories, and that prompting strategies disrupt this natural alignment more than they help.</p>
+        <p style="margin-top:12px">The practical implication: <strong style="color:var(--yellow)">aggregate category distributions are more defensible than individual provision labels.</strong> If two independent models consistently assign 48% of AHKFTA provisions to Rules of Origin, that aggregate finding is robust even if any single provision's label may be wrong.</p>
       </div>
     </div>
   </div>
@@ -396,8 +481,14 @@
   <div id="page-distribution" class="page">
     <div class="page-header">
       <h2>Provision Distribution</h2>
-      <p>Stratified sample: 100 provisions per agreement (seed 42) classified by Qwen few-shot. Corrects for RCEP's 53.5% corpus share.</p>
+      <p>Stratified sample: 100 provisions per agreement (seed 42) classified by Qwen 3 32B few-shot. Corrects for RCEP's 53.5% corpus share.</p>
     </div>
+
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      The bar chart on the left shows how many provisions each agreement contributes to each policy category. Each row is one category; each coloured bar within that row represents one agreement — blue for RCEP, orange for AHKFTA, green for AANZFTA. A longer bar means that agreement dedicates more of its text to that topic. An absent or very short bar for a particular agreement means that agreement has almost nothing on that topic. The heatmap table on the right uses colour intensity to show the same data: darker cells are higher counts. Read across a row to see which agreement covers a topic most; read down a column to see what topics a single agreement focuses on.
+    </div>
+
     <div class="grid2">
       <div class="panel">
         <div class="panel-title"><span class="dot"></span>Provision Count by Category × Agreement</div>
@@ -420,11 +511,11 @@
         </div>
         <div style="display:flex;gap:14px;align-items:flex-start">
           <span class="badge badge-rcep">RCEP</span>
-          <div style="font-size:13px;line-height:1.6"><strong>Broadest coverage</strong> — 12 Trade in Services provisions, 9 Dispute Settlement, 4 Intellectual Property, 9 NTMs. Reflects its 15-party plurilateral scope.</div>
+          <div style="font-size:13px;line-height:1.6"><strong>Broadest coverage</strong> — 20 Trade in Services provisions, 12 Intellectual Property, 8 Investment, 6 Dispute Settlement. Reflects its 15-party plurilateral scope. Most evenly spread across categories.</div>
         </div>
         <div style="display:flex;gap:14px;align-items:flex-start">
           <span class="badge badge-aanzfta">AANZFTA</span>
-          <div style="font-size:13px;line-height:1.6"><strong>Investment leader</strong> — 9 Investment provisions vs 3 for RCEP and 2 for AHKFTA. Dedicated Chapter 11. Thresholds delegated to annexes, reducing main-text numeric extraction.</div>
+          <div style="font-size:13px;line-height:1.6"><strong>Dispute Settlement leader</strong> — 22 Dispute Settlement provisions vs 6 for RCEP and 0 for AHKFTA. Also leads in Rules of Origin (39), reflecting its comprehensive scope and detailed governance architecture.</div>
         </div>
       </div>
     </div>
@@ -434,8 +525,14 @@
   <div id="page-convergence" class="page">
     <div class="page-header">
       <h2>Convergence Analysis</h2>
-      <p>Entropy-based signal: how evenly each policy category is distributed across the three agreements. High entropy = convergent. Low entropy = fragmented.</p>
+      <p>Which policy areas are treated similarly across all three agreements, and which diverge?</p>
     </div>
+
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      This chart asks a specific question for each policy category: are the three agreements giving it roughly the same amount of attention, or is one agreement dominating? The score on the x-axis runs from 0 to 1. A score near 1.0 means all three agreements allocate almost exactly the same share of their text to that category — they converge. A score near 0 means one agreement has almost all the provisions in that category and the others have almost none — they fragment. Green bars are convergent; orange bars are fragmented. The table below shows the raw provision counts and the score for each category so you can see what is driving the result.
+    </div>
+
     <div class="panel">
       <div class="panel-title"><span class="dot"></span>Entropy Ratio by Category</div>
       <div class="chart-wrap-lg"><canvas id="convergenceChart"></canvas></div>
@@ -450,9 +547,8 @@
     <div class="panel">
       <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Policy Interpretation</div>
       <div style="font-size:13px;line-height:1.8">
-        <p><strong style="color:var(--green)">Convergent areas</strong> (Customs Procedures, Other/Admin) suggest a shared regional template is emerging — likely influenced by WTO rules and prior ASEAN FTA experience. These are lower-stakes areas where harmonisation is easier.</p>
-        <p style="margin-top:10px"><strong style="color:var(--orange)">Fragmented areas</strong> (Rules of Origin, Trade in Services, Dispute Settlement) are where each agreement follows a distinct design. These are also the areas exporters and compliance officers care most about — confirming that the "spaghetti bowl" problem is concentrated precisely where it matters most.</p>
-        <p style="margin-top:10px">AHKFTA's zero count in Trade in Services, Dispute Settlement, and IP categories drives the fragmentation signal for those domains — it's not policy disagreement, it's structural scope difference.</p>
+        <p><strong style="color:var(--green)">Convergent areas</strong> (Customs Procedures, Investment, Rules of Origin) suggest all three agreements allocate comparable shares of their text to these topics. For Customs Procedures, this reflects the shared WTO Trade Facilitation Agreement baseline that all three parties follow. For Rules of Origin, the convergence is partly inflated by a bias in the classification method — the two labelled examples used in the few-shot prompt were both goods-trade categories, which pushes the model to classify more provisions as Rules of Origin across all agreements.</p>
+        <p style="margin-top:10px"><strong style="color:var(--orange)">Fragmented areas</strong> (Dispute Settlement, Intellectual Property, Sanitary and Phytosanitary) are where one agreement has most of the provisions and others have almost none. This is driven almost entirely by AHKFTA having zero provisions in these categories — not because the agreements disagree on how to write these chapters, but because AHKFTA simply does not include those chapters at all. It is a scope difference, not a policy disagreement.</p>
       </div>
     </div>
   </div>
@@ -461,8 +557,14 @@
   <div id="page-design" class="page">
     <div class="page-header">
       <h2>Policy Design Matrix</h2>
-      <p>Synthesised from RAG comparison analysis — key observable differences in how each agreement approaches major trade topics.</p>
+      <p>How do the three agreements handle the same trade policy topics differently in practice?</p>
     </div>
+
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      This table compares specific design features side-by-side across the three agreements. Each row is one feature — for example, what threshold a product must meet to qualify for preferential tariff treatment. Read across a row to see how each agreement handles that feature differently. Orange text highlights the most restrictive or unusual choice; green highlights the most favourable. Red "Not present" means that agreement has no provision on that topic at all. The compliance finding at the bottom is the most practically important result: goods that qualify under RCEP's Rules of Origin rules may not qualify under AHKFTA's, even though both agreements use the same 40% value-content threshold.
+    </div>
+
     <div class="panel">
       <div class="panel-title"><span class="dot"></span>Feature Comparison</div>
       <table class="tbl">
@@ -488,14 +590,14 @@
           </tr>
           <tr>
             <td><strong>CTC Rule</strong></td>
-            <td>CTH (Change at Heading level)</td>
-            <td style="color:var(--orange)">CC (Change at Chapter level) — MORE restrictive</td>
+            <td>CTH — change at the 4-digit heading level. Easier to satisfy.</td>
+            <td style="color:var(--orange)">CC — change at the 2-digit chapter level. More restrictive.</td>
             <td style="color:var(--muted)">Not recovered in main text</td>
           </tr>
           <tr>
             <td><strong>Dispute Settlement</strong></td>
             <td>Own mechanism; independent of WTO DSU</td>
-            <td style="color:var(--orange)">WTO DSU as explicit reference — no own mechanism</td>
+            <td style="color:var(--orange)">WTO DSU as reference — no independent mechanism</td>
             <td>Own mechanism; adjudication + arbitration</td>
           </tr>
           <tr>
@@ -533,7 +635,7 @@
             <div style="color:var(--muted)">Requires change at the 2-digit HS chapter level. Demands more substantial transformation of goods. Harder to satisfy.</div>
           </div>
         </div>
-        <p><strong style="color:var(--yellow)">Practical impact:</strong> The same goods can qualify for preferential treatment under RCEP but not AHKFTA — a real compliance risk for exporters operating under both agreements simultaneously.</p>
+        <p><strong style="color:var(--yellow)">Practical impact:</strong> The same goods can qualify for preferential treatment under RCEP but not AHKFTA — a real compliance risk for exporters operating under both agreements simultaneously. A manufacturer sourcing inputs within the same HS chapter may clear RCEP's heading-level test but fail AHKFTA's chapter-level test, meaning they lose access to AHKFTA preferential rates despite meeting the RVC requirement.</p>
       </div>
     </div>
   </div>
@@ -542,51 +644,15 @@
   <div id="page-comparison" class="page">
     <div class="page-header">
       <h2>RAG Cross-Agreement Comparisons</h2>
-      <p>LLM-generated comparative analysis for each policy category. Produced by Qwen 3 32B using top-3 semantically retrieved provisions per agreement.</p>
+      <p>LLM-generated comparative analysis for each policy category, using retrieved provisions from all three agreements.</p>
     </div>
-    <div id="narrativeContainer"></div>
-  </div>
 
-  <!-- ═══════════════════════════════════════════ FIGURES ═══ -->
-  <div id="page-figures" class="page">
-    <div class="page-header">
-      <h2>Generated Figures</h2>
-      <p>8 publication-quality figures produced by <code>python -m src.visualize</code>.</p>
+    <div class="how-to-read">
+      <div class="htr-label">How to read this page</div>
+      Each accordion item covers one policy category. Click the category name to expand it and read the AI-generated comparison. For each category, the analysis was produced by giving Qwen 3 32B the three most semantically relevant provisions from each agreement (nine provisions total) and asking it to write a structured comparison. The comparison identifies what all three agreements have in common, what makes each agreement distinctive, and what the practical implications are for businesses or policymakers. Because this is generated text, important conclusions should always be verified against the original agreement text before being used in a compliance or negotiation context.
     </div>
-    <div class="fig-grid">
-      <div class="fig-card">
-        <img src="data/results/fig_corpus_overview.png" alt="Corpus Overview" onerror="this.style.display='none'">
-        <div class="fig-label">fig_corpus_overview.png — Provisions per agreement and document type</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_category_heatmap.png" alt="Category Heatmap" onerror="this.style.display='none'">
-        <div class="fig-label">fig_category_heatmap.png — Category distribution (%) across all runs</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_kappa_matrix.png" alt="Kappa Matrix" onerror="this.style.display='none'">
-        <div class="fig-label">fig_kappa_matrix.png — Cohen's κ inter-run agreement matrix</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_category_x_agreement.png" alt="Category x Agreement" onerror="this.style.display='none'">
-        <div class="fig-label">fig_category_x_agreement.png — Provision counts: category × agreement (stratified)</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_strategy_effect_llama.png" alt="Strategy Effect LLaMA" onerror="this.style.display='none'">
-        <div class="fig-label">fig_strategy_effect_llama.png — Prompt strategy effect on category distribution (LLaMA)</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_strategy_effect_qwen.png" alt="Strategy Effect Qwen" onerror="this.style.display='none'">
-        <div class="fig-label">fig_strategy_effect_qwen.png — Prompt strategy effect on category distribution (Qwen)</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_convergence.png" alt="Convergence" onerror="this.style.display='none'">
-        <div class="fig-label">fig_convergence.png — Entropy-based convergence/fragmentation signal</div>
-      </div>
-      <div class="fig-card">
-        <img src="data/results/fig_validation_accuracy.png" alt="Validation Accuracy" onerror="this.style.display='none'">
-        <div class="fig-label">fig_validation_accuracy.png — Accuracy and macro-F1 by model + strategy</div>
-      </div>
-    </div>
+
+    <div id="narrativeContainer"></div>
   </div>
 
 </main>
@@ -594,42 +660,44 @@
 <script>
 // ── Data ──────────────────────────────────────────────────────
 const COLORS = { rcep:'#4f8ef7', ahkfta:'#f97316', aanzfta:'#22c55e' };
-const CATS = ['Other','Tariff Commitments','Rules of Origin','Customs Procedures',
-              'Dispute Settlement','Non-Tariff Measures','Trade in Services',
-              'Investment','Intellectual Property','General Provisions / Definitions',
-              'Sanitary and Phytosanitary Measures'];
+const CATS = [
+  'Rules of Origin','Tariff Commitments','Trade in Services','Dispute Settlement',
+  'Customs Procedures','General Provisions / Definitions','Investment',
+  'Intellectual Property','Non-Tariff Measures',
+  'Sanitary and Phytosanitary Measures','Other'
+];
 const MATRIX = {
-  'Other':                          {RCEP:30,AHKFTA:23,AANZFTA:26},
-  'Tariff Commitments':             {RCEP:16,AHKFTA:35,AANZFTA:24},
-  'Rules of Origin':                {RCEP:9, AHKFTA:28,AANZFTA:8},
-  'Customs Procedures':             {RCEP:7, AHKFTA:8, AANZFTA:8},
-  'Dispute Settlement':             {RCEP:9, AHKFTA:0, AANZFTA:10},
-  'Non-Tariff Measures':            {RCEP:9, AHKFTA:1, AANZFTA:7},
-  'Trade in Services':              {RCEP:12,AHKFTA:0, AANZFTA:5},
-  'Investment':                     {RCEP:3, AHKFTA:2, AANZFTA:9},
-  'Intellectual Property':          {RCEP:4, AHKFTA:0, AANZFTA:1},
-  'General Provisions / Definitions':{RCEP:1,AHKFTA:3, AANZFTA:1},
-  'Sanitary and Phytosanitary Measures':{RCEP:0,AHKFTA:0,AANZFTA:1},
+  'Rules of Origin':                    {RCEP:24, AHKFTA:48, AANZFTA:39},
+  'Tariff Commitments':                 {RCEP:6,  AHKFTA:31, AANZFTA:7},
+  'Trade in Services':                  {RCEP:20, AHKFTA:0,  AANZFTA:10},
+  'Dispute Settlement':                 {RCEP:6,  AHKFTA:0,  AANZFTA:22},
+  'Customs Procedures':                 {RCEP:6,  AHKFTA:6,  AANZFTA:7},
+  'General Provisions / Definitions':   {RCEP:5,  AHKFTA:9,  AANZFTA:3},
+  'Investment':                         {RCEP:8,  AHKFTA:4,  AANZFTA:5},
+  'Intellectual Property':              {RCEP:12, AHKFTA:0,  AANZFTA:2},
+  'Non-Tariff Measures':                {RCEP:6,  AHKFTA:1,  AANZFTA:4},
+  'Sanitary and Phytosanitary Measures':{RCEP:5,  AHKFTA:1,  AANZFTA:0},
+  'Other':                              {RCEP:2,  AHKFTA:0,  AANZFTA:1},
 };
 const VALIDATION = [
-  {model:'Qwen 3 32B',strategy:'Chain-of-Thought',acc:0.700,f1:0.693},
-  {model:'LLaMA 3.3 70B',strategy:'Zero-Shot',acc:0.700,f1:0.591},
-  {model:'LLaMA 3.3 70B',strategy:'Few-Shot',acc:0.680,f1:0.635},
-  {model:'Qwen 3 32B',strategy:'Zero-Shot',acc:0.680,f1:0.596},
-  {model:'Qwen 3 32B',strategy:'Few-Shot',acc:0.580,f1:0.540},
-  {model:'LLaMA 3.3 70B',strategy:'Chain-of-Thought',acc:0.480,f1:0.527},
+  {model:'LLaMA 3.3 70B', strategy:'Zero-Shot',       acc:0.480, f1:0.431},
+  {model:'Qwen 3 32B',    strategy:'Chain-of-Thought', acc:0.460, f1:0.442},
+  {model:'Qwen 3 32B',    strategy:'Zero-Shot',        acc:0.380, f1:0.424},
+  {model:'Qwen 3 32B',    strategy:'Few-Shot',         acc:0.380, f1:0.373},
+  {model:'LLaMA 3.3 70B', strategy:'Few-Shot',         acc:0.340, f1:0.336},
+  {model:'LLaMA 3.3 70B', strategy:'Chain-of-Thought', acc:0.320, f1:0.327},
 ];
 const NARRATIVES = {
   "Tariff Commitments": "**Key Similarities:** All three agreements establish mutual amendment mechanisms for tariff schedules, requiring consensus or formal procedures. They emphasize non-discrimination by extending improved tariff concessions to all parties when bilateral upgrades occur.\n\n**Key Differences:** RCEP allows unilateral notification requirements for importers seeking preferential treatment. AHKFTA uniquely codifies product-specific rules of origin with exporter choice. AANZFTA permits unilateral modification rights and selective HS concessions.\n\n**Convergence/Fragmentation:** Fragmented — each agreement follows a distinct tariff amendment architecture.\n\n**Policy Implication:** Exporters must maintain agreement-specific compliance systems. No single set of tariff rules applies across all three agreements.",
   "Rules of Origin": "**Key Similarities:** All three agreements include provisions for modifying RoO criteria, reflecting shared recognition of adaptability needs. Each emphasizes collaborative governance — RCEP via a Committee, AHKFTA through a Sub-Committee, AANZFTA through certificate requirements.\n\n**Key Differences:** RCEP is the most detailed, with product-specific rules (Annex 3A) and minimum information requirements (Annex 3B). AHKFTA uses a CC (chapter-level) CTC rule — stricter than RCEP's CTH (heading-level). Both use a 40% RVC threshold.\n\n**Critical Finding:** Goods can qualify under RCEP but fail AHKFTA's stricter CC rule despite identical RVC thresholds.\n\n**Policy Implication:** Compliance officers must assess CTC rules separately for each agreement, even when RVC thresholds appear identical.",
-  "Non-Tariff Measures": "**Key Similarities:** All three agreements prohibit discriminatory NTMs unless justified under WTO rules. Each includes mechanisms to review NTMs and emphasizes transparency.\n\n**Key Differences:** RCEP and AHKFTA explicitly ban quantitative restrictions. AANZFTA focuses on facilitating trade through procedural reviews. AHKFTA includes product-specific rules for origin determination with exporter choice.\n\n**Policy Implication:** WTO compatibility provides a baseline, but the specific prohibition scope varies. AANZFTA's procedural emphasis offers more flexibility; RCEP and AHKFTA are more prescriptive.",
+  "Non-Tariff Measures": "**Key Similarities:** All three agreements prohibit discriminatory non-tariff measures unless justified under WTO rules. Each includes mechanisms to review NTMs and emphasizes transparency.\n\n**Key Differences:** RCEP and AHKFTA explicitly ban quantitative restrictions. AANZFTA focuses on facilitating trade through procedural reviews. AHKFTA includes product-specific rules for origin determination with exporter choice.\n\n**Policy Implication:** WTO compatibility provides a baseline, but the specific prohibition scope varies. AANZFTA's procedural emphasis offers more flexibility; RCEP and AHKFTA are more prescriptive.",
   "Trade in Services": "**Key Similarities:** RCEP and AANZFTA both cover market access through schedules of specific commitments and prohibit restrictions on services trade. Both emphasize transparency in regulatory measures.\n\n**Key Differences:** AHKFTA is absent — no Trade in Services provisions in this agreement. RCEP and AANZFTA include mode-of-supply-specific obligations; AHKFTA focuses entirely on goods.\n\n**Policy Implication:** Service suppliers cannot use AHKFTA for preferential access — they must rely on RCEP or AANZFTA or bilateral arrangements.",
-  "Investment": "**Key Similarities:** RCEP and AANZFTA provide national treatment for investments with exceptions for special formalities. Both use schedules/annexes to detail commitments.\n\n**Key Differences:** RCEP (Ch.10) and AANZFTA (Ch.11) have dedicated investment chapters; AHKFTA lacks explicit investment provisions entirely. AANZFTA includes ISDS mechanisms.\n\n**Policy Implication:** Investors structuring market access through AHKFTA receive no investment chapter protections. AANZFTA offers the strongest investor protections of the three agreements.",
+  "Investment": "**Key Similarities:** RCEP and AANZFTA provide national treatment for investments with exceptions for special formalities. Both use schedules and annexes to detail commitments.\n\n**Key Differences:** RCEP (Ch.10) and AANZFTA (Ch.11) have dedicated investment chapters; AHKFTA lacks explicit investment provisions entirely. AANZFTA includes ISDS mechanisms.\n\n**Policy Implication:** Investors structuring market access through AHKFTA receive no investment chapter protections. AANZFTA offers the strongest investor protections of the three agreements.",
   "Dispute Settlement": "**Key Similarities:** All three agreements establish mechanisms for resolving disputes. They recognize settlements via adjudication, arbitration, or mutual agreement.\n\n**Key Differences:** Most significant: AHKFTA explicitly incorporates the WTO DSU as a reference framework, while RCEP and AANZFTA maintain independent mechanisms. AHKFTA has no dedicated dispute settlement chapter.\n\n**Policy Implication:** Parties invoking AHKFTA dispute mechanisms must navigate WTO DSU procedures rather than the agreement's own process — adding complexity and potentially longer timelines.",
-  "Intellectual Property": "**Key Similarities:** All three agreements emphasize IP protection and enforcement. They recognize the need to balance IP rights with public interests.\n\n**Key Differences:** RCEP focuses on procedural efficiency, avoiding mandates for separate enforcement systems. AHKFTA has no dedicated IP chapter — IP-related provisions appear only in customs context. AANZFTA includes broader IP protections.\n\n**Policy Implication:** IP rights holders cannot rely on AHKFTA for dedicated IP protection — RCEP or separate IP arrangements are necessary.",
-  "Customs Procedures": "**Key Similarities:** All three agreements define customs procedures and require documentation for preferential treatment, including certificates of origin.\n\n**Key Differences:** RCEP mandates direct consignment rules. AHKFTA eliminates legalisation/authentication requirements. AANZFTA introduces a risk-based approach for low-risk goods.\n\n**Convergence Signal:** Customs Procedures is one of the more convergent categories — the WTO Trade Facilitation Agreement provides a common baseline.\n\n**Policy Implication:** AHKFTA's elimination of document authentication offers administrative simplification for exporters.",
-  "Sanitary and Phytosanitary Measures": "**Key Similarities:** All three agreements align with the WTO SPS Agreement as a foundational reference. They emphasize protection of human, animal, and plant health.\n\n**Key Differences:** RCEP introduces provisional SPS measures and a dedicated monitoring mechanism. AHKFTA ties SPS compliance to tariff schedules. AANZFTA establishes subcommittees for ongoing SPS collaboration.\n\n**Note:** Only 1 SPS provision recovered in the stratified sample — this category is sparse in main-agreement text; detailed SPS commitments appear in annexes.",
-  "General Provisions / Definitions": "**Key Similarities:** All three agreements include definitions as foundational elements ensuring interpretive clarity. Each emphasizes compliance with domestic laws.\n\n**Key Differences:** RCEP focuses on customs consistency requiring administrative harmonization. AHKFTA prioritizes exporter flexibility with choice among product-specific rules. AANZFTA emphasizes transparency in implementation.\n\n**Convergence Signal:** General Provisions is among the most convergent categories — shared ASEAN drafting norms produce similar definitional architecture.",
+  "Intellectual Property": "**Key Similarities:** All three agreements emphasize IP protection and enforcement. They recognize the need to balance IP rights with public interests.\n\n**Key Differences:** RCEP focuses on procedural efficiency, avoiding mandates for separate enforcement systems. AHKFTA has no dedicated IP chapter — IP-related provisions appear only in a customs context. AANZFTA includes broader IP protections.\n\n**Policy Implication:** IP rights holders cannot rely on AHKFTA for dedicated IP protection — RCEP or separate IP arrangements are necessary.",
+  "Customs Procedures": "**Key Similarities:** All three agreements define customs procedures and require documentation for preferential treatment, including certificates of origin.\n\n**Key Differences:** RCEP mandates direct consignment rules. AHKFTA eliminates legalisation and authentication requirements. AANZFTA introduces a risk-based approach for low-risk goods.\n\n**Convergence Signal:** Customs Procedures is the most convergent category — the WTO Trade Facilitation Agreement provides a shared baseline for all three.\n\n**Policy Implication:** AHKFTA's elimination of document authentication offers administrative simplification for exporters, while AANZFTA's risk-based approach benefits established low-risk traders.",
+  "Sanitary and Phytosanitary Measures": "**Key Similarities:** All three agreements align with the WTO SPS Agreement as a foundational reference. They emphasize protection of human, animal, and plant health.\n\n**Key Differences:** RCEP introduces provisional SPS measures and a dedicated monitoring mechanism. AHKFTA ties SPS compliance to tariff schedules. AANZFTA establishes subcommittees for ongoing SPS collaboration.\n\n**Note:** Only 6 SPS provisions were recovered in the stratified sample total — this category is sparse in main-agreement text; detailed SPS commitments appear in annexes and are not captured here.",
+  "General Provisions / Definitions": "**Key Similarities:** All three agreements include definitions as foundational elements ensuring interpretive clarity. Each emphasizes compliance with domestic laws.\n\n**Key Differences:** RCEP focuses on customs consistency requiring administrative harmonisation. AHKFTA prioritises exporter flexibility with choice among product-specific rules. AANZFTA emphasises transparency in implementation.\n\n**Convergence Signal:** General Provisions has moderate convergence — shared ASEAN drafting norms produce similar definitional architecture, but AHKFTA's higher share (9%) compared to RCEP (5%) and AANZFTA (3%) introduces some divergence.",
 };
 
 // ── Navigation ─────────────────────────────────────────────────
@@ -649,9 +717,9 @@ Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 new Chart(document.getElementById('corpusChart'), {
   type: 'doughnut',
   data: {
-    labels: ['RCEP (2,129)', 'AANZFTA (1,498)', 'AHKFTA (353)'],
+    labels: ['RCEP (2,171)', 'AANZFTA (1,526)', 'AHKFTA (362)'],
     datasets: [{
-      data: [2129,1498,353],
+      data: [2171, 1526, 362],
       backgroundColor: [COLORS.rcep, COLORS.aanzfta, COLORS.ahkfta],
       borderWidth: 2, borderColor: '#1a1d27',
     }]
@@ -664,23 +732,23 @@ new Chart(document.getElementById('corpusChart'), {
 
 // ── Validation charts ──────────────────────────────────────────
 const valLabels = VALIDATION.map(v => v.model.replace('3.3 70B','3.3').replace('3 32B','3') + '\n' + v.strategy);
-const accColors = VALIDATION.map(v => v.acc >= 0.68 ? '#4f8ef7' : v.acc >= 0.55 ? '#f97316' : '#ef4444');
-const f1Colors  = VALIDATION.map(v => v.f1 >= 0.65 ? '#22c55e' : v.f1 >= 0.55 ? '#4f8ef7' : '#ef4444');
+const accColors = VALIDATION.map(v => v.acc >= 0.46 ? '#4f8ef7' : v.acc >= 0.38 ? '#f97316' : '#ef4444');
+const f1Colors  = VALIDATION.map(v => v.f1 >= 0.43 ? '#22c55e' : v.f1 >= 0.37 ? '#4f8ef7' : '#ef4444');
 
 new Chart(document.getElementById('accChart'), {
   type: 'bar',
   data: { labels: valLabels, datasets: [{ label:'Accuracy', data: VALIDATION.map(v=>v.acc), backgroundColor: accColors }] },
   options: {
     indexAxis:'y', plugins:{legend:{display:false}},
-    scales: { x: { min:0, max:1, ticks:{callback:v=>(v*100).toFixed(0)+'%'} } }
+    scales: { x: { min:0, max:0.6, ticks:{callback:v=>(v*100).toFixed(0)+'%'} } }
   }
 });
 new Chart(document.getElementById('f1Chart'), {
   type: 'bar',
-  data: { labels: valLabels, datasets: [{ label:'Macro F1', data: VALIDATION.map(v=>v.f1), backgroundColor: f1Colors }] },
+  data: { labels: valLabels, datasets: [{ label:'Macro-F1', data: VALIDATION.map(v=>v.f1), backgroundColor: f1Colors }] },
   options: {
     indexAxis:'y', plugins:{legend:{display:false}},
-    scales: { x: { min:0, max:1 } }
+    scales: { x: { min:0, max:0.6 } }
   }
 });
 
@@ -689,10 +757,10 @@ const distCats = Object.keys(MATRIX);
 new Chart(document.getElementById('distChart'), {
   type: 'bar',
   data: {
-    labels: distCats.map(c => c.length > 20 ? c.substring(0,18)+'…' : c),
+    labels: distCats.map(c => c.length > 22 ? c.substring(0,20)+'…' : c),
     datasets: [
-      { label:'RCEP', data: distCats.map(c=>MATRIX[c].RCEP), backgroundColor: COLORS.rcep },
-      { label:'AHKFTA', data: distCats.map(c=>MATRIX[c].AHKFTA), backgroundColor: COLORS.ahkfta },
+      { label:'RCEP',    data: distCats.map(c=>MATRIX[c].RCEP),    backgroundColor: COLORS.rcep },
+      { label:'AHKFTA',  data: distCats.map(c=>MATRIX[c].AHKFTA),  backgroundColor: COLORS.ahkfta },
       { label:'AANZFTA', data: distCats.map(c=>MATRIX[c].AANZFTA), backgroundColor: COLORS.aanzfta },
     ]
   },
@@ -707,8 +775,7 @@ new Chart(document.getElementById('distChart'), {
 const distTbody = document.getElementById('distTable');
 distCats.forEach(cat => {
   const r=MATRIX[cat], total=r.RCEP+r.AHKFTA+r.AANZFTA;
-  const maxVal = Math.max(r.RCEP,r.AHKFTA,r.AANZFTA);
-  function heatClass(v){ if(v===0)return'heat-0'; if(v<5)return'heat-1'; if(v<12)return'heat-2'; if(v<25)return'heat-3'; return'heat-4'; }
+  function heatClass(v){ if(v===0)return'heat-0'; if(v<6)return'heat-1'; if(v<15)return'heat-2'; if(v<30)return'heat-3'; return'heat-4'; }
   distTbody.innerHTML += `<tr>
     <td style="font-size:12px">${cat.length>28?cat.substring(0,26)+'…':cat}</td>
     <td class="num ${heatClass(r.RCEP)}">${r.RCEP}</td>
@@ -742,10 +809,8 @@ new Chart(document.getElementById('convergenceChart'), {
   },
   options: {
     indexAxis:'y',
-    plugins: { legend:{display:false},
-      annotation: { annotations: { line1:{type:'line',xMin:0.95,xMax:0.95,borderColor:'#8892a4',borderDash:[4,4]} } }
-    },
-    scales: { x: { min:0, max:1, title:{display:true,text:'1.0 = perfectly even across agreements'} } }
+    plugins: { legend:{display:false} },
+    scales: { x: { min:0, max:1, title:{display:true,text:'1.0 = evenly distributed across all three agreements'} } }
   }
 });
 
