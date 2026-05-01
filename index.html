@@ -11,8 +11,8 @@
     --surface: #FFFFFF;
     --surface2: #FAF7F4;
     --border: #D5C7BC;
-    --text: #454545;
-    --muted: #8A7D7D;
+    --text: #2A2A2A;
+    --muted: #5C5252;
     --accent: #93B7BE;       /* primary, RCEP, convergent */
     --accent2: #A79090;      /* secondary, AHKFTA, caveat, regression */
     --highlight: #785964;    /* the one highlight: best, winner, fragmented, AANZFTA */
@@ -33,7 +33,7 @@
     display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; z-index: 10;
   }
   .logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); }
-  .logo h1 { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .05em; text-transform: uppercase; }
+  .logo h1 { font-size: 13px; font-weight: 700; color: var(--highlight); letter-spacing: .05em; text-transform: uppercase; }
   .logo p { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
   nav { padding: 16px 0; flex: 1; overflow-y: auto; }
   nav a {
@@ -42,7 +42,7 @@
     transition: all .15s; cursor: pointer; border-left: 3px solid transparent;
   }
   nav a:hover { color: var(--text); background: var(--surface2); }
-  nav a.active { color: var(--accent); background: rgba(147,183,190,.08); border-left-color: var(--accent); }
+  nav a.active { color: var(--highlight); background: rgba(120,89,100,.10); border-left-color: var(--highlight); font-weight: 600; }
   nav .section-label { padding: 16px 20px 6px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
   .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.5; }
 
@@ -912,7 +912,7 @@ function showPage(id) {
 }
 
 // ── Chart defaults ─────────────────────────────────
-Chart.defaults.color = '#8A7D7D';
+Chart.defaults.color = '#5C5252';
 Chart.defaults.borderColor = '#D5C7BC';
 Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 
@@ -943,8 +943,8 @@ Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
         tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x} provisions` } },
       },
       scales: {
-        x: { stacked:false, grid:{ color:'#D5C7BC' }, ticks:{ color:'#8A7D7D', font:{size:10} }, title:{ display:true, text:'Provisions (of 100 sampled)', color:'#8A7D7D', font:{size:10} } },
-        y: { stacked:false, grid:{ display:false }, ticks:{ color:'#6F5F5F', font:{size:10} } },
+        x: { stacked:false, grid:{ color:'#D5C7BC' }, ticks:{ color:'#5C5252', font:{size:10} }, title:{ display:true, text:'Provisions (of 100 sampled)', color:'#5C5252', font:{size:10} } },
+        y: { stacked:false, grid:{ display:false }, ticks:{ color:'#3A3A3A', font:{size:10} } },
       },
     }
   });
