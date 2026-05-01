@@ -1011,8 +1011,13 @@ new Chart(document.getElementById('distChart'), {
   },
   options: {
     indexAxis:'y',
-    plugins: { legend: { position:'bottom' } },
-    scales: { x: { stacked:false }, y: { stacked:false } }
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position:'bottom', labels:{ padding:14 } } },
+    scales: {
+      x: { stacked:false, grid:{ color:'#D5C7BC' }, ticks:{ color:'#5C5252' } },
+      y: { stacked:false, grid:{ display:false }, ticks:{ color:'#2A2A2A', font:{ size:12 } } }
+    }
   }
 });
 
