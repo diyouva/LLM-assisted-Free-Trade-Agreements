@@ -42,7 +42,7 @@
     transition: all .15s; cursor: pointer; border-left: 3px solid transparent;
   }
   nav a:hover { color: var(--text); background: var(--surface2); }
-  nav a.active { color: var(--highlight); background: rgba(120,89,100,.10); border-left-color: var(--highlight); font-weight: 600; }
+  nav a.active { color: #FFFFFF; background: var(--highlight); border-left-color: var(--highlight); font-weight: 600; }
   nav .section-label { padding: 16px 20px 6px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
   .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.5; }
 
@@ -66,11 +66,11 @@
 
   /* Key takeaway box */
   .takeaway {
-    background: rgba(147,183,190,.07); border-left: 3px solid var(--accent);
+    background: rgba(120,89,100,.08); border-left: 4px solid var(--highlight);
     border-radius: 0 8px 8px 0; padding: 14px 18px; margin-top: 16px;
     font-size: 13px; line-height: 1.7; color: var(--text);
   }
-  .takeaway .tk-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .takeaway .tk-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--highlight); margin-bottom: 6px; }
 
   /* Cards */
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
@@ -102,13 +102,13 @@
   .tbl tr:last-child td { border-bottom: none; }
   .tbl tr:hover td { background: var(--surface2); }
   .tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .tbl .best td { color: var(--green); font-weight: 600; }
+  .tbl .best td { background: var(--highlight); color: #FFFFFF; font-weight: 700; }
   .tbl .worst td { color: var(--muted); }
 
   /* Badge */
   .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-convergent { background: rgba(120,89,100,.15); color: var(--green); }
-  .badge-fragmented { background: rgba(167,144,144,.15); color: var(--orange); }
+  .badge-convergent { background: var(--accent); color: #FFFFFF; }
+  .badge-fragmented { background: var(--highlight); color: #FFFFFF; }
   .badge-rcep    { background: rgba(147,183,190,.15);  color: var(--rcep); }
   .badge-ahkfta  { background: rgba(167,144,144,.15);  color: var(--ahkfta); }
   .badge-aanzfta { background: rgba(120,89,100,.15);   color: var(--aanzfta); }
