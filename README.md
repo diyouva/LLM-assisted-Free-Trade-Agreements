@@ -1,51 +1,50 @@
 # A Computational Framework for Comparative Analysis of Free Trade Agreements
 
-**Diyouva Christa Novith** | Machine Learning Foundation with Python | Carnegie Mellon University — Spring 2026
+**Diyouva Christa Novith**
+
+An LLM-based pipeline that converts three Asia-Pacific Free Trade Agreements into a structured provision dataset and surfaces design differences across them. The output is positioned as a first-pass triage layer for analysts, not a substitute for legal review.
 
 ---
 
 ## Overview
 
-> **Repository status (April 2026):** the current JSON artefacts under `data/`
-> were regenerated after extraction, sampling, validation, and comparison
-> fixes. Earlier drafts in this repo reported stronger validation numbers from
-> older artefacts; those claims are now superseded by the current saved outputs.
+The Asia-Pacific region maintains dozens of overlapping Free Trade Agreements (FTAs), each running to thousands of legal provisions. Comparing two or three of them on the same topic is slow, manual work, and the answer often turns on small differences buried deep in the text. Trade economists call this the spaghetti bowl problem.
 
-This project applies large language models (LLMs) to a standing problem in international trade policy: **comparing the legal architecture of Free Trade Agreements (FTAs) at scale**. The Asia-Pacific region alone maintains dozens of overlapping FTAs — each with thousands of provisions — making manual comparison impractical for analysts and negotiators. This framework automates the extraction, classification, and cross-agreement comparison of FTA provisions using freely available LLMs, validated against a hand-labelled gold set.
+This framework tests whether an LLM-based pipeline can help with that comparison work. It segments the legal text of three ASEAN-centred FTAs into provisions, asks the model to classify each into a policy category, and uses retrieval to draft side-by-side notes on how each agreement handles the same topic. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.
 
 **Three agreements analysed:**
 
 | Agreement | Full Name | Parties | Signed |
 |-----------|-----------|---------|--------|
 | RCEP | Regional Comprehensive Economic Partnership | 10 ASEAN + CN, JP, NZ, AU, KR | 2020 |
-| AHKFTA | ASEAN–Hong Kong Free Trade Agreement | 10 ASEAN + HK | 2017 |
-| AANZFTA | ASEAN–Australia–New Zealand FTA | 10 ASEAN + AU + NZ | 2009 |
+| AHKFTA | ASEAN-Hong Kong Free Trade Agreement | 10 ASEAN + HK | 2017 |
+| AANZFTA | ASEAN-Australia-New Zealand FTA | 10 ASEAN + AU + NZ | 2009 |
 
 **Research questions:**
-1. Can LLMs reliably classify FTA provisions into standard policy categories, and how does accuracy vary across prompt strategies?
-2. How do the three agreements differ in their allocation of legal text across policy domains?
-3. Do the agreements show structural convergence or fragmentation in their treatment of key trade topics?
+1. Can LLMs reliably classify FTA provisions into standard policy categories, and how does accuracy change across models and prompt strategies?
+2. How do the agreements differ in observable design features such as thresholds, governance structures, and scope?
+3. Do the agreements show structural convergence or fragmentation in their treatment of key trade policy topics?
 
 ---
 
-## Key Findings
+## Headline Findings
 
-- **Validation performance is modest on the current gold set.** Best accuracy is **LLaMA 3.3 70B zero-shot** at **48.0%**; best macro-F1 is **Qwen 3 32B chain-of-thought** at **0.442** on the same 50-provision cohort.
-- **Prompt effects are mixed rather than uniformly beneficial.** CoT slightly improves Qwen over its other strategies on macro-F1, but the margin is small after the rerun; few-shot no longer supports the earlier "clear improvement" narrative.
-- **Inter-run agreement is now moderate to substantial once cohorts are aligned exactly.** For example, `llama_zero_shot` vs `qwen_zero_shot` reaches **κ = 0.702**, and `llama_few_shot` vs `qwen_few_shot` reaches **κ = 0.582** on the shared 200-row cohort.
-- **AHKFTA is Rules-of-Origin heavy** (48% of sampled provisions vs 24% for RCEP), reflecting its tighter origin criteria and goods-only scope; RCEP and AANZFTA allocate substantially more text to services, investment, and dispute settlement.
-- **Customs Procedures and General Provisions** are the most structurally convergent categories — a shared regional template is emerging; **Dispute Settlement and Trade in Services** are the most fragmented — AHKFTA has zero provisions in both, reflecting its narrower bilateral mandate.
+- **Triage-grade classification, not provision-level adjudication.** Best accuracy is **LLaMA 3.3 70B zero-shot** at **0.480**; best Macro-F1 is **Qwen 3 32B chain-of-thought** at **0.442** on the 50-provision gold set. No run clears 50%.
+- **Prompt strategy is a per-model decision.** Chain-of-thought prompting raises Qwen's Macro-F1 by 1.8 points but drops LLaMA's by 10.4 points. Few-shot prompting hurts both. The asymmetry only became visible after all six combinations were scored against the same gold set.
+- **Inter-run agreement is moderate to substantial.** Cohen's κ ranges from 0.582 (LLaMA few-shot vs Qwen few-shot, n=200) to 0.702 (LLaMA zero-shot vs Qwen zero-shot, n=200). Models share a meaningful baseline signal that prompting strategies tend to disrupt rather than amplify.
+- **Same threshold, different transformation rule.** RCEP and AHKFTA both use a 40% Regional Value Content threshold, but RCEP applies a Change in Tariff Heading rule at the 4-digit level while AHKFTA applies a Change in Chapter rule at the 2-digit level. A product can in principle satisfy one rule and fail the other.
+- **Customs Procedures converges; Dispute Settlement and Intellectual Property fragment.** Entropy ratio reaches 1.00 for Customs Procedures (consistent with the WTO Trade Facilitation baseline). Dispute Settlement (0.47) and Intellectual Property (0.37) score as fragmented, mainly because AHKFTA does not include those chapters at all.
 
 ---
 
 ## Architecture
 
 ```
-PDFs (3 FTAs)
+PDFs (3 FTAs, 7 documents)
      │
      ▼
 ┌─────────────────────┐
-│  src/extraction.py  │  pdfplumber → PyMuPDF → Tesseract OCR fallback
+│  src/extraction.py  │  pdfplumber, PyMuPDF, Tesseract OCR fallback
 │  Provision schema   │  Fields: id, agreement, doc_type, chapter,
 │  (paragraph-level)  │          article, paragraph_idx, text, char_count
 └─────────────────────┘
@@ -59,21 +58,21 @@ PDFs (3 FTAs)
      │
      ▼
 ┌──────────────────────────────────────────────────────┐
-│  src/classification.py  — LLM Classification         │
+│  src/classification.py  (LLM Classification)         │
 │                                                      │
 │  Models:  LLaMA 3.3 70B (Groq)                       │
-│           Qwen 3 32B    (Groq / Alibaba Cloud)       │
+│           Qwen 3 32B    (Groq)                       │
 │                                                      │
 │  Strategies:                                         │
-│    zero_shot  — category list + provision text       │
-│    few_shot   — 2 labelled examples prepended        │
-│    cot        — "think step by step" instruction     │
+│    zero_shot   category list + provision text        │
+│    few_shot    2 labelled examples prepended         │
+│    cot         "think step by step" instruction      │
 │                                                      │
 │  Main runs: reproducible random sample (seed=42)     │
 │  Comparative runs: stratified 100/agreement          │
 │  (corrects for RCEP's 53.5% corpus share)            │
 └──────────────────────────────────────────────────────┘
-     │  classified_*.json  (6 run files)
+     │  classified_*.json  (6 run files + 1 stratified)
      ▼
 ┌─────────────────────┐    ┌────────────────────────────┐
 │  src/comparison.py  │    │  src/attribute_extraction  │
@@ -86,7 +85,7 @@ PDFs (3 FTAs)
 ┌─────────────────────┐
 │  src/analysis.py    │  Cohen's κ inter-run agreement
 │  src/validation.py  │  Macro-F1 vs 50-provision gold set
-│  src/visualize.py   │  7 publication figures
+│  src/visualize.py   │  Publication figures
 └─────────────────────┘
 ```
 
@@ -99,9 +98,9 @@ PDFs (3 FTAs)
 ├── Agreement/                    # Source PDFs (3 FTAs, 7 documents)
 ├── data/
 │   ├── raw/
-│   │   ├── all_provisions.json   # Full extracted corpus
+│   │   ├── all_provisions.json         # Full extracted corpus
 │   │   ├── stratified_sample.json      # 100/agreement comparison cohort
-│   │   └── validation_provisions.json  # Exact JSON cohort used for validation runs
+│   │   └── validation_provisions.json  # Cohort for validation runs
 │   └── results/
 │       ├── classified_llama_zero_shot.json
 │       ├── classified_llama_few_shot.json
@@ -110,27 +109,33 @@ PDFs (3 FTAs)
 │       ├── classified_qwen_few_shot.json
 │       ├── classified_qwen_cot.json
 │       ├── classified_qwen_few_shot_stratified.json
-│       ├── analysis_bundle.json  # κ values, entropy, convergence signal
-│       ├── validation_report.json
-│       ├── attributes_roo.json   # RoO attribute extraction
+│       ├── analysis_bundle.json     # κ values, entropy, convergence signal
+│       ├── validation_report.json   # Accuracy and Macro-F1 per run
+│       ├── attributes_roo.json      # RoO attribute extraction
 │       ├── attributes_tariff.json
-│       ├── comparison_qwen.json  # Cross-agreement narratives
-│       └── fig_*.png             # 7 report figures
+│       ├── comparison_qwen.json     # Cross-agreement narratives
+│       └── fig_*.png                # Report figures
 ├── src/
-│   ├── extraction.py             # PDF → provision schema
+│   ├── extraction.py             # PDF to provision schema
 │   ├── embedding.py              # ChromaDB vector store
 │   ├── classification.py         # LLM classification (LLaMA + Qwen)
-│   ├── comparison.py             # RAG-augmented cross-agreement comparison
+│   ├── comparison.py             # RAG cross-agreement comparison
 │   ├── attribute_extraction.py   # Hybrid regex + LLM attribute extraction
 │   ├── analysis.py               # Cohen's κ, convergence signal
-│   ├── validation.py             # Gold-set accuracy / macro-F1 scoring
+│   ├── validation.py             # Gold-set accuracy / Macro-F1 scoring
 │   └── visualize.py              # Figure generation
+├── scripts/
+│   └── build_deliverable_report.py  # Generates Deliverable_Report_FTA_LLM.docx
 ├── notebooks/
 │   └── analysis.ipynb            # Interactive walkthrough of full pipeline
 ├── config.py                     # Paths, model IDs, policy categories
 ├── run_pipeline.py               # CLI entrypoint for all pipeline stages
-├── REPORT.md                     # Final submission report (policy narrative)
-├── REPORT_DRAFT.md               # Technical reference report
+├── index.html                    # Dashboard summarising all results
+├── REPORT.md                     # Project report
+├── JOURNAL_PAPER.md              # Journal-style write-up
+├── METHODOLOGY.md                # Methodology details
+├── PENJELASAN.md                 # Conceptual guide (Indonesian)
+├── VALIDATION_INSTRUCTIONS.md    # Manual labelling workflow
 └── requirements.txt
 ```
 
@@ -144,29 +149,28 @@ PDFs (3 FTAs)
 # Python 3.10+
 pip install -r requirements.txt
 
-# Tesseract OCR (for scanned PDF fallback)
-brew install tesseract        # macOS
-sudo apt install tesseract-ocr  # Ubuntu/Debian
+# Tesseract OCR (PDF fallback)
+brew install tesseract           # macOS
+sudo apt install tesseract-ocr   # Ubuntu/Debian
 ```
 
 ### 2. API Key
 
-All LLM calls use the **Groq free tier** — one key covers both LLaMA 3.3 70B and Qwen 3 32B.
+All LLM calls use the **Groq free tier**. One key covers both LLaMA 3.3 70B and Qwen 3 32B.
 
 ```bash
-# Get your free key at https://console.groq.com
+# Get a free key at https://console.groq.com
 echo "GROQ_API_KEY=your_key_here" > .env
 ```
 
 > **Free-tier limits for LLaMA 3.3 70B (Groq):**
-> - 30 requests/min, ~6,000 tokens/min, 100,000 tokens/day (rolling 24-hour window)
+> 30 requests/minute, ~6,000 tokens/minute, 100,000 tokens/day on a rolling 24-hour window.
 >
-> CoT classification of 100 provisions consumes the full daily quota in one run.
-> Plan CoT runs for early morning when the rolling window is fresh.
+> A CoT classification of 100 provisions consumes the full daily quota in one run. Plan CoT runs for early in the day so the rolling window is fresh.
 
 ### 3. Place Agreement PDFs
 
-Put all FTA PDFs in the `Agreement/` directory. The expected filenames are defined in `config.py → AGREEMENTS`.
+Put all FTA PDFs in the `Agreement/` directory. The expected filenames are defined in `config.py` under `AGREEMENTS`.
 
 ---
 
@@ -178,8 +182,7 @@ Put all FTA PDFs in the `Agreement/` directory. The expected filenames are defin
 python run_pipeline.py --step all
 ```
 
-`--step all` runs the four core stages only: `extract → embed → classify → compare`.
-It does **not** generate the stratified comparison sample or validation datasets for you.
+`--step all` runs the four core stages: `extract → embed → classify → compare`. It does not generate the stratified comparison sample or the validation cohort automatically.
 
 ### Step by step
 
@@ -189,28 +192,28 @@ It does **not** generate the stratified comparison sample or validation datasets
 # 1. Extract provisions from PDFs
 python run_pipeline.py --step extract
 
-# 1b. Build agreement-balanced comparison cohort (100 per agreement)
+# 1b. Build the agreement-balanced comparison cohort (100 per agreement)
 python run_pipeline.py --step stratified_sample --per-agreement 100 --seed 42
 
-# 2. Build ChromaDB vector store
+# 2. Build the ChromaDB vector store
 python run_pipeline.py --step embed
 
 # 3. Classify provisions
 #    --model: llama | qwen
 #    --strategy: zero_shot | few_shot | cot
-#    --limit: number of provisions (default in run_pipeline.py: 200)
-#    --sample-mode: random | head   (use random unless debugging)
+#    --limit: number of provisions (default 200)
+#    --sample-mode: random | head (use random unless debugging)
 python -m src.classification --model llama --strategy zero_shot --limit 200 --sample-mode random --seed 42
 python -m src.classification --model qwen  --strategy cot       --limit 100 --sample-mode random --seed 42
 
-# Stratified sample (100 per agreement, corrects for corpus imbalance)
+# Stratified-sample classification (corrects for corpus imbalance)
 python -m src.classification --model qwen --strategy few_shot \
     --source stratified_sample.json --suffix stratified
 
 # 4. Cross-agreement comparison (RAG-augmented LLM analysis)
 python run_pipeline.py --step compare --model qwen
 
-# 5. Attribute extraction (RoO numeric fields + categorical flags)
+# 5. Attribute extraction (RoO numeric fields and categorical flags)
 python -m src.attribute_extraction --model qwen
 
 # 6. Statistical analysis (Cohen's κ, convergence signal)
@@ -220,22 +223,22 @@ python -m src.analysis
 python -m src.visualize
 ```
 
-#### Validation workflow (against a 50-provision gold set)
+#### Validation workflow (50-provision gold set)
 
 ```bash
-# 1. Build a validation CSV from a classified cohort
+# 1. Build the validation CSV from a classified cohort
 python run_pipeline.py --step validation_sample \
     --validation-n 50 \
     --validation-source classified_qwen_few_shot_stratified.json \
     --seed 42
 
-# 2. Manually label data/results/validation_checked.xlsx if present
+# 2. Manually label data/results/validation_checked.xlsx
 #    (fallback: data/results/validation_set.csv)
 
-# 3. Export the exact validation cohort to JSON for classification reruns
+# 3. Export the exact validation cohort to JSON for reclassification
 python run_pipeline.py --step validation_export
 
-# 4. Reclassify that exact validation cohort with each model/strategy
+# 4. Reclassify the same cohort with each model and strategy
 python -m src.classification --model llama --strategy zero_shot --source validation_provisions.json --suffix validation
 python -m src.classification --model llama --strategy few_shot  --source validation_provisions.json --suffix validation
 python -m src.classification --model llama --strategy cot       --source validation_provisions.json --suffix validation
@@ -243,14 +246,13 @@ python -m src.classification --model qwen  --strategy zero_shot --source validat
 python -m src.classification --model qwen  --strategy few_shot  --source validation_provisions.json --suffix validation
 python -m src.classification --model qwen  --strategy cot       --source validation_provisions.json --suffix validation
 
-# 5. Score only runs whose IDs exactly match the labelled validation cohort
+# 5. Score only runs whose IDs match the labelled cohort exactly
 python -m src.validation --evaluate
 ```
 
 ### Recommended full rerun after code changes
 
-If you have changed extraction, sampling, validation, or comparison logic, the
-saved JSON outputs may be stale. In that case, rerun the pipeline in this order:
+If extraction, sampling, validation, or comparison logic has changed, the saved JSON outputs may be stale. Rerun in this order:
 
 ```bash
 python run_pipeline.py --step extract
@@ -278,7 +280,7 @@ python -m src.visualize
 
 ---
 
-## Models & Prompt Strategies
+## Models and Prompt Strategies
 
 ### Models
 
@@ -287,7 +289,7 @@ python -m src.visualize
 | LLaMA 3.3 70B | Groq (Meta) | 70B | 100K tokens/day |
 | Qwen 3 32B | Groq (Alibaba Cloud) | 32B | Separate quota |
 
-Qwen 3 is a "thinking" model — it emits `<think>...</think>` reasoning tokens before the final answer. The classification code strips these before recording the category label.
+Qwen 3 is a "thinking" model; it emits `<think>...</think>` reasoning tokens before the final answer. The classification code strips these before recording the category label.
 
 ### Prompt Strategies
 
@@ -297,43 +299,44 @@ Qwen 3 is a "thinking" model — it emits `<think>...</think>` reasoning tokens 
 | `few_shot` | Two labelled examples prepended to the prompt | ~900 |
 | `cot` | Instruction to reason step-by-step before labelling | ~1,400 |
 
-### Validation Results
+### Validation Results (50-provision gold set)
 
-| Model + Strategy | Accuracy | Macro-F1 | n |
-|-----------------|----------|----------|---|
-| LLaMA 3.3 70B — zero-shot | **0.480** | 0.431 | 50 |
-| Qwen 3 32B — chain-of-thought | 0.460 | **0.442** | 50 |
-| Qwen 3 32B — zero-shot | 0.380 | 0.424 | 50 |
-| Qwen 3 32B — few-shot | 0.380 | 0.373 | 50 |
-| LLaMA 3.3 70B — few-shot | 0.340 | 0.336 | 50 |
-| LLaMA 3.3 70B — chain-of-thought | 0.320 | 0.327 | 50 |
+| Model + Strategy | Accuracy | Macro-F1 | n | Note |
+|-----------------|----------|----------|---|------|
+| LLaMA 3.3 70B, zero-shot | **0.480** | 0.431 | 50 | Best raw accuracy |
+| Qwen 3 32B, chain-of-thought | 0.460 | **0.442** | 50 | Best Macro-F1 |
+| Qwen 3 32B, zero-shot | 0.380 | 0.424 | 50 |  |
+| Qwen 3 32B, few-shot | 0.380 | 0.373 | 50 | Few-shot hurts Qwen |
+| LLaMA 3.3 70B, few-shot | 0.340 | 0.336 | 50 |  |
+| LLaMA 3.3 70B, chain-of-thought | 0.320 | 0.327 | 50 | CoT hurts LLaMA |
 
 ### Inter-Run Agreement (Cohen's κ)
 
-| Pair | κ | Interpretation |
-|------|---|----------------|
-| LLaMA zero-shot vs LLaMA few-shot | 0.668 | Substantial |
-| Qwen zero-shot vs Qwen few-shot | 0.689 | Substantial |
-| LLaMA few-shot vs Qwen few-shot | 0.582 | Moderate |
-| LLaMA zero-shot vs Qwen zero-shot | 0.702 | Substantial |
+| Pair | n shared | κ | Interpretation |
+|------|---------|---|----------------|
+| LLaMA zero-shot vs Qwen zero-shot | 200 | 0.702 | Substantial, strongest cross-model alignment |
+| Qwen zero-shot vs Qwen few-shot | 200 | 0.689 | Substantial, within-model consistency |
+| LLaMA zero-shot vs LLaMA few-shot | 200 | 0.668 | Substantial, within-model consistency |
+| LLaMA CoT vs Qwen CoT | 100 | 0.640 | Substantial, CoT aligns both models |
+| LLaMA few-shot vs Qwen few-shot | 200 | 0.582 | Moderate, few-shot diverges the models more |
 
 ---
 
 ## Policy Categories
 
-The 11 classification categories align with the standard WTO/UNCTAD FTA chapter taxonomy:
+The 11 classification categories follow the standard WTO/UNCTAD FTA chapter taxonomy:
 
 | Category | Example provision |
 |----------|------------------|
 | Tariff Commitments | Duty reduction schedules, tariff elimination timelines |
 | Rules of Origin | RVC thresholds, Change-in-Tariff-Classification rules |
 | Non-Tariff Measures | Import licensing, technical standards, quotas |
-| Trade in Services | Mode 1–4 service liberalisation commitments |
+| Trade in Services | Mode 1 to 4 service liberalisation commitments |
 | Investment | ISDS, national treatment for investors |
 | Dispute Settlement | Panel procedures, consultation timelines |
-| Customs Procedures | Documentation, advance rulings, single-window |
-| Sanitary and Phytosanitary | Food safety, plant/animal health standards |
-| Intellectual Property | Copyright, trademarks, GI protections |
+| Customs Procedures | Documentation, advance rulings, single window |
+| Sanitary and Phytosanitary | Food safety, plant and animal health standards |
+| Intellectual Property | Copyright, trademarks, geographic indicators |
 | General Provisions / Definitions | Definitions, scope, general exceptions |
 | Other | Provisions not fitting any above category |
 
@@ -344,41 +347,41 @@ The 11 classification categories align with the standard WTO/UNCTAD FTA chapter 
 Beyond classification, the pipeline extracts structured numeric and categorical attributes from Rules of Origin and Tariff Commitment provisions:
 
 **Rules of Origin attributes:**
-- RVC threshold (%) — extracted via regex
-- Change-in-Tariff-Classification rule (`CC` / `CTH` / `CTSH`) — LLM
-- HS code scope — LLM
-- De-minimis threshold (%) — regex
+- RVC threshold (%), regex
+- Change-in-Tariff-Classification rule (`CC` / `CTH` / `CTSH`), LLM
+- HS code scope, LLM
+- De-minimis threshold (%), regex
 
 **Tariff Commitment attributes:**
-- Phase-out years — regex
-- Staging category — LLM
-- Product scope — LLM
+- Phase-out years, regex
+- Staging category, LLM
+- Product scope, LLM
 
-Key finding: AHKFTA requires Chapter-level Change in Tariff Classification (`CC`) while RCEP requires Heading-level (`CTH`) — both apply a 40% RVC threshold, but AHKFTA imposes stricter transformation requirements on manufacturers.
+Headline finding: AHKFTA requires Chapter-level Change in Tariff Classification (`CC`) while RCEP requires Heading-level (`CTH`). Both apply a 40% RVC threshold, but AHKFTA imposes stricter transformation requirements.
 
 ---
 
 ## Iterative Development Notes
 
-This project went through several methodological pivots that are documented in the reports:
+This project went through several methodological pivots, documented in the reports:
 
-1. **Gemini → Qwen substitution**: Initial design used Gemini 1.5 Flash (Google AI Studio). Quota was exhausted mid-run; the architecture was rebuilt around Qwen 3 32B via Groq using the same API key infrastructure as LLaMA.
+1. **Gemini to Qwen substitution.** Initial design used Gemini 1.5 Flash. Quota was exhausted mid-run; the architecture was rebuilt around Qwen 3 32B via Groq, sharing the same API key infrastructure as LLaMA.
 
-2. **HS code alignment**: Cross-agreement comparison was originally designed to align provisions by HS code. Sparse article-level metadata made this infeasible; semantic similarity via ChromaDB was used instead.
+2. **HS code alignment.** Cross-agreement comparison was originally designed to align provisions by HS code. Sparse article-level metadata made this infeasible; semantic similarity via ChromaDB is used instead.
 
-3. **Stratified sampling**: The raw corpus is 53.5% RCEP provisions. All comparative analyses use a 100-provision stratified sample (seed 42) to prevent RCEP from dominating results.
+3. **Stratified sampling.** The raw corpus is 53.5% RCEP provisions. Comparative analyses use a 100-provision stratified sample (seed 42) to prevent RCEP from dominating results.
 
-4. **Annex coverage gap**: Quantitative tariff thresholds cluster in tariff schedules (annexes), which were not segmented into the provision corpus. Numeric attribute extraction is limited to main-text provisions.
+4. **Annex coverage gap.** Quantitative tariff thresholds cluster in tariff schedules (annexes), which were not segmented into the provision corpus. Numeric attribute extraction is limited to main-text provisions.
 
 ---
 
 ## Notebooks
 
 `notebooks/analysis.ipynb` is a self-contained walkthrough that:
-- Runs the full pipeline end-to-end (skips steps already completed)
-- Reproduces all 7 report figures
-- Shows Cohen's κ heatmap across all run pairs
-- Displays RAG-retrieved cross-agreement comparisons per policy category
+- Runs the full pipeline end to end (skips steps already completed)
+- Reproduces all report figures
+- Shows the Cohen's κ heatmap across all run pairs
+- Displays the RAG-retrieved cross-agreement comparisons per policy category
 
 Open with:
 ```bash
@@ -394,24 +397,25 @@ jupyter notebook notebooks/analysis.ipynb
 | `fig_corpus_overview.png` | Corpus size per agreement and per document type |
 | `fig_category_heatmap.png` | Category distribution (%) heatmap across all model-strategy runs |
 | `fig_kappa_matrix.png` | Cohen's κ matrix across all run pairs |
-| `fig_category_x_agreement.png` | Provision count heatmap: category × agreement (stratified sample) |
+| `fig_category_x_agreement.png` | Provision count heatmap, category by agreement (stratified sample) |
 | `fig_strategy_effect_llama.png` | How prompt strategy shifts category distribution for LLaMA |
 | `fig_strategy_effect_qwen.png` | How prompt strategy shifts category distribution for Qwen |
 | `fig_convergence.png` | Entropy-based convergence signal per category |
-| `fig_validation_accuracy.png` | Accuracy and macro-F1 by model + strategy |
+| `fig_validation_accuracy.png` | Accuracy and Macro-F1 by model and strategy |
 
 ---
 
 ## Limitations
 
-- **Triage-grade accuracy only**: the current 32–48% validation accuracy range is useful for analyst prioritisation, not for compliance or legal use.
-- **Annex coverage**: Tariff schedules are excluded; numeric thresholds in schedules are not captured.
-- **API quota constraints**: Groq free-tier LLaMA daily quota (100K tokens) prevents running full CoT classification and validation in the same day.
-- **Three agreements**: Findings are suggestive, not statistically generalisable across the broader FTA landscape.
-- **English-only**: All PDFs are English-language versions; translation layers are not included.
+- **Triage-grade accuracy only.** The 32 to 48% validation accuracy range supports analyst prioritisation, not compliance or legal use.
+- **Annex coverage.** Tariff schedules are excluded; numeric thresholds in schedules are not captured.
+- **API quota constraints.** The Groq free-tier LLaMA daily quota (100K tokens) prevents running full CoT classification and validation in the same day.
+- **Three agreements.** Findings are suggestive, not statistically generalisable across the broader FTA landscape.
+- **English-only.** All PDFs are English-language versions; translation layers are not included.
+- **Investment-category caveat.** Four AHKFTA provisions were classified as investment-adjacent by the model, but AHKFTA does not include a dedicated Investment chapter. The apparent convergence on Investment in the entropy chart is classification noise; the genuine picture is closer to fragmentation.
 
 ---
 
 ## Citation
 
-> Novith, D. C. (2026). *A Computational Framework for Comparative Analysis of Free Trade Agreements Using Large Language Models*. Carnegie Mellon University — Machine Learning Foundation with Python (Spring 2026).
+> Novith, D. C. (2026). *A Computational Framework for Comparative Analysis of Free Trade Agreements Using Large Language Models*.
