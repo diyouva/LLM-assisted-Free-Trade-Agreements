@@ -8,14 +8,14 @@
 > 4. rerun the six `*_validation` classifications on `data/raw/validation_provisions.json`
 > 5. `python -m src.validation --evaluate`
 
-> **Time required:** 30–45 minutes
+> **Time required:** 30 to 45 minutes
 > **What you're doing:** reading 50 short legal provisions and assigning each one the single best policy category. This becomes the *ground truth* against which every LLM classification run is scored.
 
 ---
 
 ## 1. Why this matters
 
-The project compares 6 different LLM classification runs (2 models × 3 prompt strategies). The LLMs often disagree with each other on the same provision. Without a human-labelled gold standard, we can only measure how much the LLMs agree with **each other** — we cannot say which one is **actually correct**.
+The project compares 6 different LLM classification runs (2 models × 3 prompt strategies). The LLMs often disagree with each other on the same provision. Without a human-labelled gold standard, we can only measure how much the LLMs agree with **each other**, we cannot say which one is **actually correct**.
 
 Your labels in the `gold_category` column become the authoritative answer. The project then reports validation metrics only if this column is filled in and the exact same cohort is reclassified.
 
@@ -31,30 +31,30 @@ Your labels in the `gold_category` column become the authoritative answer. The p
 | `id` | Unique provision ID (e.g. `RCEP_Main Agreement_00042`) | Already filled |
 | `agreement` | RCEP / AHKFTA / AANZFTA | Already filled |
 | `article` | Article or Rule number if available | Already filled |
-| `text_preview` | First ~250 chars of the provision | Already filled |
+| `text_preview` | First first 250 chars of the provision | Already filled |
 | **`gold_category`** | **The correct category (you fill this)** | **← YOU** |
-| `notes` | Optional — write any uncertainty or reasoning | Optional |
+| `notes` | Optional, write any uncertainty or reasoning | Optional |
 
 3. Keep the existing text exactly as-is. Only add values to `gold_category` (and optionally `notes`).
 
 ---
 
-## 3. How to label each row — the 3-step process
+## 3. How to label each row, the 3-step process
 
-For each provision, read the `text_preview` and pick **exactly one** category from the list below. If a provision seems to touch multiple categories, pick the category that describes its *main legal subject matter* — the thing the provision is fundamentally *about*.
+For each provision, read the `text_preview` and pick **exactly one** category from the list below. If a provision seems to touch multiple categories, pick the category that describes its *main legal subject matter*, the thing the provision is fundamentally *about*.
 
-### Step 1 — Read the text
+### Step 1, Read the text
 Ignore formatting noise like line breaks or page references. Focus on what the provision is doing.
 
-### Step 2 — Ask yourself "what is this about?"
+### Step 2, Ask yourself "what is this about?"
 Use the decision guide below.
 
-### Step 3 — Write the category name in `gold_category`
+### Step 3, Write the category name in `gold_category`
 Use the **exact spelling** shown in the allowed list (case doesn't matter, but spelling does).
 
 ---
 
-## 4. The 11 allowed categories — definitions & recognition cues
+## 4. The 11 allowed categories, definitions & recognition cues
 
 Copy any of these into `gold_category` exactly:
 
@@ -70,7 +70,7 @@ Copy any of these into `gold_category` exactly:
 | **Customs Procedures** | Customs administration, clearance, release of goods, origin verification procedures | "customs administration", "release of goods", "advance ruling", "post-clearance audit", "risk management", "origin verification", "express shipments" |
 | **Sanitary and Phytosanitary Measures** | Food safety, animal & plant health regulations | "SPS", "sanitary", "phytosanitary", "food safety", "animal health", "plant health", "pest", "IPPC", "OIE", "Codex" |
 | **General Provisions / Definitions** | Preamble language, defined terms, scope clauses, relationship to other agreements, final clauses | "For the purposes of this Chapter", "means ...", "Definitions", "Objectives", "Scope", "Entry into force", "Amendment", "Depositary" |
-| **Other** | Doesn't clearly fit any category above | (use sparingly — try a specific category first) |
+| **Other** | Doesn't clearly fit any category above | (use sparingly, try a specific category first) |
 
 ---
 
@@ -85,7 +85,7 @@ Copy any of these into `gold_category` exactly:
 ### Example 2
 > *"A good shall be considered as originating in a Party if it is wholly obtained or produced entirely in that Party, or if it satisfies the Product Specific Rules set out in Annex II."*
 
-**Decision:** This defines *when a good qualifies as originating* — that's the textbook definition of Rules of Origin.
+**Decision:** This defines *when a good qualifies as originating*, that's the textbook definition of Rules of Origin.
 **gold_category:** `Rules of Origin`
 
 ### Example 3
@@ -106,7 +106,7 @@ Copy any of these into `gold_category` exactly:
 **Decision:** Procedural dispute mechanism.
 **gold_category:** `Dispute Settlement`
 
-### Example 6 — a tricky one
+### Example 6, a tricky one
 > *"Each Party shall publish its laws and regulations relating to customs matters on the internet in a timely manner."*
 
 **Decision:** This is a transparency obligation specifically for customs. It could look like "Non-Tariff Measures" (transparency is an NTM theme), but the *subject matter* is customs administration.
@@ -124,7 +124,7 @@ Copy any of these into `gold_category` exactly:
 | Provision is just a header or numbering ("Article 3.5") with little text | Label as `Other` and add a note. |
 | Provision is truncated / starts mid-sentence | Use your best judgment from what's there; if unreadable, label `Other` and note it. |
 | You're torn between two categories | Pick the dominant one and put the alternative in `notes` (e.g. `notes = also fits Non-Tariff Measures`). |
-| You genuinely can't tell | Label `Other` and note the difficulty — that's valuable data too. |
+| You genuinely can't tell | Label `Other` and note the difficulty, that's valuable data too. |
 
 ---
 
@@ -167,14 +167,14 @@ A. The 250-character preview is usually enough. If it's truncated mid-sentence a
 A. Label what the provision is *primarily* about, not everything it *mentions*. A clause that mentions "tariffs" but is fundamentally a definitions clause is still `General Provisions / Definitions`.
 
 **Q. Can I change my mind later?**
-A. Yes — just re-save the CSV and re-run `python3 -m src.validation --evaluate`. Nothing is locked.
+A. Yes, just re-save the CSV and re-run `python3 -m src.validation --evaluate`. Nothing is locked.
 
 **Q. Does the order matter?**
 A. No. You can skip around and label easy ones first.
 
 **Q. Can I use AI to help me label?**
-A. You can use AI to *explain* what a provision says in plain English, but the final category judgment should be yours — otherwise the validation is circular (we'd be measuring an AI against an AI).
+A. You can use AI to *explain* what a provision says in plain English, but the final category judgment should be yours, otherwise the validation is circular (we'd be measuring an AI against an AI).
 
 ---
 
-*When you're done, the project has a real accuracy number it can defend. That's the single most important deliverable still missing from the submission.*
+*When this step is complete, the project has a defensible accuracy number against a held-out gold set, which is what the validation tab and the journal paper rely on.*
