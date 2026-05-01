@@ -159,13 +159,10 @@
   .about-block p { font-size: 13px; line-height: 1.85; color: var(--text); margin-bottom: 10px; }
   .about-block p:last-child { margin-bottom: 0; }
 
-  /* Inline highlight (marker style) */
+  /* Inline highlight: darker, bolder, same size */
   .hl {
-    background: rgba(120,89,100,0.16);
-    color: var(--highlight);
+    color: #4A2F38;
     font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 3px;
   }
 
   /* Scrollbar */
@@ -397,19 +394,19 @@
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent)">
         <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ1: Classification</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Can LLMs reliably classify FTA legal provisions?</div>
-        <div style="margin-bottom:6px"><span class="hl">✓ Triage-grade, not provision-level</span></div>
+        <div style="font-size:12px;margin-bottom:4px"><span class="hl">✓ Triage-grade, not provision-level</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.6">Accuracy lands between 32% and 48%. Qwen 3 32B with Chain-of-Thought reaches the best Macro-F1 at 0.442. CoT helps Qwen and hurts LLaMA; few-shot prompting hurts both.</div>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent2)">
         <div style="font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ2: Policy Design</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">How do the agreements differ in observable design features?</div>
-        <div style="margin-bottom:6px"><span class="hl">✓ Same threshold, different transformation rule</span></div>
+        <div style="font-size:12px;margin-bottom:4px"><span class="hl">✓ Same threshold, different transformation rule</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.6">RCEP and AHKFTA both use a 40% RVC threshold but RCEP applies CTH at the heading level while AHKFTA applies CC at the chapter level. AHKFTA is goods-only, AANZFTA is the only one with ISDS.</div>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--green)">
         <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ3: Convergence</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Do the agreements converge or fragment?</div>
-        <div style="margin-bottom:6px"><span class="hl">✓ Procedural converges, substantive does not</span></div>
+        <div style="font-size:12px;margin-bottom:4px"><span class="hl">✓ Procedural converges, substantive does not</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.6">Customs Procedures is the only category in genuine sync (entropy 1.00). Dispute Settlement (0.47) and Intellectual Property (0.37) score as fragmented, mainly because AHKFTA does not include those chapters.</div>
       </div>
     </div>
@@ -476,7 +473,7 @@
             <div style="font-size:11px;color:var(--highlight);text-transform:uppercase;letter-spacing:.06em;font-weight:700">Best Macro-F1</div>
             <div style="font-size:12px;color:var(--text);margin-top:2px">Qwen 3 32B, Chain-of-Thought</div>
           </div>
-          <div><span class="hl" style="font-size:22px;font-weight:800">0.442</span></div>
+          <div style="font-size:24px;font-weight:800;color:#4A2F38">0.442</div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div>
