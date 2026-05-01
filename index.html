@@ -181,9 +181,9 @@
   </div>
   <nav>
     <div class="section-label">Start Here</div>
-    <a onclick="showPage('about')" class="active">🎯 The Framework</a>
-    <div class="section-label">Dashboard</div>
-    <a onclick="showPage('overview')">📊 Overview</a>
+    <a onclick="showPage('about')" class="active">📌 Brief</a>
+    <div class="section-label">Headline</div>
+    <a onclick="showPage('overview')">🎯 Findings</a>
     <div class="section-label">Results</div>
     <a onclick="showPage('validation')">✅ Validation</a>
     <a onclick="showPage('kappa')">🔁 Inter-Run Agreement</a>
@@ -257,37 +257,22 @@
     </div>
   </div>
 
-  <!-- Agreement scope comparison chart -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px">
-    <div style="font-size:15px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px">
-      <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0"></span>
-      Three Agreements, Three Very Different Scopes
-    </div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Each bar shows what share of that agreement's sampled provisions falls into each policy area. AHKFTA's profile is unmistakably different. Almost half of its sample goes to Rules of Origin, and entire categories are missing.</p>
-    <div style="position:relative;height:320px"><canvas id="scopeChart"></canvas></div>
-  </div>
-
   <!-- Research Questions -->
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:24px">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px">Three Research Questions</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px">Three Research Questions</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">The project is organised around three questions, one per layer of the pipeline. Answers and supporting numbers live on the Findings tab.</p>
     <div class="grid3" style="margin-bottom:0">
       <div style="background:var(--surface2);border-radius:10px;padding:20px;border-top:3px solid var(--accent)">
         <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ1: Classification</div>
-        <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">Can LLMs reliably classify FTA legal provisions, and how does accuracy change across models and prompt strategies?</p>
-        <div style="font-size:12px;color:var(--green);font-weight:600">✓ Answered</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">Triage-grade accuracy. CoT helps Qwen, hurts LLaMA; few-shot hurts both.</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.7">Can LLMs reliably classify FTA legal provisions, and how does accuracy change across models and prompt strategies?</p>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:20px;border-top:3px solid var(--accent2)">
         <div style="font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ2: Policy Design</div>
-        <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">How do comparable provisions differ across agreements in observable design features such as thresholds, governance structures, and scope?</p>
-        <div style="font-size:12px;color:var(--green);font-weight:600">✓ Answered</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">CC vs CTH rule. Same 40% RVC, different transformation requirements.</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.7">How do comparable provisions differ across agreements in observable design features such as thresholds, governance structures, and scope?</p>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:20px;border-top:3px solid var(--green)">
         <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ3: Convergence</div>
-        <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">Do the agreements show structural convergence or fragmentation in their treatment of key trade policy topics?</p>
-        <div style="font-size:12px;color:var(--green);font-weight:600">✓ Answered</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">Customs Procedures converges. Dispute Settlement and IP fragment.</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.7">Do the agreements show structural convergence or fragmentation in their treatment of key trade policy topics?</p>
       </div>
     </div>
   </div>
@@ -325,33 +310,6 @@
     </div>
   </div>
 
-  <!-- Key Findings -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);margin-bottom:20px">Key Findings</div>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
-        <div style="font-size:24px;flex-shrink:0">⚡</div>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Prompt strategy must be chosen per model, not universally</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">Chain-of-thought prompting raises Qwen's Macro-F1 by 1.8 points but drops LLaMA's by 10.4. Few-shot prompting hurts both. Picking the right strategy is therefore a per-model decision, and the asymmetry only became visible once all six combinations were scored against the same gold set.</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
-        <div style="font-size:24px;flex-shrink:0">⚖️</div>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Identical thresholds, different transformation requirements</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">RCEP and AHKFTA both use a 40% Regional Value Content threshold. But AHKFTA requires transformation at the chapter level (CC) while RCEP only requires it at the heading level (CTH). On paper the same product can satisfy one rule and not the other, which is the kind of detail an analyst would want flagged before a closer reading.</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
-        <div style="font-size:24px;flex-shrink:0">🌏</div>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Procedural topics look more harmonised than substantive ones</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">Customs Procedures is the only category where all three agreements carry similar shares of provisions, consistent with their shared WTO Trade Facilitation baseline. Dispute Settlement and Intellectual Property look fragmented mainly because AHKFTA, as a goods-only agreement, does not contain those chapters at all.</div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ══════════════════════════════════════ GLOSSARY ══ -->
@@ -392,11 +350,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════ OVERVIEW ══ -->
+<!-- ══════════════════════════════════════ FINDINGS ══ -->
 <div id="page-overview" class="page">
   <div class="page-header">
-    <h2>Project Overview</h2>
-    <p>Key numbers, research questions answered, and a summary of all three agreements.</p>
+    <h2>Findings</h2>
+    <p>What the pipeline produced once all six runs were scored and the three agreements were compared. The Brief tab sets up the questions; this tab carries the answers.</p>
   </div>
 
   <div class="cards">
@@ -422,6 +380,69 @@
     </div>
   </div>
 
+  <!-- Answered Research Questions -->
+  <div class="panel">
+    <div class="panel-title"><span class="dot" style="background:var(--green)"></span>Three Questions, Three Answers</div>
+    <div class="grid3" style="margin-bottom:0">
+      <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent)">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ1: Classification</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Can LLMs reliably classify FTA legal provisions?</div>
+        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">✓ Triage-grade, not provision-level</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6">Accuracy lands between 32% and 48%. Qwen 3 32B with Chain-of-Thought reaches the best Macro-F1 at 0.442. CoT helps Qwen and hurts LLaMA; few-shot prompting hurts both.</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent2)">
+        <div style="font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ2: Policy Design</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">How do the agreements differ in observable design features?</div>
+        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">✓ Same threshold, different transformation rule</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6">RCEP and AHKFTA both use a 40% RVC threshold but RCEP applies CTH at the heading level while AHKFTA applies CC at the chapter level. AHKFTA is goods-only, AANZFTA is the only one with ISDS.</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--green)">
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ3: Convergence</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Do the agreements converge or fragment?</div>
+        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">✓ Procedural converges, substantive does not</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.6">Customs Procedures is the only category in genuine sync (entropy 1.00). Dispute Settlement (0.47) and Intellectual Property (0.37) score as fragmented, mainly because AHKFTA does not include those chapters.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scope chart -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0"></span>
+      Three Agreements, Three Very Different Scopes
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Each bar shows what share of that agreement's sampled provisions falls into each policy area. AHKFTA's profile is unmistakably different. Almost half of its sample goes to Rules of Origin, and entire categories are missing.</p>
+    <div style="position:relative;height:320px"><canvas id="scopeChart"></canvas></div>
+  </div>
+
+  <!-- Key Findings -->
+  <div class="panel">
+    <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Three Key Findings</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
+        <div style="font-size:24px;flex-shrink:0">⚡</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Prompt strategy must be chosen per model, not universally</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">Chain-of-thought prompting raises Qwen's Macro-F1 by 1.8 points but drops LLaMA's by 10.4. Few-shot prompting hurts both. Picking the right strategy is a per-model decision, and the asymmetry only became visible once all six combinations were scored against the same gold set.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
+        <div style="font-size:24px;flex-shrink:0">⚖️</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Identical thresholds, different transformation requirements</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">RCEP and AHKFTA both use a 40% Regional Value Content threshold. But AHKFTA requires transformation at the chapter level (CC) while RCEP only requires it at the heading level (CTH). On paper the same product can satisfy one rule and not the other, the kind of detail an analyst would want flagged before a closer reading.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
+        <div style="font-size:24px;flex-shrink:0">🌏</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Procedural topics look more harmonised than substantive ones</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">Customs Procedures is the only category where all three agreements carry similar shares of provisions, consistent with their shared WTO Trade Facilitation baseline. Dispute Settlement and Intellectual Property look fragmented mainly because AHKFTA, as a goods-only agreement, does not contain those chapters at all.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid2">
     <div class="panel">
       <div class="panel-title"><span class="dot" style="background:var(--rcep)"></span>Raw Corpus Size per Agreement</div>
@@ -431,58 +452,43 @@
       </div>
     </div>
     <div class="panel">
-      <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Research Questions</div>
-      <div style="display:flex;flex-direction:column;gap:18px;margin-top:4px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">RQ1, Can LLMs classify FTA provisions reliably?</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.6">How does accuracy vary across two models and three prompt strategies?</div>
-          <div style="font-size:12px;color:var(--green);margin-top:5px">✓ Triage-grade accuracy (32 to 48%). Qwen CoT reaches the best Macro-F1 at 0.442. CoT helps Qwen but hurts LLaMA; few-shot hurts both.</div>
+      <div class="panel-title"><span class="dot" style="background:var(--accent2)"></span>Headline Numbers</div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Best Accuracy</div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px">LLaMA 3.3 70B, Zero-Shot</div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent)">0.480</div>
         </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">RQ2, How do the agreements differ in policy design?</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.6">Observable differences in thresholds, governance structures, and scope.</div>
-          <div style="font-size:12px;color:var(--green);margin-top:5px">✓ CC vs CTH transformation rule, identical 40% RVC threshold, AHKFTA goods-only, AANZFTA leads on investment.</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Best Macro-F1</div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px">Qwen 3 32B, Chain-of-Thought</div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:var(--green)">0.442</div>
         </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">RQ3, Do agreements converge or fragment?</div>
-          <div style="font-size:13px;color:var(--text);line-height:1.6">Which policy areas are structurally similar across agreements, and which diverge?</div>
-          <div style="font-size:12px;color:var(--green);margin-top:5px">✓ Customs Procedures most convergent. Dispute Settlement and IP most fragmented, AHKFTA has zero provisions in both.</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Highest Cohen's κ</div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px">LLaMA ZS vs Qwen ZS, n=200</div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:var(--accent2)">0.702</div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title"><span class="dot"></span>Pipeline Architecture</div>
-    <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;font-size:12px;row-gap:10px">
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center">
-        <div style="font-weight:700;color:var(--accent)">PDFs (7)</div>
-        <div style="color:var(--muted);margin-top:3px;font-size:11px">3 FTAs</div>
-      </div>
-      <div style="color:var(--muted);padding:0 12px;font-size:16px">→</div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center">
-        <div style="font-weight:700;color:var(--text)">Extraction</div>
-        <div style="color:var(--muted);margin-top:3px;font-size:11px">pdfplumber → PyMuPDF → OCR</div>
-      </div>
-      <div style="color:var(--muted);padding:0 12px;font-size:16px">→</div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center">
-        <div style="font-weight:700;color:var(--text)">Embeddings</div>
-        <div style="color:var(--muted);margin-top:3px;font-size:11px">ChromaDB + MiniLM</div>
-      </div>
-      <div style="color:var(--muted);padding:0 12px;font-size:16px">→</div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center">
-        <div style="font-weight:700;color:var(--text)">Classification</div>
-        <div style="color:var(--muted);margin-top:3px;font-size:11px">LLaMA + Qwen × 3 strategies</div>
-      </div>
-      <div style="color:var(--muted);padding:0 12px;font-size:16px">→</div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center">
-        <div style="font-weight:700;color:var(--text)">RAG Comparison</div>
-        <div style="color:var(--muted);margin-top:3px;font-size:11px">Cross-agreement narratives</div>
-      </div>
-      <div style="color:var(--muted);padding:0 12px;font-size:16px">→</div>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center">
-        <div style="font-weight:700;color:var(--text)">Validation</div>
-        <div style="color:var(--muted);margin-top:3px;font-size:11px">50-provision gold set</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Most Convergent Category</div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px">Customs Procedures</div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:var(--green)">1.00</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Most Fragmented Category</div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px">Intellectual Property</div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:var(--orange)">0.37</div>
+        </div>
       </div>
     </div>
   </div>
@@ -502,6 +508,36 @@
       <div class="panel-title"><span class="dot" style="background:var(--aanzfta)"></span>AANZFTA</div>
       <div style="font-size:13px;color:var(--muted);line-height:1.8">ASEAN + AU + NZ · Signed 2009<br><strong style="color:var(--text)">1,526 provisions (37.6%)</strong></div>
       <div style="margin-top:12px;font-size:12px;color:var(--text)">Includes: Services, Investment (Ch.11), Dispute Settlement, ISDS</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Where to Find Each Result</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px">
+      <a onclick="showPage('validation')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">✅ Validation</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">All 6 model-strategy combinations scored against the 50-provision gold set. Accuracy and Macro-F1 by run.</div>
+      </a>
+      <a onclick="showPage('kappa')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">🔁 Inter-Run Agreement</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Pairwise Cohen's κ across runs. How consistent are the models when working on the same provisions?</div>
+      </a>
+      <a onclick="showPage('distribution')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">📋 Provision Distribution</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">What each agreement actually covers, by category and count, on the 100-provision stratified sample.</div>
+      </a>
+      <a onclick="showPage('convergence')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">🌐 Convergence Analysis</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Entropy ratio per category. Which topics are similar across all three agreements, and which are not?</div>
+      </a>
+      <a onclick="showPage('design')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">⚖️ Policy Design Matrix</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Side-by-side feature comparison: thresholds, governance, and the CC vs CTH gap that matters for compliance.</div>
+      </a>
+      <a onclick="showPage('comparison')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">🔍 RAG Comparisons</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Per-category narratives drafted from retrieved provisions across all three agreements.</div>
+      </a>
     </div>
   </div>
 </div>
