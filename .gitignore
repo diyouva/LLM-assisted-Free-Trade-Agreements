@@ -21,4 +21,8 @@ data/processed/
 .claude/
 scripts/build_deliverable_report.py
 Deliverable_Report_FTA_LLM.docx
-Deliverable_Report_FTA_LLM.docx
+JOURNAL_PAPER.md
+METHODOLOGY.md
+PENJELASAN.md
+REPORT.md
+VALIDATION_INSTRUCTIONS.md
