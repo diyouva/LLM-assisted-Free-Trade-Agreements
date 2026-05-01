@@ -1,6 +1,6 @@
 # A Computational Framework for Comparative Analysis of Free Trade Agreements
 
-**Diyouva Christa Novith** | Machine Learning Foundation with Python | Carnegie Mellon University — Spring 2026
+**Diyouva Christa Novith**
 
 ---
 
