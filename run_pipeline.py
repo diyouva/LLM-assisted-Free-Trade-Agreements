@@ -1,17 +1,25 @@
 """
-Master pipeline runner
------------------------
+Master pipeline runner.
+
 Runs all steps in sequence. Pass --step to run individual steps.
 
 Steps:
-  1  extract      – PDF extraction & clause segmentation
-  stratified_sample – Build agreement-balanced comparison sample
-  2  embed        – Generate embeddings & build vector DB
-  3  classify     – LLM classification (default: Claude, zero-shot, 200 provisions)
-  4  compare      – Cross-agreement comparison (default: Claude, all categories)
-  validation_sample – Build validation_set.csv for manual labelling
-  validation_export – Export validation_provisions.json from validation_set.csv
-  all             – Run steps 1→4 in order
+  1, extract             PDF extraction and clause segmentation
+  stratified_sample      Build agreement-balanced comparison cohort (100/agreement)
+  2, embed               Generate embeddings and build the ChromaDB vector store
+  3, classify            LLM classification
+                         (default: LLaMA 3.3 70B, zero-shot, 200 provisions, seed 42)
+  4, compare             Cross-agreement RAG comparison
+                         (default: LLaMA 3.3 70B, all 11 categories)
+  validation_sample      Build the validation cohort. Writes validation_set.csv
+                         and validation_checked.xlsx in data/results/.
+                         Hand-label the Excel workbook (preferred) or the CSV.
+  validation_export      Read the labelled workbook (or CSV fallback) and write
+                         data/raw/validation_provisions.json for reclassification.
+  all                    Run extract, embed, classify, compare in order.
+
+Note: the validation loader prefers validation_checked.xlsx when it exists and
+falls back to validation_set.csv. See src/validation.py for the exact logic.
 
 Example:
     python run_pipeline.py --step all --model qwen
@@ -157,9 +165,9 @@ def main():
     print("  Pipeline complete!")
     print("="*60)
     print("\nOutputs:")
-    print(f"  data/raw/          – extracted provisions JSON")
-    print(f"  data/chromadb/     – vector database")
-    print(f"  data/results/      – classification & comparison JSON")
+    print(f"  data/raw/            extracted provisions JSON")
+    print(f"  data/chromadb/       vector database")
+    print(f"  data/results/        classification & comparison JSON")
     print(f"\nNext: open notebooks/analysis.ipynb for visualisation & reporting")
 
 
