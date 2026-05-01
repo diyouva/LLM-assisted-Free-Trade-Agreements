@@ -360,8 +360,8 @@
 <!-- ══════════════════════════════════════ FINDINGS ══ -->
 <div id="page-overview" class="page">
   <div class="page-header">
-    <h2>Three Questions, Three Answers</h2>
-    <p>What the analysis produced once every run was scored and the three agreements were compared side by side. The Brief tab sets up the questions; this tab carries the answers.</p>
+    <h2>Triage-Grade Classification, One Compliance Gap, One Real Convergence</h2>
+    <p>The three findings the project landed on, with the supporting numbers and the caveats around each.</p>
   </div>
 
   <div class="cards">
@@ -389,7 +389,7 @@
 
   <!-- Answered Research Questions -->
   <div class="panel">
-    <div class="panel-title"><span class="dot" style="background:var(--green)"></span>Three Questions, Three Answers</div>
+    <div class="panel-title"><span class="dot" style="background:var(--highlight)"></span>Verdict on Each Research Question</div>
     <div class="grid3" style="margin-bottom:0">
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent)">
         <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ1: Classification</div>
@@ -436,14 +436,14 @@
       <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
         <div style="font-size:24px;flex-shrink:0">⚖️</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Identical thresholds, different transformation requirements</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">RCEP eligibility does not guarantee AHKFTA eligibility</div>
           <div style="font-size:13px;color:var(--muted);line-height:1.7">RCEP and AHKFTA both use a 40% Regional Value Content threshold. But AHKFTA requires transformation at the chapter level (CC) while RCEP only requires it at the heading level (CTH). On paper the same product can satisfy one rule and not the other, the kind of detail an analyst would want flagged before a closer reading.</div>
         </div>
       </div>
       <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
         <div style="font-size:24px;flex-shrink:0">🌏</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Procedural topics look more harmonised than substantive ones</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Most apparent fragmentation comes from missing chapters, not opposing rules</div>
           <div style="font-size:13px;color:var(--muted);line-height:1.7">Customs Procedures is the only category where all three agreements carry similar shares of provisions, consistent with their shared WTO Trade Facilitation baseline. Dispute Settlement and Intellectual Property look fragmented mainly because AHKFTA, as a goods-only agreement, does not contain those chapters at all.</div>
         </div>
       </div>
@@ -561,7 +561,7 @@
       <div class="panel-title"><span class="dot"></span>Accuracy, % of provisions correctly labelled</div>
       <div class="chart-wrap"><canvas id="accChart"></canvas></div>
       <div class="chart-caption">
-        The best run reaches only 48% accuracy. That ceiling is why this tool is designed for triage and aggregate analysis rather than provision-level legal judgement.
+        LLaMA zero-shot leads on raw accuracy at 0.480, with Qwen CoT close behind at 0.460. No run clears 50%, which is why aggregate patterns are more reliable than any single label.
       </div>
     </div>
     <div class="panel">
@@ -690,7 +690,7 @@
         <tbody id="distTable"></tbody>
       </table>
       <div class="chart-caption">
-        The zeros in AHKFTA's column for Dispute Settlement, Trade in Services, and Intellectual Property are not missing data. AHKFTA simply does not have those chapters. They are structural absences that reflect the agreement's deliberate scope as a goods-only instrument.
+        Reading down the AHKFTA column, the zeros are real, not missing values. The strongest cells in the table are AHKFTA's 48 Rules of Origin and 31 Tariff Commitments, and AANZFTA's 22 Dispute Settlement.
       </div>
     </div>
   </div>
@@ -752,10 +752,10 @@
   <div class="panel">
     <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>What Convergence and Fragmentation Mean for Policy</div>
     <div style="font-size:13px;line-height:1.85">
-      <p><strong style="color:var(--green)">Convergent: Customs Procedures (1.00).</strong> All three agreements allocate almost identical shares of their text to customs procedures. This reflects the WTO Trade Facilitation Agreement providing a shared procedural baseline (documentation, advance rulings, risk-based release) that all three parties follow. This is an area where regional harmonisation has genuinely occurred.</p>
-      <p style="margin-top:12px"><strong style="color:var(--orange)">Fragmented: Dispute Settlement (0.47) and Intellectual Property (0.37).</strong> These scores are driven almost entirely by AHKFTA having zero provisions in both categories. The fragmentation is not a policy disagreement. RCEP and AANZFTA do not write their dispute chapters in incompatible ways. It is a structural scope difference: AHKFTA simply does not include these chapters. An entropy-based metric cannot distinguish "disagree" from "absent," so this score must be interpreted carefully.</p>
-      <p style="margin-top:12px"><strong style="color:var(--yellow)">Caveat on Rules of Origin.</strong> Rules of Origin appears convergent (high entropy ratio) but this is partly inflated by the few-shot classification method used. Both in-context examples in the prompt were goods-trade categories, which biases the model toward classifying more provisions as Rules of Origin across all three agreements and makes the distribution appear more even than it actually is.</p>
-      <p style="margin-top:12px"><strong style="color:var(--yellow)">Caveat on Investment.</strong> Investment also scores highly on the entropy ratio, but only because 4 AHKFTA provisions were classified as investment-adjacent by the model. AHKFTA does not actually have a dedicated Investment chapter, so the apparent convergence is classification noise. The genuine policy picture is closer to fragmentation: RCEP and AANZFTA have substantive investment chapters while AHKFTA does not.</p>
+      <p><span class="hl">Convergent: Customs Procedures (1.00).</span> All three agreements allocate almost identical shares of their text to customs procedures. This reflects the WTO Trade Facilitation Agreement providing a shared procedural baseline (documentation, advance rulings, risk-based release) that all three parties follow. This is an area where regional harmonisation has genuinely occurred.</p>
+      <p style="margin-top:12px"><span class="hl">Fragmented: Dispute Settlement (0.47) and Intellectual Property (0.37).</span> These scores are driven almost entirely by AHKFTA having zero provisions in both categories. The fragmentation is not a policy disagreement. RCEP and AANZFTA do not write their dispute chapters in incompatible ways. It is a structural scope difference: AHKFTA simply does not include these chapters. An entropy-based metric cannot distinguish "disagree" from "absent," so this score must be interpreted carefully.</p>
+      <p style="margin-top:12px"><span class="hl">Caveat on Rules of Origin.</span> Rules of Origin appears convergent (high entropy ratio) but this is partly inflated by the few-shot classification method used. Both in-context examples in the prompt were goods-trade categories, which biases the model toward classifying more provisions as Rules of Origin across all three agreements and makes the distribution appear more even than it actually is.</p>
+      <p style="margin-top:12px"><span class="hl">Caveat on Investment.</span> Investment also scores highly on the entropy ratio, but only because 4 AHKFTA provisions were classified as investment-adjacent by the model. AHKFTA does not actually have a dedicated Investment chapter, so the apparent convergence is classification noise. The genuine policy picture is closer to fragmentation: RCEP and AANZFTA have substantive investment chapters while AHKFTA does not.</p>
     </div>
   </div>
 </div>
