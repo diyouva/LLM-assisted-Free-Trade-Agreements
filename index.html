@@ -159,6 +159,15 @@
   .about-block p { font-size: 13px; line-height: 1.85; color: var(--text); margin-bottom: 10px; }
   .about-block p:last-child { margin-bottom: 0; }
 
+  /* Inline highlight (marker style) */
+  .hl {
+    background: rgba(120,89,100,0.16);
+    color: var(--highlight);
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -249,12 +258,12 @@
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px">The Challenge</div>
       <p style="font-size:14px;line-height:1.85;color:var(--text)">The Asia-Pacific region is layered with overlapping Free Trade Agreements, each running to thousands of legal provisions. Comparing how two or three of them treat the same topic is slow, manual work, and the answer often turns on small differences buried deep in the text.</p>
-      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">Trade economists call this the <strong style="color:var(--orange)">"spaghetti bowl" problem</strong>, a tangle of rules and thresholds that differ just enough between agreements to matter for exporters operating under more than one.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">Trade economists call this the <span class="hl">spaghetti bowl problem</span>, a tangle of rules and thresholds that differ just enough between agreements to matter for exporters operating under more than one.</p>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:12px">The Solution</div>
       <p style="font-size:14px;line-height:1.85;color:var(--text)">This project tests whether an LLM-based pipeline can help with that comparison work. It segments the legal text of three ASEAN-centred FTAs into provisions, asks the model to classify each into a policy category, and uses retrieval to draft side-by-side notes on how each agreement handles the same topic.</p>
-      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">The output is best read as a <strong style="color:var(--green)">first-pass triage layer</strong>, useful for spotting where agreements diverge enough to warrant a closer manual read, not a substitute for it. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">The output is best read as a <span class="hl">first-pass triage layer</span>, useful for spotting where agreements diverge enough to warrant a closer manual read, not a substitute for it. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.</p>
     </div>
   </div>
 
@@ -656,8 +665,8 @@
     <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>What This Means for Reliability</div>
     <div style="font-size:13px;line-height:1.85;color:var(--text)">
       <p>With κ values in the 0.58 to 0.70 range, the two models are substantially consistent with each other when working on the same provisions. They are not labelling at random; they share a meaningful common signal.</p>
-      <p style="margin-top:12px">The most important finding here is that <strong style="color:var(--yellow)">the aggregate category distributions are more trustworthy than individual labels.</strong> If both LLaMA and Qwen (zero-shot) assign 48% of AHKFTA provisions to Rules of Origin, that pattern is robust. The value of this pipeline is in answering questions like "what topics does AHKFTA focus on?", not "is this exact provision a Rules of Origin provision?"</p>
-      <p style="margin-top:12px">The highest within-model κ is for zero-shot pairs, and the highest cross-model κ is also between zero-shot runs. This is the practical recommendation: <strong style="color:var(--green)">zero-shot produces the most reproducible and cross-model-consistent results</strong>, even if Qwen CoT edges it out on Macro-F1.</p>
+      <p style="margin-top:12px">The most important finding here is that <span class="hl">aggregate category distributions are more trustworthy than individual labels</span>. If both LLaMA and Qwen (zero-shot) assign 48% of AHKFTA provisions to Rules of Origin, that pattern is robust. The value of this pipeline is in answering questions like "what topics does AHKFTA focus on?", not "is this exact provision a Rules of Origin provision?"</p>
+      <p style="margin-top:12px">The highest within-model κ is for zero-shot pairs, and the highest cross-model κ is also between zero-shot runs. This is the practical recommendation: <span class="hl">zero-shot produces the most reproducible and cross-model-consistent results</span>, even if Qwen CoT edges it out on Macro-F1.</p>
     </div>
   </div>
 </div>
@@ -824,7 +833,7 @@
   <div class="panel">
     <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Why the CC vs CTH Difference Matters</div>
     <div style="font-size:13px;line-height:1.85;padding:4px">
-      <p>RCEP and AHKFTA <strong>both use a 40% RVC threshold</strong>. An exporter looking at just that number would conclude they meet the Rules of Origin requirements under both agreements. But the CTC rule, the other requirement, differs in a practically important way:</p>
+      <p>RCEP and AHKFTA <span class="hl">both use a 40% RVC threshold</span>. An exporter looking at just that number would conclude they meet the Rules of Origin requirements under both agreements. But the CTC rule, the other requirement, differs in a practically important way:</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
         <div style="background:rgba(147,183,190,.08);border:1px solid rgba(147,183,190,.25);border-radius:8px;padding:16px">
           <div style="font-weight:700;color:var(--rcep);margin-bottom:10px;font-size:14px">RCEP, CTH (Heading level, 4-digit)</div>
