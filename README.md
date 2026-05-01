@@ -6,11 +6,6 @@
 
 ## Overview
 
-> **Repository status (April 2026):** the current JSON artefacts under `data/`
-> were regenerated after extraction, sampling, validation, and comparison
-> fixes. Earlier drafts in this repo reported stronger validation numbers from
-> older artefacts; those claims are now superseded by the current saved outputs.
-
 This project applies large language models (LLMs) to a standing problem in international trade policy: **comparing the legal architecture of Free Trade Agreements (FTAs) at scale**. The Asia-Pacific region alone maintains dozens of overlapping FTAs — each with thousands of provisions — making manual comparison impractical for analysts and negotiators. This framework automates the extraction, classification, and cross-agreement comparison of FTA provisions using freely available LLMs, validated against a hand-labelled gold set.
 
 **Three agreements analysed:**
