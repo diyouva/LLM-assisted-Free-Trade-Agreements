@@ -1,16 +1,23 @@
 # A Computational Framework for Comparative Analysis of Free Trade Agreements
 
 **Diyouva Christa Novith**
+<<<<<<< HEAD
 
 An LLM-based pipeline that converts three Asia-Pacific Free Trade Agreements into a structured provision dataset and surfaces design differences across them. The output is positioned as a first-pass triage layer for analysts, not a substitute for legal review.
+=======
+>>>>>>> 05988e7d4f99e8f44d1326fbdfd4259e62567623
 
 ---
 
 ## Overview
 
+<<<<<<< HEAD
 The Asia-Pacific region maintains dozens of overlapping Free Trade Agreements (FTAs), each running to thousands of legal provisions. Comparing two or three of them on the same topic is slow, manual work, and the answer often turns on small differences buried deep in the text. Trade economists call this the spaghetti bowl problem.
 
 This framework tests whether an LLM-based pipeline can help with that comparison work. It segments the legal text of three ASEAN-centred FTAs into provisions, asks the model to classify each into a policy category, and uses retrieval to draft side-by-side notes on how each agreement handles the same topic. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.
+=======
+This project applies large language models (LLMs) to a standing problem in international trade policy: **comparing the legal architecture of Free Trade Agreements (FTAs) at scale**. The Asia-Pacific region alone maintains dozens of overlapping FTAs — each with thousands of provisions — making manual comparison impractical for analysts and negotiators. This framework automates the extraction, classification, and cross-agreement comparison of FTA provisions using freely available LLMs, validated against a hand-labelled gold set.
+>>>>>>> 05988e7d4f99e8f44d1326fbdfd4259e62567623
 
 **Three agreements analysed:**
 
