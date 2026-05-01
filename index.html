@@ -217,7 +217,7 @@
     <div style="position:relative">
       <div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:16px">Trade Policy · Large Language Models · ASEAN</div>
       <h1 style="font-size:28px;font-weight:800;line-height:1.25;color:var(--text);max-width:780px;margin-bottom:16px">A Computational Framework for Comparative Analysis of Free Trade Agreements</h1>
-      <p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:660px;margin-bottom:28px">An exploration of whether Large Language Models can read FTA legal text well enough to support comparison work — extracting, classifying, and surfacing design differences across three ASEAN-centred agreements.</p>
+      <p style="font-size:15px;color:var(--muted);line-height:1.7;max-width:660px;margin-bottom:28px">An exploration of whether Large Language Models can read FTA legal text well enough to support comparison work: extracting, classifying, and surfacing design differences across three ASEAN-centred agreements.</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
         <div style="background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);border-radius:8px;padding:10px 18px;text-align:center">
           <div style="font-size:22px;font-weight:800;color:var(--accent)">4,059</div>
@@ -247,13 +247,13 @@
   <div class="grid2" style="margin-bottom:24px">
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px">The Challenge</div>
-      <p style="font-size:14px;line-height:1.85;color:var(--text)">The Asia-Pacific region is layered with overlapping Free Trade Agreements, each running to thousands of legal provisions. Comparing how two or three of them treat the same topic is slow, manual work — and the answer often turns on small differences buried deep in the text.</p>
-      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">Trade economists call this the <strong style="color:var(--orange)">"spaghetti bowl" problem</strong> — a tangle of rules and thresholds that differ just enough between agreements to matter for exporters operating under more than one.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text)">The Asia-Pacific region is layered with overlapping Free Trade Agreements, each running to thousands of legal provisions. Comparing how two or three of them treat the same topic is slow, manual work, and the answer often turns on small differences buried deep in the text.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">Trade economists call this the <strong style="color:var(--orange)">"spaghetti bowl" problem</strong>, a tangle of rules and thresholds that differ just enough between agreements to matter for exporters operating under more than one.</p>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:12px">The Solution</div>
       <p style="font-size:14px;line-height:1.85;color:var(--text)">This project tests whether an LLM-based pipeline can help with that comparison work. It segments the legal text of three ASEAN-centred FTAs into provisions, asks the model to classify each into a policy category, and uses retrieval to draft side-by-side notes on how each agreement handles the same topic.</p>
-      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">The output is best read as a <strong style="color:var(--green)">first-pass triage layer</strong> — useful for spotting where agreements diverge enough to warrant a closer manual read, not a substitute for it. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">The output is best read as a <strong style="color:var(--green)">first-pass triage layer</strong>, useful for spotting where agreements diverge enough to warrant a closer manual read, not a substitute for it. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.</p>
     </div>
   </div>
 
@@ -263,7 +263,7 @@
       <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0"></span>
       Three Agreements, Three Very Different Scopes
     </div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Each bar shows what share of that agreement's sampled provisions falls into each policy area. AHKFTA's profile is unmistakably different — almost half goes to Rules of Origin, and entire categories are missing.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">Each bar shows what share of that agreement's sampled provisions falls into each policy area. AHKFTA's profile is unmistakably different. Almost half of its sample goes to Rules of Origin, and entire categories are missing.</p>
     <div style="position:relative;height:320px"><canvas id="scopeChart"></canvas></div>
   </div>
 
@@ -272,19 +272,19 @@
     <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px">Three Research Questions</div>
     <div class="grid3" style="margin-bottom:0">
       <div style="background:var(--surface2);border-radius:10px;padding:20px;border-top:3px solid var(--accent)">
-        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ1 — Classification</div>
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ1: Classification</div>
         <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">Can LLMs reliably classify FTA legal provisions, and how does accuracy change across models and prompt strategies?</p>
         <div style="font-size:12px;color:var(--green);font-weight:600">✓ Answered</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">Triage-grade accuracy. Models respond to prompting in opposite directions.</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">Triage-grade accuracy. CoT helps Qwen, hurts LLaMA; few-shot hurts both.</div>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:20px;border-top:3px solid var(--accent2)">
-        <div style="font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ2 — Policy Design</div>
-        <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">How do comparable provisions differ across agreements in observable design features — thresholds, governance structures, and scope?</p>
+        <div style="font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ2: Policy Design</div>
+        <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">How do comparable provisions differ across agreements in observable design features such as thresholds, governance structures, and scope?</p>
         <div style="font-size:12px;color:var(--green);font-weight:600">✓ Answered</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px">CC vs CTH rule. Same 40% RVC, different transformation requirements.</div>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:20px;border-top:3px solid var(--green)">
-        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ3 — Convergence</div>
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">RQ3: Convergence</div>
         <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px">Do the agreements show structural convergence or fragmentation in their treatment of key trade policy topics?</p>
         <div style="font-size:12px;color:var(--green);font-weight:600">✓ Answered</div>
         <div style="font-size:12px;color:var(--muted);margin-top:4px">Customs Procedures converges. Dispute Settlement and IP fragment.</div>
@@ -333,7 +333,7 @@
         <div style="font-size:24px;flex-shrink:0">⚡</div>
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Prompt strategy must be chosen per model, not universally</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">Chain-of-thought raises Qwen's Macro-F1 but drops LLaMA's by over 10 points. Adding examples hurts both models. The two models respond to the same prompting techniques in opposite directions — a finding only discoverable through systematic evaluation.</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">Chain-of-thought prompting raises Qwen's Macro-F1 by 1.8 points but drops LLaMA's by 10.4. Few-shot prompting hurts both. Picking the right strategy is therefore a per-model decision, and the asymmetry only became visible once all six combinations were scored against the same gold set.</div>
         </div>
       </div>
       <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
@@ -363,8 +363,8 @@
   <div class="glossary-grid">
     <div class="gloss-item"><div class="gloss-term">FTA</div><div class="gloss-def">Free Trade Agreement. A treaty between countries that reduces or eliminates tariffs and other trade barriers.</div></div>
     <div class="gloss-item"><div class="gloss-term">RCEP</div><div class="gloss-def">Regional Comprehensive Economic Partnership. A 15-party FTA covering ASEAN plus China, Japan, South Korea, Australia, and New Zealand. Signed 2020.</div></div>
-    <div class="gloss-item"><div class="gloss-term">AHKFTA</div><div class="gloss-def">ASEAN–Hong Kong Free Trade Agreement. A bilateral goods-focused FTA between ASEAN and Hong Kong. In force since 2019.</div></div>
-    <div class="gloss-item"><div class="gloss-term">AANZFTA</div><div class="gloss-def">ASEAN–Australia–New Zealand Free Trade Agreement. A comprehensive FTA including services, investment, and dispute settlement. Signed 2009.</div></div>
+    <div class="gloss-item"><div class="gloss-term">AHKFTA</div><div class="gloss-def">ASEAN-Hong Kong Free Trade Agreement. A bilateral goods-focused FTA between ASEAN and Hong Kong. In force since 2019.</div></div>
+    <div class="gloss-item"><div class="gloss-term">AANZFTA</div><div class="gloss-def">ASEAN-Australia-New Zealand Free Trade Agreement. A comprehensive FTA including services, investment, and dispute settlement. Signed 2009.</div></div>
     <div class="gloss-item"><div class="gloss-term">ASEAN</div><div class="gloss-def">Association of Southeast Asian Nations. A 10-country regional bloc including Indonesia, Thailand, Vietnam, the Philippines, Singapore, and others.</div></div>
     <div class="gloss-item"><div class="gloss-term">LLM</div><div class="gloss-def">Large Language Model. An AI model trained on large amounts of text that can read, classify, summarise, and generate natural language. LLaMA and Qwen are both LLMs.</div></div>
     <div class="gloss-item"><div class="gloss-term">RAG</div><div class="gloss-def">Retrieval-Augmented Generation. A technique where relevant text is retrieved from a database and given to the LLM as context before it generates a response, improving factual accuracy.</div></div>
@@ -372,18 +372,18 @@
     <div class="gloss-item"><div class="gloss-term">RVC</div><div class="gloss-def">Regional Value Content. A product qualifies for preferential treatment if at least X% of its value was added within the FTA region. All three agreements in this study use a 40% threshold.</div></div>
     <div class="gloss-item"><div class="gloss-term">CTC</div><div class="gloss-def">Change in Tariff Classification. An alternative way to satisfy Rules of Origin. The inputs used in manufacturing must fall under a different tariff code than the finished product, proving substantial transformation occurred.</div></div>
     <div class="gloss-item"><div class="gloss-term">CTH</div><div class="gloss-def">Change in Tariff Heading. A CTC rule requiring a change at the 4-digit HS code level (the heading). Used by RCEP. Less strict than CC because transformation within the same chapter is allowed.</div></div>
-    <div class="gloss-item"><div class="gloss-term">CC</div><div class="gloss-def">Change in Chapter. A CTC rule requiring a change at the 2-digit HS code level (the chapter). Used by AHKFTA. Stricter than CTH — it demands more substantial transformation of the goods.</div></div>
+    <div class="gloss-item"><div class="gloss-term">CC</div><div class="gloss-def">Change in Chapter. A CTC rule requiring a change at the 2-digit HS code level (the chapter). Used by AHKFTA. Stricter than CTH because it demands more substantial transformation of the goods.</div></div>
     <div class="gloss-item"><div class="gloss-term">HS Code</div><div class="gloss-def">Harmonized System code. An internationally standardised numbering system for traded goods. The 2-digit level is a "chapter," the 4-digit level is a "heading," and the 6-digit level is a "subheading."</div></div>
-    <div class="gloss-item"><div class="gloss-term">NTM</div><div class="gloss-def">Non-Tariff Measure. A trade barrier other than a tariff — for example, import quotas, licensing requirements, or technical standards that effectively restrict trade.</div></div>
+    <div class="gloss-item"><div class="gloss-term">NTM</div><div class="gloss-def">Non-Tariff Measure. A trade barrier other than a tariff, for example import quotas, licensing requirements, or technical standards that effectively restrict trade.</div></div>
     <div class="gloss-item"><div class="gloss-term">SPS</div><div class="gloss-def">Sanitary and Phytosanitary Measures. Rules protecting human, animal, and plant health from food-borne risks, diseases, and pests. Governed internationally by the WTO SPS Agreement.</div></div>
     <div class="gloss-item"><div class="gloss-term">IP</div><div class="gloss-def">Intellectual Property. Legal rights covering inventions (patents), creative works (copyright), brand names (trademarks), and geographic indicators.</div></div>
     <div class="gloss-item"><div class="gloss-term">ISDS</div><div class="gloss-def">Investor-State Dispute Settlement. A mechanism allowing foreign investors to bring legal claims directly against a host government in international arbitration, bypassing domestic courts.</div></div>
     <div class="gloss-item"><div class="gloss-term">WTO DSU</div><div class="gloss-def">World Trade Organization Dispute Settlement Understanding. The WTO's own mechanism for resolving trade disputes between member states. AHKFTA references this instead of maintaining its own dispute settlement chapter.</div></div>
-    <div class="gloss-item"><div class="gloss-term">κ — Cohen's Kappa</div><div class="gloss-def">A statistical measure of agreement between two classifiers that corrects for the agreement you would expect by chance alone. 1.0 means perfect agreement; 0 means no better than chance; negative means worse than chance.</div></div>
+    <div class="gloss-item"><div class="gloss-term">κ, Cohen's Kappa</div><div class="gloss-def">A statistical measure of agreement between two classifiers that corrects for the agreement you would expect by chance alone. 1.0 means perfect agreement; 0 means no better than chance; negative means worse than chance.</div></div>
     <div class="gloss-item"><div class="gloss-term">Macro-F1</div><div class="gloss-def">Macro-averaged F1 score. Measures classification accuracy equally across all categories, including rare ones. More informative than plain accuracy when some categories are much more common than others.</div></div>
     <div class="gloss-item"><div class="gloss-term">Zero-shot</div><div class="gloss-def">A prompt strategy where the model is given only the task description and the text to classify. No examples are provided. The model relies entirely on its training.</div></div>
     <div class="gloss-item"><div class="gloss-term">Few-shot</div><div class="gloss-def">A prompt strategy where two labelled examples are shown to the model before the new provision. The examples help the model understand the expected format and reasoning.</div></div>
-    <div class="gloss-item"><div class="gloss-term">CoT — Chain-of-Thought</div><div class="gloss-def">A prompt strategy that instructs the model to reason step-by-step before giving its final answer. Improves Qwen's performance on this task but degrades LLaMA's.</div></div>
+    <div class="gloss-item"><div class="gloss-term">CoT, Chain-of-Thought</div><div class="gloss-def">A prompt strategy that instructs the model to reason step-by-step before giving its final answer. Improves Qwen's performance on this task but degrades LLaMA's.</div></div>
     <div class="gloss-item"><div class="gloss-term">OCR</div><div class="gloss-def">Optical Character Recognition. Software that converts scanned images of printed text into machine-readable characters. Used as a fallback when PDF text extraction fails.</div></div>
     <div class="gloss-item"><div class="gloss-term">ChromaDB</div><div class="gloss-def">An open-source vector database used in this project to store provision embeddings and retrieve semantically similar provisions for the RAG comparison pipeline.</div></div>
     <div class="gloss-item"><div class="gloss-term">MiniLM</div><div class="gloss-def">all-MiniLM-L6-v2. A compact sentence embedding model from the sentence-transformers library. Converts text into numerical vectors for semantic similarity search.</div></div>
@@ -436,7 +436,7 @@
         <div>
           <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">RQ1, Can LLMs classify FTA provisions reliably?</div>
           <div style="font-size:13px;color:var(--text);line-height:1.6">How does accuracy vary across two models and three prompt strategies?</div>
-          <div style="font-size:12px;color:var(--green);margin-top:5px">✓ Triage-grade accuracy (32–48%). Qwen CoT achieves best Macro-F1 (0.442). Models respond to prompt strategies in opposite directions.</div>
+          <div style="font-size:12px;color:var(--green);margin-top:5px">✓ Triage-grade accuracy (32 to 48%). Qwen CoT reaches the best Macro-F1 at 0.442. CoT helps Qwen but hurts LLaMA; few-shot hurts both.</div>
         </div>
         <div>
           <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">RQ2, How do the agreements differ in policy design?</div>
@@ -544,7 +544,7 @@
       </tbody>
     </table>
     <div class="chart-caption">
-      The most striking pattern here is that the two models respond to the same prompt strategies in completely opposite directions. What helps Qwen consistently hurts LLaMA. That asymmetry was only discoverable by running all six combinations and scoring them against the same gold set.
+      The clearest pattern in this table is that chain-of-thought prompting moves the two models in opposite directions: it helps Qwen and hurts LLaMA. Few-shot prompting hurts both. That asymmetry only became visible after all six combinations were scored against the same gold set.
     </div>
   </div>
 
@@ -558,7 +558,7 @@
           Few-shot Macro-F1: <span style="color:var(--red)">0.373 (−5.1 points)</span><br>
           CoT Macro-F1: <span style="color:var(--green)">0.442 (+1.8 points)</span>
         </div>
-        <div class="takeaway">Qwen 3 is a "thinking model", it naturally emits internal reasoning traces. CoT prompting works with that architecture, giving it space to work through legal text before committing to a label. Few-shot examples anchor it to the wrong prior.</div>
+        <div class="takeaway">Qwen 3 is a "thinking model": it naturally emits internal reasoning traces. CoT prompting works with that architecture, giving the model space to work through legal text before committing to a label. Few-shot examples appear to anchor it to the wrong prior.</div>
         <div style="margin-top:14px">
           <div style="font-size:11px;color:var(--muted);margin-bottom:5px">Macro-F1 comparison across strategies</div>
           <div style="font-size:11px;color:var(--muted)">Zero-shot</div>
@@ -618,7 +618,7 @@
   <div class="panel">
     <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>What This Means for Reliability</div>
     <div style="font-size:13px;line-height:1.85;color:var(--text)">
-      <p>With κ values in the 0.58–0.70 range, the two models are substantially consistent with each other when working on the same provisions. They are not labelling at random, they share a meaningful common signal.</p>
+      <p>With κ values in the 0.58 to 0.70 range, the two models are substantially consistent with each other when working on the same provisions. They are not labelling at random; they share a meaningful common signal.</p>
       <p style="margin-top:12px">The most important finding here is that <strong style="color:var(--yellow)">the aggregate category distributions are more trustworthy than individual labels.</strong> If both LLaMA and Qwen (zero-shot) assign 48% of AHKFTA provisions to Rules of Origin, that pattern is robust. The value of this pipeline is in answering questions like "what topics does AHKFTA focus on?", not "is this exact provision a Rules of Origin provision?"</p>
       <p style="margin-top:12px">The highest within-model κ is for zero-shot pairs, and the highest cross-model κ is also between zero-shot runs. This is the practical recommendation: <strong style="color:var(--green)">zero-shot produces the most reproducible and cross-model-consistent results</strong>, even if Qwen CoT edges it out on Macro-F1.</p>
     </div>
@@ -666,7 +666,7 @@
         <span class="badge badge-aanzfta" style="margin-top:2px">AANZFTA</span>
         <div>
           <div style="font-size:13px;font-weight:600;margin-bottom:4px">Dispute Settlement leader, 22 provisions vs 6 for RCEP and 0 for AHKFTA</div>
-          <div style="font-size:13px;line-height:1.7;color:var(--muted)">AANZFTA maintains its own independent dispute settlement mechanism with dedicated adjudication and arbitration procedures. AHKFTA delegates entirely to the WTO DSU, no own chapter. RCEP has a mechanism but fewer provisions appear in the stratified sample.</div>
+          <div style="font-size:13px;line-height:1.7;color:var(--muted)">AANZFTA maintains its own independent dispute settlement mechanism with dedicated adjudication and arbitration procedures. AHKFTA delegates entirely to the WTO DSU and has no chapter of its own. RCEP runs its own mechanism, but fewer of its provisions surfaced in the stratified sample.</div>
         </div>
       </div>
       <div style="display:flex;gap:14px;align-items:flex-start">
@@ -709,10 +709,10 @@
   <div class="panel">
     <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>What Convergence and Fragmentation Mean for Policy</div>
     <div style="font-size:13px;line-height:1.85">
-      <p><strong style="color:var(--green)">Convergent: Customs Procedures (1.00).</strong> All three agreements allocate almost identical shares of their text to customs procedures. This reflects the WTO Trade Facilitation Agreement providing a shared procedural baseline, documentation, advance rulings, risk-based release, that all three parties follow. This is an area where regional harmonisation has genuinely occurred.</p>
-      <p style="margin-top:12px"><strong style="color:var(--orange)">Fragmented: Dispute Settlement (0.47) and Intellectual Property (0.37).</strong> These are driven almost entirely by AHKFTA having zero provisions in both categories. This is not a policy disagreement, RCEP and AANZFTA do not write their dispute chapters in incompatible ways. The fragmentation is a structural scope difference: AHKFTA simply does not include these chapters. An entropy-based metric cannot distinguish "disagree" from "absent," so this must be interpreted carefully.</p>
-      <p style="margin-top:12px"><strong style="color:var(--yellow)">Caveat on Rules of Origin.</strong> Rules of Origin appears convergent (high entropy ratio) but this is partly inflated by the few-shot classification method used. Both in-context examples in the prompt were goods-trade categories, which biases the model toward classifying more provisions as Rules of Origin across all three agreements, making the distribution appear more even than it actually is.</p>
-      <p style="margin-top:12px"><strong style="color:var(--yellow)">Caveat on Investment.</strong> Investment also scores highly on the entropy ratio, but only because 4 AHKFTA provisions were classified as investment-adjacent by the model. AHKFTA does not actually have a dedicated Investment chapter, so the apparent convergence is classification noise. The genuine policy picture is closer to fragmentation: RCEP and AANZFTA have substantive investment chapters, AHKFTA does not.</p>
+      <p><strong style="color:var(--green)">Convergent: Customs Procedures (1.00).</strong> All three agreements allocate almost identical shares of their text to customs procedures. This reflects the WTO Trade Facilitation Agreement providing a shared procedural baseline (documentation, advance rulings, risk-based release) that all three parties follow. This is an area where regional harmonisation has genuinely occurred.</p>
+      <p style="margin-top:12px"><strong style="color:var(--orange)">Fragmented: Dispute Settlement (0.47) and Intellectual Property (0.37).</strong> These scores are driven almost entirely by AHKFTA having zero provisions in both categories. The fragmentation is not a policy disagreement. RCEP and AANZFTA do not write their dispute chapters in incompatible ways. It is a structural scope difference: AHKFTA simply does not include these chapters. An entropy-based metric cannot distinguish "disagree" from "absent," so this score must be interpreted carefully.</p>
+      <p style="margin-top:12px"><strong style="color:var(--yellow)">Caveat on Rules of Origin.</strong> Rules of Origin appears convergent (high entropy ratio) but this is partly inflated by the few-shot classification method used. Both in-context examples in the prompt were goods-trade categories, which biases the model toward classifying more provisions as Rules of Origin across all three agreements and makes the distribution appear more even than it actually is.</p>
+      <p style="margin-top:12px"><strong style="color:var(--yellow)">Caveat on Investment.</strong> Investment also scores highly on the entropy ratio, but only because 4 AHKFTA provisions were classified as investment-adjacent by the model. AHKFTA does not actually have a dedicated Investment chapter, so the apparent convergence is classification noise. The genuine policy picture is closer to fragmentation: RCEP and AANZFTA have substantive investment chapters while AHKFTA does not.</p>
     </div>
   </div>
 </div>
@@ -773,14 +773,14 @@
         </tr>
         <tr>
           <td><strong>Services</strong></td>
-          <td>Mode 1–4; schedule of commitments</td>
+          <td>Mode 1 to 4; schedule of commitments</td>
           <td style="color:var(--red)">Not present</td>
-          <td>Mode 1–4; schedule of commitments</td>
+          <td>Mode 1 to 4; schedule of commitments</td>
         </tr>
       </tbody>
     </table>
     <div class="chart-caption">
-      The CTC Rule row is where the comparison gets practically interesting. RCEP and AHKFTA both use a 40% RVC threshold, which makes them look interchangeable at first glance. Look one column down and the transformation requirement diverges — chapter-level for AHKFTA, heading-level for RCEP — which means a product can in principle satisfy one rule and not the other.
+      The CTC Rule row is where the comparison gets practically interesting. RCEP and AHKFTA both use a 40% RVC threshold, which makes them look interchangeable at first glance. Look one column down and the transformation requirement diverges. Chapter-level for AHKFTA, heading-level for RCEP, which means a product can in principle satisfy one rule and not the other.
     </div>
   </div>
 
@@ -800,7 +800,7 @@
       </div>
       <div class="takeaway">
         <div class="tk-label">What this implies</div>
-        On the LLM-extracted text, a product that meets the 40% RVC threshold and clears CTH under RCEP would not automatically clear AHKFTA's stricter CC rule. That is a difference worth flagging for closer manual review rather than a verdict on any specific shipment — the dashboard's role is to surface the gap, not to score it.
+        On the LLM-extracted text, a product that meets the 40% RVC threshold and clears CTH under RCEP would not automatically clear AHKFTA's stricter CC rule. That is a difference worth flagging for closer manual review rather than a verdict on any specific shipment. The dashboard’s role is to surface the gap, not to score it.
       </div>
     </div>
   </div>
@@ -857,11 +857,11 @@ const NARRATIVES = {
   "Rules of Origin": "**Key Similarities:** All three agreements include provisions for modifying RoO criteria, recognizing that supply chains evolve. Each emphasizes collaborative governance, RCEP via a Committee, AHKFTA through a Sub-Committee, AANZFTA through certificate-based requirements.\n\n**Key Differences:** RCEP is the most detailed, with product-specific rules in Annex 3A and minimum information requirements in Annex 3B. AHKFTA uses CC (chapter-level), stricter than RCEP's CTH (heading-level). Both use a 40% RVC threshold.\n\n**Critical Finding:** Goods can qualify under RCEP but fail AHKFTA's CC rule despite identical RVC thresholds.\n\n**Policy Implication:** Compliance officers must assess the CTC rule separately for each agreement. RVC alone is not sufficient to confirm preferential eligibility.",
   "Non-Tariff Measures": "**Key Similarities:** All three agreements prohibit discriminatory non-tariff measures unless justified under WTO rules. Each includes review mechanisms and emphasizes transparency.\n\n**Key Differences:** RCEP and AHKFTA explicitly ban quantitative restrictions. AANZFTA focuses more on procedural facilitation. AHKFTA includes product-specific origin determination rules with exporter choice.\n\n**Policy Implication:** WTO compatibility provides a shared baseline, but the scope of specific prohibitions varies. AANZFTA's procedural emphasis offers more regulatory flexibility; RCEP and AHKFTA are more prescriptive.",
   "Trade in Services": "**Key Similarities:** RCEP and AANZFTA both cover market access through schedules of specific commitments and prohibit restrictions on services trade. Both emphasize transparency in regulatory measures affecting services suppliers.\n\n**Key Differences:** AHKFTA has no Trade in Services provisions, it is a goods-only agreement. RCEP and AANZFTA both include mode-of-supply-specific obligations covering all four GATS modes.\n\n**Policy Implication:** Service suppliers and service-sector investors cannot use AHKFTA for preferential market access. They must rely on RCEP, AANZFTA, or separate bilateral arrangements.",
-  "Investment": "**Key Similarities:** RCEP and AANZFTA both provide national treatment for covered investments and use schedules and annexes to define commitment scope.\n\n**Key Differences:** RCEP (Ch.10) and AANZFTA (Ch.11) have dedicated investment chapters. AHKFTA has no dedicated Investment chapter; the 4 provisions classified as investment-related in the stratified sample are likely misclassifications of general commercial provisions. AANZFTA includes ISDS (Investor-State Dispute Settlement) mechanisms that RCEP does not.\n\n**Note on convergence score:** Because a small number of AHKFTA provisions were classified as investment-adjacent, the entropy-based convergence score appears high for this category. That score should be interpreted cautiously — it reflects classification noise, not genuine investment chapter coverage.\n\n**Policy Implication:** Investors structuring market access through AHKFTA receive no investment chapter protections. AANZFTA provides the strongest investment protections of the three agreements, including direct international arbitration rights.",
-  "Dispute Settlement": "**Key Similarities:** RCEP and AANZFTA both establish independent dispute resolution procedures including panel formation, adjudication, and arbitration. All three agreements recognise that disputes should be resolved through structured procedures.\n\n**Key Differences:** AHKFTA explicitly references the WTO DSU as its dispute framework, it has no dedicated dispute settlement chapter. RCEP and AANZFTA each maintain fully independent mechanisms separate from the WTO.\n\n**Policy Implication:** Parties invoking AHKFTA dispute provisions must use WTO DSU procedures, which are designed for state-to-state disputes and may be slower and less tailored to bilateral FTA contexts than dedicated agreement-level mechanisms.",
+  "Investment": "**Key Similarities:** RCEP and AANZFTA both provide national treatment for covered investments and use schedules and annexes to define commitment scope.\n\n**Key Differences:** RCEP (Ch.10) and AANZFTA (Ch.11) have dedicated investment chapters. AHKFTA has no dedicated Investment chapter; the 4 provisions classified as investment-related in the stratified sample are likely misclassifications of general commercial provisions. AANZFTA includes ISDS (Investor-State Dispute Settlement) mechanisms that RCEP does not.\n\n**Note on convergence score:** Because a small number of AHKFTA provisions were classified as investment-adjacent, the entropy-based convergence score appears high for this category. That score should be interpreted cautiously, it reflects classification noise rather than genuine investment chapter coverage.\n\n**Policy Implication:** Investors structuring market access through AHKFTA receive no investment chapter protections. AANZFTA provides the strongest investment protections of the three agreements, including direct international arbitration rights.",
+  "Dispute Settlement": "**Key Similarities:** RCEP and AANZFTA both establish independent dispute resolution procedures covering panel formation, adjudication, and arbitration. All three agreements recognise that disputes should be resolved through structured procedures.\n\n**Key Differences:** AHKFTA explicitly references the WTO DSU as its dispute framework and has no dedicated dispute settlement chapter of its own. RCEP and AANZFTA each maintain fully independent mechanisms separate from the WTO.\n\n**Policy Implication:** Parties invoking AHKFTA dispute provisions must use WTO DSU procedures, which are designed for state-to-state disputes and may be slower and less tailored to bilateral FTA contexts than dedicated agreement-level mechanisms.",
   "Intellectual Property": "**Key Similarities:** RCEP and AANZFTA both establish substantive IP protection obligations covering copyright, trademarks, patents, and enforcement procedures.\n\n**Key Differences:** AHKFTA has no dedicated IP chapter. IP-related provisions in AHKFTA appear only incidentally in customs enforcement contexts. AANZFTA includes broader substantive IP obligations; RCEP emphasizes procedural efficiency without mandating separate enforcement systems.\n\n**Policy Implication:** Rights holders relying on AHKFTA receive no dedicated IP protection. Pharmaceutical companies, technology firms, and content creators should use RCEP or AANZFTA, or separate IP agreements, for substantive protection.",
   "Customs Procedures": "**Key Similarities:** All three agreements require documentation for preferential treatment, including certificates of origin, and establish transparent customs procedures.\n\n**Key Differences:** RCEP mandates direct consignment rules to prevent origin fraud. AHKFTA eliminates legalisation and authentication requirements, reducing paperwork. AANZFTA uses a risk-based approach, offering faster clearance for established low-risk traders.\n\n**Convergence Signal:** Customs Procedures is the most convergent category in this analysis, the WTO Trade Facilitation Agreement provides a shared procedural baseline that all three parties follow.\n\n**Policy Implication:** AHKFTA's elimination of authentication requirements offers genuine administrative simplification for exporters. AANZFTA's risk-based approach rewards established trade relationships with expedited clearance.",
-  "Sanitary and Phytosanitary Measures": "**Key Similarities:** RCEP and AHKFTA both reference the WTO SPS Agreement as the foundational standard and commit to protecting human, animal, and plant health from food-borne risks.\n\n**Key Differences:** RCEP introduces provisional SPS measures and a dedicated monitoring mechanism. AHKFTA ties SPS compliance primarily to tariff schedules. No AANZFTA provisions were classified as SPS in the stratified sample — AANZFTA's SPS commitments appear to be concentrated in product-specific annexes outside the main provision corpus.\n\n**Note:** Only 6 SPS provisions appear in the stratified sample in total (RCEP: 5, AHKFTA: 1, AANZFTA: 0). This comparison is based on sparse data and may underrepresent the full SPS architecture of each agreement.",
+  "Sanitary and Phytosanitary Measures": "**Key Similarities:** RCEP and AHKFTA both reference the WTO SPS Agreement as the foundational standard and commit to protecting human, animal, and plant health from food-borne risks.\n\n**Key Differences:** RCEP introduces provisional SPS measures and a dedicated monitoring mechanism. AHKFTA ties SPS compliance primarily to tariff schedules. No AANZFTA provisions were classified as SPS in the stratified sample. AANZFTA's SPS commitments appear to be concentrated in product-specific annexes outside the main provision corpus.\n\n**Note:** Only 6 SPS provisions appear in the stratified sample in total (RCEP: 5, AHKFTA: 1, AANZFTA: 0). This comparison is based on sparse data and may underrepresent the full SPS architecture of each agreement.",
   "General Provisions / Definitions": "**Key Similarities:** All three agreements include definitional chapters ensuring interpretive clarity. Each cross-references domestic laws and WTO obligations.\n\n**Key Differences:** RCEP emphasises customs consistency and administrative harmonisation. AHKFTA prioritises exporter flexibility with product-specific rule choices. AANZFTA emphasises transparency in regulatory implementation.\n\n**Convergence Signal:** General Provisions shows moderate convergence, shared ASEAN drafting norms create similar definitional architecture, though AHKFTA's higher concentration (9%) compared to RCEP (5%) and AANZFTA (3%) introduces some divergence.",
 };
 
