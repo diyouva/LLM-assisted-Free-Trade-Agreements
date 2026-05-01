@@ -397,19 +397,19 @@
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent)">
         <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ1: Classification</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Can LLMs reliably classify FTA legal provisions?</div>
-        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">✓ Triage-grade, not provision-level</div>
+        <div style="margin-bottom:6px"><span class="hl">✓ Triage-grade, not provision-level</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.6">Accuracy lands between 32% and 48%. Qwen 3 32B with Chain-of-Thought reaches the best Macro-F1 at 0.442. CoT helps Qwen and hurts LLaMA; few-shot prompting hurts both.</div>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--accent2)">
         <div style="font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ2: Policy Design</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">How do the agreements differ in observable design features?</div>
-        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">✓ Same threshold, different transformation rule</div>
+        <div style="margin-bottom:6px"><span class="hl">✓ Same threshold, different transformation rule</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.6">RCEP and AHKFTA both use a 40% RVC threshold but RCEP applies CTH at the heading level while AHKFTA applies CC at the chapter level. AHKFTA is goods-only, AANZFTA is the only one with ISDS.</div>
       </div>
       <div style="background:var(--surface2);border-radius:10px;padding:18px;border-top:3px solid var(--green)">
         <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">RQ3: Convergence</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Do the agreements converge or fragment?</div>
-        <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:4px">✓ Procedural converges, substantive does not</div>
+        <div style="margin-bottom:6px"><span class="hl">✓ Procedural converges, substantive does not</span></div>
         <div style="font-size:12px;color:var(--text);line-height:1.6">Customs Procedures is the only category in genuine sync (entropy 1.00). Dispute Settlement (0.47) and Intellectual Property (0.37) score as fragmented, mainly because AHKFTA does not include those chapters.</div>
       </div>
     </div>
@@ -466,38 +466,38 @@
       <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div>
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Best Accuracy</div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Best Accuracy</div>
             <div style="font-size:12px;color:var(--text);margin-top:2px">LLaMA 3.3 70B, Zero-Shot</div>
           </div>
-          <div style="font-size:22px;font-weight:700;color:var(--accent)">0.480</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text)">0.480</div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div>
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Best Macro-F1</div>
+            <div style="font-size:11px;color:var(--highlight);text-transform:uppercase;letter-spacing:.06em;font-weight:700">Best Macro-F1</div>
             <div style="font-size:12px;color:var(--text);margin-top:2px">Qwen 3 32B, Chain-of-Thought</div>
           </div>
-          <div style="font-size:22px;font-weight:700;color:var(--green)">0.442</div>
+          <div><span class="hl" style="font-size:22px;font-weight:800">0.442</span></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div>
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Highest Cohen's κ</div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Highest Cohen's κ</div>
             <div style="font-size:12px;color:var(--text);margin-top:2px">LLaMA ZS vs Qwen ZS, n=200</div>
           </div>
-          <div style="font-size:22px;font-weight:700;color:var(--accent2)">0.702</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text)">0.702</div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div>
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Most Convergent Category</div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Most Convergent Category</div>
             <div style="font-size:12px;color:var(--text);margin-top:2px">Customs Procedures</div>
           </div>
-          <div style="font-size:22px;font-weight:700;color:var(--green)">1.00</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text)">1.00</div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:baseline">
           <div>
-            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Most Fragmented Category</div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Most Fragmented Category</div>
             <div style="font-size:12px;color:var(--text);margin-top:2px">Intellectual Property</div>
           </div>
-          <div style="font-size:22px;font-weight:700;color:var(--orange)">0.37</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text)">0.37</div>
         </div>
       </div>
     </div>
@@ -525,27 +525,27 @@
     <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Where to Find Each Result</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px">
       <a onclick="showPage('validation')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">✅ Validation</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Validation</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">All 6 model-strategy combinations scored against the 50-provision gold set. Accuracy and Macro-F1 by run.</div>
       </a>
       <a onclick="showPage('kappa')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">🔁 Inter-Run Agreement</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Inter-Run Agreement</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">Pairwise Cohen's κ across runs. How consistent are the models when working on the same provisions?</div>
       </a>
       <a onclick="showPage('distribution')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">📋 Provision Distribution</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Provision Distribution</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">What each agreement actually covers, by category and count, on the 100-provision stratified sample.</div>
       </a>
       <a onclick="showPage('convergence')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">🌐 Convergence Analysis</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Convergence Analysis</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">Entropy ratio per category. Which topics are similar across all three agreements, and which are not?</div>
       </a>
       <a onclick="showPage('design')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">⚖️ Policy Design Matrix</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Policy Design Matrix</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">Side-by-side feature comparison: thresholds, governance, and the CC vs CTH gap that matters for compliance.</div>
       </a>
       <a onclick="showPage('comparison')" style="cursor:pointer;display:block;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px">🔍 RAG Comparisons</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">RAG Comparisons</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.6">Per-category narratives drafted from retrieved provisions across all three agreements.</div>
       </a>
     </div>
