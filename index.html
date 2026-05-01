@@ -252,8 +252,8 @@
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px">
       <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:12px">The Solution</div>
-      <p style="font-size:14px;line-height:1.85;color:var(--text)">This framework automates the comparison using LLMs. It reads the full legal text of three ASEAN-centred FTAs, segments each into individual provisions, classifies each into a policy category, and generates structured cross-agreement comparisons.</p>
-      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">What used to take <strong style="color:var(--green)">weeks of analyst time</strong> now takes hours. The pipeline runs end-to-end on free-tier APIs and can be pointed at any new FTA PDF.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text)">This project tests whether an LLM-based pipeline can help with that comparison work. It segments the legal text of three ASEAN-centred FTAs into provisions, asks the model to classify each into a policy category, and uses retrieval to draft side-by-side notes on how each agreement handles the same topic.</p>
+      <p style="font-size:14px;line-height:1.85;color:var(--text);margin-top:12px">The output is best read as a <strong style="color:var(--green)">first-pass triage layer</strong> — useful for spotting where agreements diverge enough to warrant a closer manual read, not a substitute for it. The whole pipeline runs on free-tier APIs and can be pointed at any new FTA PDF.</p>
     </div>
   </div>
 
@@ -339,15 +339,15 @@
       <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
         <div style="font-size:24px;flex-shrink:0">⚖️</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Identical thresholds hide different requirements</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">RCEP and AHKFTA both use a 40% Regional Value Content threshold. But AHKFTA requires transformation at the chapter level (CC) while RCEP only requires it at the heading level (CTH). Goods that qualify under RCEP may fail AHKFTA — a real compliance risk for exporters using both agreements.</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Identical thresholds, different transformation requirements</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">RCEP and AHKFTA both use a 40% Regional Value Content threshold. But AHKFTA requires transformation at the chapter level (CC) while RCEP only requires it at the heading level (CTH). On paper the same product can satisfy one rule and not the other, which is the kind of detail an analyst would want flagged before a closer reading.</div>
         </div>
       </div>
       <div style="display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface2);border-radius:10px">
         <div style="font-size:24px;flex-shrink:0">🌏</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Procedural harmonisation is advancing faster than substantive integration</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">Customs Procedures is the most convergent category across all three agreements, reflecting the shared WTO Trade Facilitation baseline. Dispute Settlement and Intellectual Property are the most fragmented — not because the agreements conflict, but because AHKFTA simply does not include those chapters.</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">Procedural topics look more harmonised than substantive ones</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">Customs Procedures is the only category where all three agreements carry similar shares of provisions, consistent with their shared WTO Trade Facilitation baseline. Dispute Settlement and Intellectual Property look fragmented mainly because AHKFTA, as a goods-only agreement, does not contain those chapters at all.</div>
         </div>
       </div>
     </div>
@@ -780,12 +780,12 @@
       </tbody>
     </table>
     <div class="chart-caption">
-      The CTC Rule row is the most consequential finding. RCEP and AHKFTA both use a 40% RVC threshold, so an exporter might assume compliance under one means compliance under the other. It does not. AHKFTA requires transformation at the chapter level while RCEP only requires it at the heading level, and that gap can disqualify the same goods from AHKFTA preferential rates.
+      The CTC Rule row is where the comparison gets practically interesting. RCEP and AHKFTA both use a 40% RVC threshold, which makes them look interchangeable at first glance. Look one column down and the transformation requirement diverges — chapter-level for AHKFTA, heading-level for RCEP — which means a product can in principle satisfy one rule and not the other.
     </div>
   </div>
 
   <div class="panel">
-    <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>The Critical Compliance Finding, CC vs CTH</div>
+    <div class="panel-title"><span class="dot" style="background:var(--yellow)"></span>Why the CC vs CTH Difference Matters</div>
     <div style="font-size:13px;line-height:1.85;padding:4px">
       <p>RCEP and AHKFTA <strong>both use a 40% RVC threshold</strong>. An exporter looking at just that number would conclude they meet the Rules of Origin requirements under both agreements. But the CTC rule, the other requirement, differs in a practically important way:</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
@@ -799,8 +799,8 @@
         </div>
       </div>
       <div class="takeaway">
-        <div class="tk-label">Practical Impact</div>
-        The same goods can qualify for RCEP preferential rates but fail AHKFTA's Rules of Origin test, even with identical 40% RVC compliance. An exporter who structures their supply chain for RCEP eligibility cannot assume AHKFTA coverage. This is the most immediately actionable finding in the project for compliance professionals.
+        <div class="tk-label">What this implies</div>
+        On the LLM-extracted text, a product that meets the 40% RVC threshold and clears CTH under RCEP would not automatically clear AHKFTA's stricter CC rule. That is a difference worth flagging for closer manual review rather than a verdict on any specific shipment — the dashboard's role is to surface the gap, not to score it.
       </div>
     </div>
   </div>
