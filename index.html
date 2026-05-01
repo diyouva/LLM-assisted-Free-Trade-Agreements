@@ -1013,10 +1013,16 @@ new Chart(document.getElementById('distChart'), {
     indexAxis:'y',
     responsive: true,
     maintainAspectRatio: false,
+    categoryPercentage: 0.92,
+    barPercentage: 0.98,
     plugins: { legend: { position:'bottom', labels:{ padding:14 } } },
     scales: {
       x: { stacked:false, grid:{ color:'#D5C7BC' }, ticks:{ color:'#5C5252' } },
-      y: { stacked:false, grid:{ display:false }, ticks:{ color:'#2A2A2A', font:{ size:12 } } }
+      y: {
+        stacked:false,
+        grid:{ display:false },
+        ticks:{ color:'#2A2A2A', font:{ size:12 }, autoSkip:false }
+      }
     }
   }
 });
