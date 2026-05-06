@@ -199,6 +199,7 @@
     <div class="section-label">Policy</div>
     <a onclick="showPage('design')">Policy Design Matrix</a>
     <a onclick="showPage('comparison')">RAG Comparisons</a>
+    <a onclick="showPage('limitations')" style="color:var(--orange)">⚠ Limitations</a>
     <div class="section-label">Reference</div>
     <a onclick="showPage('glossary')">Glossary</a>
   </nav>
@@ -319,6 +320,75 @@
         <div style="font-size:11px;color:var(--muted);line-height:1.5">50 hand-labelled provisions used to score all 6 model-strategy combinations</div>
       </div>
     </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════ LIMITATIONS ══ -->
+<div id="page-limitations" class="page">
+  <div class="page-header">
+    <h2>Limitations and Honest Caveats</h2>
+    <p>Everything that can go wrong, has been flagged here. Read this before drawing conclusions from any chart in the dashboard.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--orange)">
+    <div class="panel-title"><span class="dot" style="background:var(--orange)"></span>1. AHKFTA Source PDF — OCR Coverage Gap</div>
+    <p style="font-size:14px;line-height:1.75">The AHKFTA source PDF is a fully scanned document. Tesseract OCR extracted the goods-trade chapters (Chapter 2 Trade in Goods, Chapter 3 Rules of Origin, plus Annexes 2-1, 3-1, 3-2, 3-3) reliably, but degraded substantially on the legal-paragraph chapters that follow.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75"><strong>What this means in practice:</strong> AHKFTA in fact contains a 14-chapter structure (verifiable from its Table of Contents), but our extracted dataset under-represents the following chapters:</p>
+    <ul style="margin-top:8px;font-size:14px;line-height:1.85;padding-left:24px;color:var(--muted)">
+      <li><strong style="color:var(--text)">Chapter 8 — Trade in Services</strong> (with Annex 8-1 Schedules of Specific Commitments)</li>
+      <li><strong style="color:var(--text)">Chapter 10 — Intellectual Property</strong></li>
+      <li><strong style="color:var(--text)">Chapter 13 — Consultations and Dispute Settlement</strong> (with Annex 13-1 Rules of Procedure for Arbitral Tribunals)</li>
+      <li>Chapter 6 (Standards), Chapter 7 (Trade Remedies), Chapter 11 (General Provisions and Exceptions), Chapter 12 (Institutional Provisions) — all partially captured at best</li>
+    </ul>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75;color:var(--orange)"><strong>Affected findings:</strong> Apparent zeros for AHKFTA in Trade in Services, IP, and Dispute Settlement on the Provision Distribution and Convergence pages are <em>extraction artefacts, not real legal absences</em>. The fragmentation entropy scores for IP (0.37) and Dispute Settlement (0.47) are partly driven by this gap.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--orange);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--orange)"></span>2. ASEAN-Hong Kong Investment Agreement Not Processed</div>
+    <p style="font-size:14px;line-height:1.75">A separate <em>Agreement on Investment among the Governments of the Hong Kong Special Administrative Region of the People's Republic of China and the Member States of the Association of Southeast Asian Nations</em> was signed on <strong>18 May 2018</strong> as a complementary instrument to the AHKFTA goods agreement. This document was not yet processed in the current pipeline.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75;color:var(--orange)"><strong>Affected findings:</strong> The Investment entropy ratio (0.96, currently flagged as "convergent") cannot be interpreted reliably. The 4 AHKFTA provisions tagged as investment-related may include genuine references to the parallel Investment Agreement, but a complete substantive comparison of investment regimes across the three FTAs requires this document to be processed.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--accent);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--accent)"></span>3. Validation Gold Set — Small and Single-Annotator</div>
+    <p style="font-size:14px;line-height:1.75">The validation gold set contains only <strong>50 provisions</strong>, all labelled by the project author. The author is not a customs lawyer or FTA specialist, and no inter-annotator agreement (κ between two human labellers) was measured.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75"><strong>Statistical implications:</strong> With n = 50 and observed accuracy of 0.480, the 95% confidence interval is approximately 0.34 to 0.62. Point estimates of model performance therefore carry substantial uncertainty.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75"><strong>Path to improvement:</strong> Expanding to ≥ 200 provisions labelled by ≥ 2 customs-law / FTA experts is the single highest-leverage improvement available. This requires institutional support that one researcher cannot provide alone.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--accent);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--accent)"></span>4. Tariff Schedule Annexes Not Table-Extracted</div>
+    <p style="font-size:14px;line-height:1.75">Tariff commitments at the line-item level (HS code, base rate, staging category, phase-out year) live in Annex tariff schedules that are structured as multi-page tables rather than as paragraph text. The current extraction pipeline treats these as text fragments and does not preserve the row/column structure.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75;color:var(--orange)"><strong>Affected findings:</strong> Quantitative tariff thresholds, particularly for AANZFTA (which delegates many threshold definitions to product-specific schedules), are under-recovered in the attribute extraction module. The Tariff Commitments category in classification reflects framework provisions, not actual rate schedules.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--accent);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--accent)"></span>5. Few-Shot Prompt Bias</div>
+    <p style="font-size:14px;line-height:1.75">The two in-context examples used in the few-shot prompt for the stratified classification run were both goods-trade categories (one Rules of Origin, one Tariff). This biases both models toward goods-related classifications and away from services, investment, and intellectual property.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75;color:var(--orange)"><strong>Affected findings:</strong> The high entropy ratio for Rules of Origin (0.97) is partially inflated by this exemplar bias. Future runs should use exemplars balanced across the full target taxonomy.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--accent);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--accent)"></span>6. Infrastructure — Personal Laptop, Free-Tier APIs</div>
+    <p style="font-size:14px;line-height:1.75">The entire pipeline runs on a personal MacBook with no GPU. LLM inference uses Groq's free tier, which imposes a rolling 24-hour token budget of ~100,000 tokens per day for LLaMA 3.3 70B. A full Chain-of-Thought classification run on 100 provisions consumes the daily quota in one session.</p>
+    <p style="margin-top:12px;font-size:14px;line-height:1.75"><strong>Implication:</strong> Scaling beyond three agreements or running comprehensive sweeps requires either paid API access or institutional inference infrastructure. The current pipeline demonstrates feasibility, not production capacity.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--accent);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--accent)"></span>7. Three Agreements, English Only</div>
+    <p style="font-size:14px;line-height:1.75">The corpus covers RCEP, AHKFTA, and AANZFTA in English-language versions only. Findings are suggestive of Asia-Pacific patterns but are not statistically generalisable to the broader regional landscape, which includes the Comprehensive and Progressive Agreement for Trans-Pacific Partnership (CPTPP), the ASEAN-China FTA, the Korea-ASEAN FTA, and others.</p>
+  </div>
+
+  <div class="panel" style="border-left:4px solid var(--green);margin-top:16px">
+    <div class="panel-title"><span class="dot" style="background:var(--green)"></span>What Remains Reliable Despite These Gaps</div>
+    <ul style="margin-top:8px;font-size:14px;line-height:1.85;padding-left:24px;color:var(--text)">
+      <li><strong>Rules of Origin attribute findings</strong> (CC vs CTH, 40% RVC, 10% de minimis): the relevant chapters were extracted reliably across all three agreements.</li>
+      <li><strong>Customs Procedures convergence</strong> (entropy 1.00): consistent across all three agreements and consistent with the WTO Trade Facilitation baseline.</li>
+      <li><strong>Pairwise Cohen's κ (0.582–0.702):</strong> robust on shared-cohort comparison and methodologically defensible.</li>
+      <li><strong>Tariff Commitments distribution differences:</strong> the framework-level patterns are reliable even if line-item rates are not.</li>
+      <li><strong>Pipeline reproducibility:</strong> code, data, and gold labels are public; anyone with a Groq API key can reproduce or extend.</li>
+    </ul>
   </div>
 
 </div>
